@@ -1,42 +1,28 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import colors from "../constants/colors";
 
-import home_screen from "../screens/home_screen";
+import HomeScreen from "../screens/home_screen";
+import CalenderStackNavigator from "./calenderStackNavigator.js";
 
-
-const Tab = createBottomTab();
+const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => (
     <Tab.Navigator>
         <Tab.Screen
-            name="home_screen"
-            component={home_screen}
+            name="HomeScreen"
+            component={HomeScreen}
             options={{
                 tabBarLabel: "홈 화면",
                 headerShown: false,
             }}
         />
-        <Tab.Screen
-            name="Shared"
-            component={ShareDrawers}
-            options={{
-                headerShown: false,
-                tabBarLabel: "나눔게시판",
-                tabBarIcon: ({ color }) => (
-                    <Image
-                        source={require("../Assets/icons/tabIcons/shareboardicon.png")}
-                        style={{
-                            width: 20,
-                            height: 20,
-                            tintColor: color,
-                        }}
-                    />
-                ),
-            }}
-        />
+        <Tab.Screen name="CalenderStackNavigator" component={CalenderStackNavigator} options={{
+            tabBarLabel: "달력 화면",
+            headerShown: false,
+        }} />
     </Tab.Navigator>
+
 );
 
 export default TabNavigator;

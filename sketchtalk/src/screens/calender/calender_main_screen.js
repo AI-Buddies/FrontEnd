@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import colors from '../constants/colors';
+import colors from '../../constants/colors';
 
 export default function HomeScreen() {
     return (
         <Container>
-            <Message>메인 화면</Message>
+            <Message>달력 메인 화면 화면</Message>
         </Container>
     );
 }
