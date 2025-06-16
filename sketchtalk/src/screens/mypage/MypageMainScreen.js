@@ -2,12 +2,12 @@ import React from 'react';
 import styled from 'styled-components/native';
 import colors from '../../constants/colors';
 
-export default function HomeScreen() {
-    return (
-        <Container>
-            <Message>달력 메인 화면 화면</Message>
-        </Container>
-    );
+export default function MypageMainScreen() {
+  return (
+    <Container>
+      <Message>마이페이지 메인 화면</Message>
+    </Container>
+  );
 }
 
 const Container = styled.View`

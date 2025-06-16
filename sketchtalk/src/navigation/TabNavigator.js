@@ -3,7 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import colors from "../constants/colors";
 
 import HomeScreen from "../screens/home_screen";
-import CalenderStackNavigator from "./calenderStackNavigator.js";
+import CalendarStackNavigator from "./CalendarStackNavigator.js";
+import DiaryStackNavigator from './DiaryStackNavigator.js';
+import MypageStackNavigator from './MypageStackNavigator.js';
+import ChallengeStackNavigator from './ChallengeStackNavigator.js';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,8 +20,20 @@ const TabNavigator = () => (
                 headerShown: false,
             }}
         />
-        <Tab.Screen name="CalenderStackNavigator" component={CalenderStackNavigator} options={{
-            tabBarLabel: "달력 화면",
+        <Tab.Screen name="CalendarStackNavigator" component={CalendarStackNavigator} options={{
+            tabBarLabel: "달력",
+            headerShown: false,
+        }} />
+        <Tab.Screen name="DiaryStackNavigator" component={DiaryStackNavigator} options={{
+            tabBarLabel: "일기작성",
+            headerShown: false,
+        }} />
+        <Tab.Screen name="ChallengeStackNavigator" component={ChallengeStackNavigator} options={{
+            tabBarLabel: "도전과제",
+            headerShown: false,
+        }} />
+        <Tab.Screen name="MypageStackNavigator" component={MypageStackNavigator} options={{
+            tabBarLabel: "마이페이지",
             headerShown: false,
         }} />
     </Tab.Navigator>
