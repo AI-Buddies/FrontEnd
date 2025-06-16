@@ -1,22 +1,22 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import CalenderMainScreen from '../screens/calender/calender_main_screen';
+import CalendarMainScreen from '../screens/calendar/CalendarMainScreen';
 
 const Stack = createNativeStackNavigator();
 
-const CalenderStackNavigator = () => (
+const CalendarStackNavigator = () => (
   <Stack.Navigator
     screenOptions={{
-      headerShown: true,
+      headerShown: false,
     }}>
     <Stack.Screen
-      name="CalenderMainScreen"
-      component={CalenderMainScreen}
+      name="CalendarMainScreen"
+      component={CalendarMainScreen}
       options={{ title: '달력 홈' }}
     />
   </Stack.Navigator>
 );
 
 
-export default CalenderStackNavigator;
+export default CalendarStackNavigator;
