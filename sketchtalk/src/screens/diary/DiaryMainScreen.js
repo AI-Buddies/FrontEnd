@@ -59,6 +59,7 @@ export default function DiaryMainScreen() {
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
         inverted={true}
+        fadingEdgeLength={100}
       />
       <MicButton />
       <TextBar />
