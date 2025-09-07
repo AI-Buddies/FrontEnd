@@ -11,50 +11,55 @@ import {styled} from 'styled-components/native';
 import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const dummyData = [
   {
-    key: 0,
+    id: 0,
     isAI: false,
     text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
   },
   {
-    key: 1,
+    id: 1,
     isAI: true,
     text: '우 와 ~',
   },
   {
-    key: 2,
+    id: 2,
     isAI: false,
     text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
   },
   {
-    key: 3,
+    id: 3,
     isAI: true,
     text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
   },
   {
-    key: 4,
+    id: 4,
+    isAI: true,
+    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
+  },
+  {
+    id: 5,
     isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    key: 5,
-    isAI: true,
     text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
   },
 ];
 
 export default function DiaryMainScreen() {
+  const navigation = useNavigation();
+  function TempMovetoConfirmScreen() {
+    navigation.navigate('DiaryConfirmTextScreen');
+  }
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
       <MessageList
-        data={dummyData}
+        data={dummyData.reverse()}
         contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
@@ -62,7 +67,7 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton />
-      <TextBar />
+      <TextBar onPress={TempMovetoConfirmScreen} />
     </Background>
   );
 }
@@ -84,7 +89,17 @@ const MessageList = styled.FlatList`
 `;
 
 const MicButton = () => (
-  <View style={{flex: 1.5}}>
+  <View
+    style={{
+      flex: 1.5,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+    }}>
     <Pressable
       style={{
         borderRadius: Math.round(158) / 2,
@@ -93,8 +108,8 @@ const MicButton = () => (
         backgroundColor: '#F6BC65',
         justifyContent: 'center',
         alignItems: 'center',
-      }}
-      onPress={() => {}}>
+        elevation: 1,
+      }}>
       {({pressed}) => (
         <SimpleLineIcons
           name="microphone"
@@ -106,8 +121,19 @@ const MicButton = () => (
   </View>
 );
 
-const TextBar = () => (
-  <View style={{flex: 1, width: width * 0.9}}>
+const TextBar = props => (
+  <View
+    style={{
+      flex: 1,
+      width: width * 0.9,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+    }}>
     <View
       style={{
         flexDirection: 'row',
@@ -116,6 +142,7 @@ const TextBar = () => (
         backgroundColor: colors.creamWhite,
         borderRadius: 32,
         height: 46,
+        elevation: 1,
       }}>
       <TextInput
         style={{
@@ -134,7 +161,7 @@ const TextBar = () => (
           alignItems: 'center',
           justifyContent: 'center',
         }}
-        onPress={() => alert('Yaay!')}>
+        onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>
     </View>
@@ -149,14 +176,22 @@ function MessageItem({item}) {
         width: width * 0.9,
         marginBottom: 10,
         paddingRight: 65,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.0,
       }}>
       <View
         style={{
           backgroundColor: colors.creamWhite,
-          paddingVertical: 10,
+          paddingVertical: 7,
           borderTopLeftRadius: 18,
           borderTopRightRadius: 18,
           borderBottomRightRadius: 18,
+          elevation: 1,
         }}>
         <Text
           style={{
@@ -177,14 +212,22 @@ function MessageItem({item}) {
         width: width * 0.9,
         marginBottom: 10,
         paddingLeft: 65,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
+        shadowOpacity: 0.18,
+        shadowRadius: 1.0,
       }}>
       <View
         style={{
           backgroundColor: colors.primary,
-          paddingVertical: 10,
+          paddingVertical: 7,
           borderTopLeftRadius: 18,
           borderTopRightRadius: 18,
           borderBottomLeftRadius: 18,
+          elevation: 1,
         }}>
         <Text
           style={{
