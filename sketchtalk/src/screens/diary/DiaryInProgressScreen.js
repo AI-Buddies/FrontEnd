@@ -8,12 +8,6 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = {
-  title: '축구하다가 넘어졌지만 재밌었어!',
-  content:
-    '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
-};
-
 export default function DiaryConfirmTextScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
@@ -24,21 +18,6 @@ export default function DiaryConfirmTextScreen() {
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
-      <DiaryDisplay item={dummyData} />
-      <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />
-      <ConfirmButton
-        text={'응! 다시 써줘.'}
-        color={colors.primary}
-        width={width}
-        marginBottom={0}
-      />
-      <ConfirmButton
-        text={'아니야! 마음에 들어.'}
-        color={colors.blue}
-        width={width}
-        marginBottom={22}
-        onPress={TempNavigate}
-      />
     </Background>
   );
 }
@@ -51,7 +30,7 @@ const CharacterImage = () => (
       alignItems: 'center',
       paddingTop: 19,
     }}>
-    <Image source={require('../../assets/character/question_bear.png')} />
+    <Image source={require('../../assets/character/writing_bear.png')} />
   </View>
 );
 

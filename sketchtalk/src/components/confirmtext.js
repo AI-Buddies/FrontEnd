@@ -5,9 +5,10 @@ import colors from '../constants/colors';
 const ConfirmText = props => (
   <View
     style={{
+      flex: props.flex,
       alignItems: 'flex-start',
       width: props.width * 0.9,
-      marginBottom: 20,
+      marginVertical: props.marginVertical,
       paddingRight: 65,
       shadowColor: '#000',
       shadowOffset: {

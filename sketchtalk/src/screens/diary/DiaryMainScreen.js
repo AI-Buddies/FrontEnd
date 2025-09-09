@@ -50,7 +50,7 @@ const dummyData = [
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
-  function TempMovetoConfirmScreen() {
+  function TempNavigate() {
     navigation.navigate('DiaryConfirmTextScreen');
   }
   return (
@@ -67,7 +67,7 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton />
-      <TextBar onPress={TempMovetoConfirmScreen} />
+      <TextBar onPress={TempNavigate} />
     </Background>
   );
 }
@@ -79,7 +79,7 @@ const CharacterImage = () => (
       justifyContent: 'center',
       alignItems: 'center',
     }}>
-    <Image source={require('../../assets/test.png')} />
+    <Image source={require('../../assets/character/bear.png')} />
   </View>
 );
 
