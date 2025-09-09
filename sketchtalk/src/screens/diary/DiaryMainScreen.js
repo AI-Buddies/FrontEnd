@@ -51,7 +51,7 @@ const dummyData = [
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryConfirmTextScreen');
+    navigation.navigate('DiaryInProgressScreen');
   }
   return (
     <Background
