@@ -1,4 +1,11 @@
-import {Text, View, Dimensions, ImageBackground, Image} from 'react-native';
+import {
+  Text,
+  View,
+  Dimensions,
+  ImageBackground,
+  Image,
+  Pressable,
+} from 'react-native';
 import React from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
@@ -23,24 +30,7 @@ export default function DiaryConfirmTextScreen() {
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <CharacterImage />
       <DiaryDisplay item={dummyData} />
-      <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />
-      <View style={{flex: 1.7}}>
-        <ConfirmButton
-          text={'응! 다시 써줘.'}
-          color={colors.primary}
-          width={width}
-          marginBottom={0}
-        />
-        <ConfirmButton
-          text={'아니야! 마음에 들어.'}
-          color={colors.blue}
-          width={width}
-          marginBottom={22}
-          onPress={TempNavigate}
-        />
-      </View>
     </Background>
   );
 }
@@ -48,7 +38,7 @@ export default function DiaryConfirmTextScreen() {
 const CharacterImage = () => (
   <View
     style={{
-      flex: 2.5,
+      flex: 3,
       justifyContent: 'center',
       alignItems: 'center',
       paddingTop: 19,
@@ -58,15 +48,20 @@ const CharacterImage = () => (
 );
 
 const DiaryDisplay = props => (
-  <View style={{flex: 3, justifyContent: 'flex-start', alignItems: 'center'}}>
+  <View
+    style={{
+      flex: 3,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: width * 0.9,
+    }}>
     <View
       style={{
-        height: 220,
-        justifyContent: 'flex-start',
+        height: 500,
+        flexDirection: 'column',
         alignItems: 'center',
-        width: width * 0.9,
+        justifyContent: 'center',
         backgroundColor: colors.creamWhite,
-        marginVertical: 10,
         borderRadius: 10,
         borderColor: colors.black,
         borderWidth: 1,
@@ -79,36 +74,88 @@ const DiaryDisplay = props => (
         shadowRadius: 1.0,
         elevation: 1,
       }}>
-      <View style={{position: 'absolute'}}>
-        <NotebookLine />
-        <NotebookLine />
-        <NotebookLine />
-        <NotebookLine />
-        <NotebookLine />
-        <NotebookLine />
-        <NotebookLine />
-      </View>
-      <Text
-        style={{
-          fontSize: 14,
-          justifyContent: 'flex-start',
-          width: width * 0.9 - 2,
-          paddingHorizontal: 10,
-          lineHeight: 30,
-        }}>
-        제목 : {props.item.title}
-      </Text>
-      <Text
-        style={{
-          fontSize: 14,
-          justifyContent: 'flex-start',
-          paddingHorizontal: 10,
-          width: width * 0.9 - 2,
-          lineHeight: 30,
-        }}>
-        {props.item.content}
-      </Text>
+      <DiaryDisplayHeader />
+      <DiaryArtDisplay />
+      <DiaryTextDisplay item={props.item} />
     </View>
+  </View>
+);
+
+const DiaryDisplayHeader = props => (
+  <View
+    style={{
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: width * 0.9,
+    }}>
+    <Text style={{flex: 8, marginLeft: 10}}>2025년 5월 25일</Text>
+    <Pressable style={{flex: 1}}>
+      <Text>수정</Text>
+    </Pressable>
+    <Pressable style={{flex: 1}}>
+      <Text>다운</Text>
+    </Pressable>
+  </View>
+);
+
+const DiaryArtDisplay = props => (
+  <View
+    style={{
+      flex: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: width * 0.9,
+      borderColor: colors.black,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+    }}>
+    <Image
+      style={{width: width * 0.9}}
+      source={require('../../assets/soccer_diary2.png')}
+    />
+  </View>
+);
+
+const DiaryTextDisplay = props => (
+  <View
+    style={{
+      flex: 5,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      width: width * 0.9,
+      marginTop: 5,
+    }}>
+    <View style={{position: 'absolute'}}>
+      <NotebookLine />
+      <NotebookLine />
+      <NotebookLine />
+      <NotebookLine />
+      <NotebookLine />
+      <NotebookLine />
+      <NotebookLine />
+    </View>
+    <Text
+      style={{
+        fontSize: 14,
+        justifyContent: 'flex-start',
+        width: width * 0.9 - 2,
+        paddingHorizontal: 10,
+        lineHeight: 30,
+      }}>
+      제목 : {props.item.title}
+    </Text>
+    <Text
+      style={{
+        fontSize: 14,
+        justifyContent: 'flex-start',
+        paddingHorizontal: 10,
+        width: width * 0.9 - 2,
+        lineHeight: 30,
+      }}>
+      {props.item.content}
+    </Text>
   </View>
 );
 

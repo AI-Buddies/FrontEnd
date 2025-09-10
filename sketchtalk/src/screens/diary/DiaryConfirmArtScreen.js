@@ -17,7 +17,7 @@ const dummyData = {
 export default function DiaryConfirmTextScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryInProgressScreen');
+    navigation.navigate('DiaryResultScreen');
   }
   return (
     <Background
@@ -26,19 +26,21 @@ export default function DiaryConfirmTextScreen() {
       <CharacterImage />
       <DiaryArtDisplay item={dummyData} />
       <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
-      <ConfirmButton
-        text={'응! 다시 그려줘.'}
-        color={colors.primary}
-        width={width}
-        marginBottom={0}
-      />
-      <ConfirmButton
-        text={'아니야! 마음에 들어.'}
-        color={colors.blue}
-        width={width}
-        marginBottom={22}
-        onPress={TempNavigate}
-      />
+      <View style={{flex: 1.7}}>
+        <ConfirmButton
+          text={'응! 다시 그려줘.'}
+          color={colors.primary}
+          width={width}
+          marginBottom={0}
+        />
+        <ConfirmButton
+          text={'아니야! 마음에 들어.'}
+          color={colors.blue}
+          width={width}
+          marginBottom={22}
+          onPress={TempNavigate}
+        />
+      </View>
     </Background>
   );
 }
@@ -46,7 +48,7 @@ export default function DiaryConfirmTextScreen() {
 const CharacterImage = () => (
   <View
     style={{
-      flex: 3,
+      flex: 2.5,
       justifyContent: 'center',
       alignItems: 'center',
       paddingTop: 19,
@@ -58,13 +60,20 @@ const CharacterImage = () => (
 const DiaryArtDisplay = props => (
   <View
     style={{
-      flex: 3,
-      justifyContent: 'flex-start',
+      flex: 2.6,
       alignItems: 'center',
       width: width * 0.9,
       marginVertical: 10,
     }}>
-    <Image source={require('../../assets/soccer_diary2.png')} />
+    <View
+      style={{
+        height: 100,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        width: width * 0.9,
+      }}>
+      <Image source={require('../../assets/soccer_diary2.png')} />
+    </View>
   </View>
 );
 
