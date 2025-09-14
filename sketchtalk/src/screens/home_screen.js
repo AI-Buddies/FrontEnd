@@ -1,13 +1,18 @@
 import React from 'react';
 import styled from 'styled-components/native';
+import {useNavigation} from '@react-navigation/native';
 import colors from '../constants/colors';
+import {Pressable} from 'react-native';
 
 export default function HomeScreen() {
-    return (
-        <Container>
-            <Message>메인 화면</Message>
-        </Container>
-    );
+  const navigation = useNavigation();
+  return (
+    <Container>
+      <Pressable onPress={() => navigation.navigate('DiaryStackNavigator')}>
+        <Message>메인 화면</Message>
+      </Pressable>
+    </Container>
+  );
 }
 
 const Container = styled.View`
