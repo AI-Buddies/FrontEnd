@@ -66,7 +66,7 @@ const DiaryDisplay = props => (
     }}>
     <View
       style={{
-        height: 500,
+        height: 370,
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
@@ -130,10 +130,6 @@ const DiaryTextDisplay = props => (
       <NotebookLine />
       <NotebookLine />
       <NotebookLine />
-      <NotebookLine />
-      <NotebookLine />
-      <NotebookLine />
-      <NotebookLine />
     </View>
     <Text
       style={{
@@ -149,6 +145,7 @@ const DiaryTextDisplay = props => (
       multiline
       editable
       textAlignVertical="top"
+      maxLength={200}
       onChangeText={props.onChangeText}
       value={props.content}
       style={{
