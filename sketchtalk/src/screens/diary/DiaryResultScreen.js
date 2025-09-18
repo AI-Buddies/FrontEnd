@@ -6,34 +6,107 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
+import AchievementRow from '../../components/achievementrow';
+import CommentText from '../../components/commenttext';
+import ConfirmButton from '../../components/confirmbutton';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = {
+const diaryDummyData = {
   title: '축구하다가 넘어졌지만 재밌었어!',
   content:
     '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
 };
 
+const commentDummyData =
+  '와~ 다쳐도 즐겁게 놀다니, 너 정말 멋지구나! 내일은 꼭 골도 넣어보자! ⚽😊';
+
 export default function DiaryResultScreen() {
   const navigation = useNavigation();
-  function TempNavigate() {
+  function TempNavigateToHome() {
+    navigation.navigate('TabNavigator');
+  }
+  function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen');
   }
+  const [showAchievement, setShowAchievement] = useState(false);
+  const [showComment, setShowComment] = useState(true);
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <DiaryDisplay item={dummyData} editOnPress={TempNavigate} />
+      <DiaryDisplay
+        item={diaryDummyData}
+        editOnPress={TempNavigateToEditScreen}
+      />
+      {showAchievement && !showComment && (
+        <AchievementDisplay width={width} color={colors.creamWhite} />
+      )}
+      {showComment && !showAchievement && (
+        <CharacterCommentDisplay onPress={TempNavigateToHome} />
+      )}
     </Background>
   );
 }
+
+const AchievementDisplay = props => (
+  <View
+    style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Text style={{fontSize: 20}}>도전과제 달성!</Text>
+    </View>
+    <AchievementRow {...props} />
+  </View>
+);
+
+const CharacterCommentDisplay = props => (
+  <View
+    style={{
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+    <View
+      style={{
+        flex: 1.5,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}>
+      <Image
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginLeft: 5,
+        }}
+        source={require('../../assets/character/comment_bear.png')}
+      />
+      <CommentText flex={2} text={commentDummyData} width={width} />
+    </View>
+    <ConfirmButton
+      color={colors.primary}
+      width={width}
+      text={'홈으로'}
+      onPress={props.onPress}
+    />
+  </View>
+);
 
 const CharacterImage = () => (
   <View
