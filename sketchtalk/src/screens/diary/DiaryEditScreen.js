@@ -6,10 +6,9 @@ import {
   Image,
   Pressable,
   TextInput,
+  Modal,
 } from 'react-native';
-import React from 'react';
-import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import Feather from 'react-native-vector-icons/Feather';
+import {React, useEffect, useState} from 'react';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
@@ -24,11 +23,9 @@ const dummyData = {
 };
 
 export default function DiaryEditScreen() {
-  const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryChooseArtstyleScreen');
-  }
-  const [value, onChangeText] = React.useState(dummyData.content);
+  const [value, onChangeText] = useState(dummyData.content);
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
@@ -38,10 +35,54 @@ export default function DiaryEditScreen() {
         content={value}
         onChangeText={text => onChangeText(text)}
       />
-      <ConfirmButton text={'저장'} width={width} color={colors.primary} />
+      <ConfirmButton
+        text={'저장'}
+        width={width}
+        color={colors.primary}
+        onPress={() => setModalVisible(true)}
+      />
+
+      <Modal transparent={true} visible={modalVisible}>
+        <View
+          style={{
+            height: height,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}
+          />
+          <View
+            style={{
+              backgroundColor: 'white',
+              width: 327,
+              height: 223,
+              mixBlendMode: 'normal',
+            }}>
+            <Pressable onPress={() => setModalVisible(false)}>
+              <Text>4314</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </Background>
   );
 }
+
+const ConfirmRedrawPopup = props => (
+  <Modal transparent={true}>
+    <View>
+      <Text>dddddd</Text>
+      <Pressable
+        title="Close"
+        onPress={() => setModalVisible(false)}
+        color="red"
+      />
+    </View>
+  </Modal>
+);
 
 const CharacterImage = () => (
   <View
