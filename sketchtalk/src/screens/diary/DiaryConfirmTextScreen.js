@@ -30,13 +30,11 @@ export default function DiaryConfirmTextScreen() {
         <ConfirmButton
           text={'응! 다시 써줘.'}
           color={colors.primary}
-          width={width}
           marginBottom={0}
         />
         <ConfirmButton
           text={'아니야! 마음에 들어.'}
           color={colors.blue}
-          width={width}
           marginBottom={22}
           onPress={TempNavigate}
         />

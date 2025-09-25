@@ -20,6 +20,7 @@ const CommentText = props => (
         borderBottomLeftRadius: 18,
         borderColor: colors.black,
         borderWidth: 1,
+        height: 100,
       }}>
       <View style={{position: 'absolute', marginLeft: 5, marginTop: 7}}>
         <NotebookLine {...props} />
@@ -33,6 +34,7 @@ const CommentText = props => (
           paddingHorizontal: 10,
           marginBottom: 3,
           color: colors.black,
+          lineHeight: 26,
         }}>
         {props.text}
       </Text>
