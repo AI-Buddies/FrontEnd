@@ -13,6 +13,7 @@ import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 import ConfirmButton from '../../components/confirmbutton';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
 const {width, height} = Dimensions.get('window');
 
@@ -25,6 +26,13 @@ const dummyData = {
 export default function DiaryEditScreen() {
   const [value, onChangeText] = useState(dummyData.content);
   const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation();
+  function TempNavigateToResultScreen() {
+    navigation.navigate('DiaryResultScreen');
+  }
+  function TempNavigateToRedrawScreen() {
+    navigation.navigate('DiaryArtRedrawScreen');
+  }
 
   return (
     <Background
@@ -37,49 +45,91 @@ export default function DiaryEditScreen() {
       />
       <ConfirmButton
         text={'저장'}
-        width={width}
         color={colors.primary}
         onPress={() => setModalVisible(true)}
       />
-
-      <Modal transparent={true} visible={modalVisible}>
-        <View
-          style={{
-            height: height,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <View
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }}
-          />
-          <View
-            style={{
-              backgroundColor: 'white',
-              width: 327,
-              height: 223,
-              mixBlendMode: 'normal',
-            }}>
-            <Pressable onPress={() => setModalVisible(false)}>
-              <Text>4314</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <ConfirmRedrawPopup
+        modalVisible={modalVisible}
+        closeOnPress={() => setModalVisible(false)}
+        yesOnPress={() => {
+          setModalVisible(false);
+          TempNavigateToRedrawScreen();
+        }}
+        noOnPress={() => {
+          setModalVisible(false);
+          TempNavigateToResultScreen();
+        }}
+      />
     </Background>
   );
 }
 
 const ConfirmRedrawPopup = props => (
-  <Modal transparent={true}>
-    <View>
-      <Text>dddddd</Text>
-      <Pressable
-        title="Close"
-        onPress={() => setModalVisible(false)}
-        color="red"
+  <Modal
+    transparent={true}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    visible={props.modalVisible}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
       />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Pressable
+            style={{flex: 1, alignSelf: 'flex-end'}}
+            onPress={props.closeOnPress}>
+            <EvilIcons name="close" size={37} color={colors.black} />
+          </Pressable>
+          <Text style={{fontSize: 16, flex: 1, marginTop: 15}}>
+            수정된 일기로 그림을 다시 만들까요?
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            <ConfirmButton
+              color={colors.primary}
+              width={138}
+              height={37}
+              fontSize={14}
+              text={'네, 만들어주세요!'}
+              onPress={props.yesOnPress}
+            />
+            <ConfirmButton
+              color={'#C6C6C6'}
+              width={138}
+              height={37}
+              fontSize={14}
+              text={'괜찮아요!'}
+              onPress={props.noOnPress}
+            />
+          </View>
+        </View>
+      </View>
     </View>
   </Modal>
 );

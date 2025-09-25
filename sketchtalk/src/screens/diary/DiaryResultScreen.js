@@ -101,7 +101,6 @@ const CharacterCommentDisplay = props => (
     </View>
     <ConfirmButton
       color={colors.primary}
-      width={width}
       text={'홈으로'}
       onPress={props.onPress}
     />

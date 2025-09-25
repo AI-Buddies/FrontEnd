@@ -1,4 +1,11 @@
-import {Text, View, Dimensions, ImageBackground, Image} from 'react-native';
+import {
+  Text,
+  View,
+  Dimensions,
+  ImageBackground,
+  Image,
+  Pressable,
+} from 'react-native';
 import React from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
@@ -8,7 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-export default function DiaryConfirmArtScreen() {
+export default function DiaryArtRedrawScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
     navigation.navigate('DiaryResultScreen');
@@ -17,42 +24,33 @@ export default function DiaryConfirmArtScreen() {
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <CharacterImage />
-      <DiaryArtDisplay />
-      <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
-      <View style={{flex: 1.7}}>
-        <ConfirmButton
-          text={'응! 다시 그려줘.'}
-          color={colors.primary}
-          marginBottom={0}
-        />
-        <ConfirmButton
-          text={'아니야! 마음에 들어.'}
-          color={colors.blue}
-          marginBottom={22}
-          onPress={TempNavigate}
-        />
-      </View>
+      <Text
+        style={{
+          flex: 1,
+          fontSize: 30,
+          color: colors.primary,
+          textAlign: 'center',
+          textAlignVertical: 'center',
+          marginTop: 20,
+        }}>
+        그림을 선택해주세요.
+      </Text>
+      <DiaryRedrawArtDisplay
+        text={'이전 그림'}
+        onPress={() => TempNavigate()}
+      />
+      <DiaryRedrawArtDisplay
+        text={'새로 그린 그림'}
+        onPress={() => TempNavigate()}
+      />
     </Background>
   );
 }
 
-const CharacterImage = () => (
+const DiaryRedrawArtDisplay = props => (
   <View
     style={{
       flex: 2.5,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingTop: 19,
-    }}>
-    <Image source={require('../../assets/character/question_bear.png')} />
-  </View>
-);
-
-const DiaryArtDisplay = props => (
-  <View
-    style={{
-      flex: 2.6,
       alignItems: 'center',
       width: width * 0.9,
       marginVertical: 10,
@@ -64,7 +62,18 @@ const DiaryArtDisplay = props => (
         alignItems: 'center',
         width: width * 0.9,
       }}>
-      <Image source={require('../../assets/soccer_diary2.png')} />
+      <Text
+        style={{
+          fontSize: 25,
+          textAlign: 'left',
+          width: width * 0.9,
+          marginBottom: 15,
+        }}>
+        {props.text}
+      </Text>
+      <Pressable onPress={props.onPress}>
+        <Image source={require('../../assets/soccer_diary2.png')} />
+      </Pressable>
     </View>
   </View>
 );
