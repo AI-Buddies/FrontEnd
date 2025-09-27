@@ -35,8 +35,8 @@ export default function DiaryResultScreen() {
   function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen');
   }
-  const [showAchievement, setShowAchievement] = useState(false);
-  const [showComment, setShowComment] = useState(true);
+  const [modalVisible, setModalVisible] = useState(true);
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
@@ -44,35 +44,13 @@ export default function DiaryResultScreen() {
       <DiaryDisplay
         item={diaryDummyData}
         editOnPress={TempNavigateToEditScreen}
+        showTutorial={modalVisible}
+        tutorialOnPress={() => setModalVisible(false)}
       />
-      {showAchievement && !showComment && (
-        <AchievementDisplay width={width} color={colors.creamWhite} />
-      )}
-      {showComment && !showAchievement && (
-        <CharacterCommentDisplay onPress={TempNavigateToHome} />
-      )}
+      <CharacterCommentDisplay onPress={TempNavigateToHome} />
     </Background>
   );
 }
-
-const AchievementDisplay = props => (
-  <View
-    style={{
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Text style={{fontSize: 20}}>도전과제 달성!</Text>
-    </View>
-    <AchievementRow {...props} />
-  </View>
-);
 
 const CharacterCommentDisplay = props => (
   <View
@@ -147,7 +125,10 @@ const DiaryDisplay = props => (
         elevation: 1,
       }}>
       <DiaryDisplayHeader editOnPress={props.editOnPress} />
-      <DiaryArtDisplay />
+      <DiaryArtDisplay
+        tutorialOnPress={props.tutorialOnPress}
+        showTutorial={props.showTutorial}
+      />
       <DiaryTextDisplay item={props.item} />
     </View>
   </View>
@@ -188,6 +169,66 @@ const DiaryArtDisplay = props => (
     <Image
       style={{width: width * 0.9}}
       source={require('../../assets/soccer_diary2.png')}
+    />
+    {props.showTutorial && (
+      <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
+    )}
+  </View>
+);
+
+const ButtonTutorialPopup = props => (
+  <View
+    style={{
+      position: 'absolute',
+      backgroundColor: colors.creamWhite,
+      zIndex: 100,
+      elevation: 100,
+      width: 230,
+      height: 110,
+      borderColor: colors.black,
+      borderWidth: 1,
+      borderTopLeftRadius: 10,
+      borderBottomLeftRadius: 10,
+      borderBottomRightRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 90,
+      marginLeft: 75,
+    }}>
+    <View
+      style={{
+        width: 220,
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+      }}>
+      <SimpleLineIcons name="pencil" size={20} color={colors.black} />
+      <Text style={{fontSize: 16, marginTop: -5}}>
+        을 눌러 일기를 수정하거나
+      </Text>
+    </View>
+    <View
+      style={{
+        width: 220,
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+      }}>
+      <Feather name="download" size={20} color={colors.black} />
+      <Text style={{fontSize: 16, marginTop: -5}}>
+        을 눌러 다운로드할 수 있어!
+      </Text>
+    </View>
+    <ConfirmButton
+      color={colors.primary}
+      height={35}
+      width={71}
+      flex={1.3}
+      fontSize={16}
+      text={'확인'}
+      onPress={props.tutorialOnPress}
     />
   </View>
 );

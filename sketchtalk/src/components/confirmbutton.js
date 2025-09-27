@@ -2,10 +2,16 @@ import {Pressable, Text, View} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
 
-const ConfirmButton = ({width = 260, height = 55, fontSize = 20, ...props}) => (
+const ConfirmButton = ({
+  flex = 1,
+  width = 260,
+  height = 55,
+  fontSize = 20,
+  ...props
+}) => (
   <View
     style={{
-      flex: 1,
+      flex: flex,
       justifyContent: 'center',
       alignItems: 'center',
       width: width,
