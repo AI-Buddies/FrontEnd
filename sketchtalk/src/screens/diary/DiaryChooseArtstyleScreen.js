@@ -27,7 +27,7 @@ const dummyData = [
   {style_name: '화풍10'},
 ];
 
-export default function DiaryConfirmArtstyleScreen() {
+export default function DiaryChooseArtstyleScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
     navigation.navigate('DiaryArtInProgressScreen');
