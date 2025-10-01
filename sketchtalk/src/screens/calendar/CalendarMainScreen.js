@@ -74,27 +74,62 @@ export default function CalenderMainScreen() {
           keyExtractor={item => item.style_name}
           fadingEdgeLength={100}
           data={dummyData}
-          renderItem={({item}) => <MessageItem {...item} />}
+          renderItem={({item}) => <CalendarItem {...item} />}
           numColumns={2}></FlatList>
       </View>
     </Background>
   );
 }
 
-const MessageItem = item => (
+const CalendarItem = item => (
   <Pressable
     style={{
-      width: 150,
-      height: 125,
+      width: 162,
+      height: 202,
       textAlign: 'center',
-      margin: 10,
+      marginHorizontal: 5,
+      marginVertical: 10,
+      backgroundColor: colors.creamWhite,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+      elevation: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
     }}
     onPress={item.onPress}>
     <Image
-      style={{width: 150}}
+      style={{width: 150, height: 129}}
+      resizeMode="contain"
       source={require('../../assets/soccer_diary.png')}
     />
-    <Text style={{alignSelf: 'flex-end'}}>{item.style_name}</Text>
+    <View style={{width: 162, height: 50}}>
+      <Text
+        style={{
+          flex: 1,
+          marginLeft: 10,
+          alignSelf: 'flex-start',
+          fontSize: 12,
+          color: '#d9d9d9',
+        }}>
+        2000년 00월 00일
+      </Text>
+      <Text
+        style={{
+          flex: 1,
+          marginHorizontal: 10,
+          alignSelf: 'flex-start',
+          fontSize: 15,
+        }}
+        numberOfLines={1}>
+        축구하다가 넘어졌지만 괜찮아!
+      </Text>
+    </View>
   </Pressable>
 );
 
