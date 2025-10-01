@@ -15,16 +15,41 @@ import Entypo from 'react-native-vector-icons/Entypo';
 const {width, height} = Dimensions.get('window');
 
 const dummyData = [
-  {style_name: '화풍1'},
-  {style_name: '화풍2'},
-  {style_name: '화풍3'},
-  {style_name: '화풍4'},
-  {style_name: '화풍5'},
-  {style_name: '화풍6'},
-  {style_name: '화풍7'},
-  {style_name: '화풍8'},
-  {style_name: '화풍9'},
-  {style_name: '화풍10'},
+  {
+    id: 1,
+    dateYear: 2025,
+    dateMonth: 5,
+    dateDay: 21,
+    title: '축구하다가 넘어졌지만 괜찮아!',
+  },
+  {
+    id: 2,
+    dateYear: 2025,
+    dateMonth: 5,
+    dateDay: 23,
+    title: '축구하다 넘어졌지만 괜찮아!',
+  },
+  {
+    id: 3,
+    dateYear: 2025,
+    dateMonth: 5,
+    dateDay: 24,
+    title: '넘어졌지만 괜찮아!',
+  },
+  {
+    id: 4,
+    dateYear: 2025,
+    dateMonth: 5,
+    dateDay: 25,
+    title: '넘어졌지만 괜찮아!',
+  },
+  {
+    id: 5,
+    dateYear: 2025,
+    dateMonth: 5,
+    dateDay: 25,
+    title: '축구하다 넘어졌지만 괜찮아!',
+  },
 ];
 
 export default function CalenderMainScreen() {
@@ -40,38 +65,14 @@ export default function CalenderMainScreen() {
         }}>
         달력
       </Text>
-      <View
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Pressable style={{flex: 1, alignItems: 'flex-end'}}>
-          <Entypo name="triangle-left" size={40} color={'#8B8FDE'} />
-        </Pressable>
-        <Text
-          style={{
-            fontSize: 25,
-            flex: 2,
-            textAlign: 'center',
-            textAlignVertical: 'top',
-            marginBottom: 5,
-          }}>
-          2025년 5월
-        </Text>
-        <Pressable style={{flex: 1, alignItems: 'flex-start'}}>
-          <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
-        </Pressable>
-      </View>
+      <CalendarNavigator />
       <View style={{flex: 7}}>
         <FlatList
           contentContainerStyle={{
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
           }}
-          keyExtractor={item => item.style_name}
+          keyExtractor={item => item.id}
           fadingEdgeLength={100}
           data={dummyData}
           renderItem={({item}) => <CalendarItem {...item} />}
@@ -117,7 +118,7 @@ const CalendarItem = item => (
           fontSize: 12,
           color: '#d9d9d9',
         }}>
-        2000년 00월 00일
+        {item.dateYear}년 {item.dateMonth}월 {item.dateDay}일
       </Text>
       <Text
         style={{
@@ -127,10 +128,38 @@ const CalendarItem = item => (
           fontSize: 15,
         }}
         numberOfLines={1}>
-        축구하다가 넘어졌지만 괜찮아!
+        {item.title}
       </Text>
     </View>
   </Pressable>
+);
+
+const CalendarNavigator = () => (
+  <View
+    style={{
+      flex: 1,
+      flexDirection: 'row',
+
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+    <Pressable style={{flex: 1, alignItems: 'flex-end'}}>
+      <Entypo name="triangle-left" size={40} color={'#8B8FDE'} />
+    </Pressable>
+    <Text
+      style={{
+        fontSize: 25,
+        flex: 2,
+        textAlign: 'center',
+        textAlignVertical: 'top',
+        marginBottom: 5,
+      }}>
+      2025년 5월
+    </Text>
+    <Pressable style={{flex: 1, alignItems: 'flex-start'}}>
+      <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
+    </Pressable>
+  </View>
 );
 
 const Background = styled(ImageBackground)`
