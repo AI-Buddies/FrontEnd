@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useState, useCallback} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -8,51 +8,60 @@ import {
   FlatList,
   Image,
 } from 'react-native';
+
 import styled from 'styled-components/native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
+import moment from 'moment';
+import MonthPicker from 'react-native-month-year-picker';
+import 'moment/locale/ko';
 
 const {width, height} = Dimensions.get('window');
 
 const dummyData = [
   {
     id: 1,
-    dateYear: 2025,
-    dateMonth: 5,
-    dateDay: 21,
+    date: new Date(2025, 5, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
   },
   {
     id: 2,
-    dateYear: 2025,
-    dateMonth: 5,
-    dateDay: 23,
-    title: '축구하다 넘어졌지만 괜찮아!',
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
   },
   {
     id: 3,
-    dateYear: 2025,
-    dateMonth: 5,
-    dateDay: 24,
+    date: new Date(2025, 5, 23),
     title: '넘어졌지만 괜찮아!',
   },
   {
     id: 4,
-    dateYear: 2025,
-    dateMonth: 5,
-    dateDay: 25,
-    title: '넘어졌지만 괜찮아!',
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
   },
   {
     id: 5,
-    dateYear: 2025,
-    dateMonth: 5,
-    dateDay: 25,
-    title: '축구하다 넘어졌지만 괜찮아!',
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
   },
 ];
 
 export default function CalenderMainScreen() {
+  const [date, setDate] = useState(new Date(2025, 5));
+  const [show, setShow] = useState(false);
+
+  const showPicker = useCallback(value => setShow(value), []);
+
+  const onValueChange = useCallback(
+    (event, newDate) => {
+      const selectedDate = newDate || date;
+
+      showPicker(false);
+      setDate(selectedDate);
+    },
+    [date, showPicker],
+  );
+
   return (
     <Background
       source={require('../../assets/background/blue_bg.png')}
@@ -65,7 +74,19 @@ export default function CalenderMainScreen() {
         }}>
         달력
       </Text>
-      <CalendarNavigator />
+      <CalendarNavigator
+        date={date}
+        onDatePress={() => showPicker(true)}
+        onLeftPress={() => setDate(moment(date).subtract(1, 'months'))}
+        onRightPress={() => setDate(moment(date).add(1, 'months'))}
+      />
+      {show && (
+        <MonthPicker
+          onChange={onValueChange}
+          value={new Date(date)}
+          locale="ko"
+        />
+      )}
       <View style={{flex: 7}}>
         <FlatList
           contentContainerStyle={{
@@ -118,7 +139,7 @@ const CalendarItem = item => (
           fontSize: 12,
           color: '#d9d9d9',
         }}>
-        {item.dateYear}년 {item.dateMonth}월 {item.dateDay}일
+        {moment(item.date).format('LL').toString()}
       </Text>
       <Text
         style={{
@@ -134,7 +155,7 @@ const CalendarItem = item => (
   </Pressable>
 );
 
-const CalendarNavigator = () => (
+const CalendarNavigator = props => (
   <View
     style={{
       flex: 1,
@@ -143,20 +164,29 @@ const CalendarNavigator = () => (
       alignItems: 'center',
       justifyContent: 'center',
     }}>
-    <Pressable style={{flex: 1, alignItems: 'flex-end'}}>
+    <Pressable
+      style={{flex: 1, alignItems: 'flex-end'}}
+      onPress={props.onLeftPress}>
       <Entypo name="triangle-left" size={40} color={'#8B8FDE'} />
     </Pressable>
-    <Text
+    <Pressable
       style={{
-        fontSize: 25,
-        flex: 2,
-        textAlign: 'center',
-        textAlignVertical: 'top',
+        flex: 1,
         marginBottom: 5,
-      }}>
-      2025년 5월
-    </Text>
-    <Pressable style={{flex: 1, alignItems: 'flex-start'}}>
+      }}
+      onPress={props.onDatePress}>
+      <Text
+        style={{
+          fontSize: 25,
+          textAlign: 'center',
+          textAlignVertical: 'top',
+        }}>
+        {moment(props.date).format('YYYY[년] M[월]').toString()}
+      </Text>
+    </Pressable>
+    <Pressable
+      style={{flex: 1, alignItems: 'flex-start'}}
+      onPress={props.onRightPress}>
       <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
     </Pressable>
   </View>
