@@ -1,30 +1,201 @@
-import React from 'react';
-import { ImageBackground, Dimensions } from 'react-native';
+import {React, useState, useCallback} from 'react';
+import {
+  ImageBackground,
+  Dimensions,
+  Text,
+  View,
+  Pressable,
+  FlatList,
+  Image,
+} from 'react-native';
+
 import styled from 'styled-components/native';
 import colors from '../../constants/colors';
+import Entypo from 'react-native-vector-icons/Entypo';
+import moment from 'moment';
+import MonthPicker from 'react-native-month-year-picker';
+import 'moment/locale/ko';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
+
+const dummyData = [
+  {
+    id: 1,
+    date: new Date(2025, 5, 22),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+  },
+  {
+    id: 2,
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+  },
+  {
+    id: 3,
+    date: new Date(2025, 5, 23),
+    title: '넘어졌지만 괜찮아!',
+  },
+  {
+    id: 4,
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+  },
+  {
+    id: 5,
+    date: new Date(2025, 5, 23),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+  },
+];
 
 export default function CalenderMainScreen() {
+  const [date, setDate] = useState(new Date(2025, 5));
+  const [show, setShow] = useState(false);
+
+  const showPicker = useCallback(value => setShow(value), []);
+
+  const onValueChange = useCallback(
+    (event, newDate) => {
+      const selectedDate = newDate || date;
+
+      showPicker(false);
+      setDate(selectedDate);
+    },
+    [date, showPicker],
+  );
+
   return (
     <Background
       source={require('../../assets/background/blue_bg.png')}
-      resizeMode="cover"
-    >
+      resizeMode="cover">
+      <Text
+        style={{
+          fontSize: 25,
+          flex: 1,
+          textAlignVertical: 'bottom',
+        }}>
+        달력
+      </Text>
+      <CalendarNavigator
+        date={date}
+        onDatePress={() => showPicker(true)}
+        onLeftPress={() => setDate(moment(date).subtract(1, 'months'))}
+        onRightPress={() => setDate(moment(date).add(1, 'months'))}
+      />
+      {show && (
+        <MonthPicker
+          onChange={onValueChange}
+          value={new Date(date)}
+          locale="ko"
+        />
+      )}
+      <View style={{flex: 7}}>
+        <FlatList
+          contentContainerStyle={{
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+          }}
+          keyExtractor={item => item.id}
+          fadingEdgeLength={100}
+          data={dummyData}
+          renderItem={({item}) => <CalendarItem {...item} />}
+          numColumns={2}></FlatList>
+      </View>
     </Background>
   );
 }
 
+const CalendarItem = item => (
+  <Pressable
+    style={{
+      width: 162,
+      height: 202,
+      textAlign: 'center',
+      marginHorizontal: 5,
+      marginVertical: 10,
+      backgroundColor: colors.creamWhite,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+      elevation: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+    onPress={item.onPress}>
+    <Image
+      style={{width: 150, height: 129}}
+      resizeMode="contain"
+      source={require('../../assets/soccer_diary.png')}
+    />
+    <View style={{width: 162, height: 50}}>
+      <Text
+        style={{
+          flex: 1,
+          marginLeft: 10,
+          alignSelf: 'flex-start',
+          fontSize: 12,
+          color: '#d9d9d9',
+        }}>
+        {moment(item.date).format('LL').toString()}
+      </Text>
+      <Text
+        style={{
+          flex: 1,
+          marginHorizontal: 10,
+          alignSelf: 'flex-start',
+          fontSize: 15,
+        }}
+        numberOfLines={1}>
+        {item.title}
+      </Text>
+    </View>
+  </Pressable>
+);
+
+const CalendarNavigator = props => (
+  <View
+    style={{
+      flex: 1,
+      flexDirection: 'row',
+
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+    <Pressable
+      style={{flex: 1, alignItems: 'flex-end'}}
+      onPress={props.onLeftPress}>
+      <Entypo name="triangle-left" size={40} color={'#8B8FDE'} />
+    </Pressable>
+    <Pressable
+      style={{
+        flex: 1,
+        marginBottom: 5,
+      }}
+      onPress={props.onDatePress}>
+      <Text
+        style={{
+          fontSize: 25,
+          textAlign: 'center',
+          textAlignVertical: 'top',
+        }}>
+        {moment(props.date).format('YYYY[년] M[월]').toString()}
+      </Text>
+    </Pressable>
+    <Pressable
+      style={{flex: 1, alignItems: 'flex-start'}}
+      onPress={props.onRightPress}>
+      <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
+    </Pressable>
+  </View>
+);
 
 const Background = styled(ImageBackground)`
   flex: 1;
-  width: ${width}px;
-  height: ${height}px;
+  width: ${width};
+  height: ${height};
   justify-content: center;
   align-items: center;
-`;
-
-const Message = styled.Text`
-  font-size: 16px;
-  color: ${colors.primary};
 `;
