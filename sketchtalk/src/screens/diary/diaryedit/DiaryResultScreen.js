@@ -9,12 +9,12 @@ import {
 import React, {useState} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import colors from '../../constants/colors';
+import colors from '../../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
-import AchievementRow from '../../components/achievementrow';
-import CommentText from '../../components/commenttext';
-import ConfirmButton from '../../components/confirmbutton';
+import CommentText from '../../../components/commenttext';
+import ConfirmButton from '../../../components/confirmbutton';
+import moment from 'moment';
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,27 +27,35 @@ const diaryDummyData = {
 const commentDummyData =
   '와~ 다쳐도 즐겁게 놀다니, 너 정말 멋지구나! 내일은 꼭 골도 넣어보자! ⚽😊';
 
-export default function DiaryResultScreen() {
+export default function DiaryResultScreen({route}) {
   const navigation = useNavigation();
   function TempNavigateToHome() {
     navigation.navigate('TabNavigator');
   }
+  function TempNavigateToCalendar() {
+    navigation.navigate('TabNavigator', {screen: 'CalendarStackNavigator'});
+  }
   function TempNavigateToEditScreen() {
-    navigation.navigate('DiaryEditStackNavigator');
+    navigation.navigate('DiaryEditScreen', {...route.params});
   }
   const [modalVisible, setModalVisible] = useState(true);
+  const {date, isCalendar} = route.params;
 
   return (
     <Background
-      source={require('../../assets/background/yellow_bg.png')}
+      source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <DiaryDisplay
         item={diaryDummyData}
+        date={date}
         editOnPress={TempNavigateToEditScreen}
         showTutorial={modalVisible}
         tutorialOnPress={() => setModalVisible(false)}
       />
-      <CharacterCommentDisplay onPress={TempNavigateToHome} />
+      <CharacterCommentDisplay
+        onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
+        isCalendar={isCalendar}
+      />
     </Background>
   );
 }
@@ -73,13 +81,13 @@ const CharacterCommentDisplay = props => (
           alignItems: 'center',
           marginLeft: 5,
         }}
-        source={require('../../assets/character/comment_bear.png')}
+        source={require('../../../assets/character/comment_bear.png')}
       />
       <CommentText flex={2} text={commentDummyData} width={width} />
     </View>
     <ConfirmButton
       color={colors.primary}
-      text={'홈으로'}
+      text={props.isCalendar ? '달력으로' : '홈으로'}
       onPress={props.onPress}
     />
   </View>
@@ -93,7 +101,7 @@ const CharacterImage = () => (
       alignItems: 'center',
       paddingTop: 19,
     }}>
-    <Image source={require('../../assets/character/question_bear.png')} />
+    <Image source={require('../../../assets/character/question_bear.png')} />
   </View>
 );
 
@@ -124,7 +132,7 @@ const DiaryDisplay = props => (
         shadowRadius: 1.0,
         elevation: 1,
       }}>
-      <DiaryDisplayHeader editOnPress={props.editOnPress} />
+      <DiaryDisplayHeader editOnPress={props.editOnPress} date={props.date} />
       <DiaryArtDisplay
         tutorialOnPress={props.tutorialOnPress}
         showTutorial={props.showTutorial}
@@ -144,7 +152,7 @@ const DiaryDisplayHeader = props => (
       width: width * 0.9,
     }}>
     <Text style={{flex: 8, marginLeft: 10, fontSize: 20, marginBottom: 4}}>
-      2025년 5월 25일
+      {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
     </Text>
     <Pressable style={{flex: 1}} onPress={props.editOnPress}>
       <SimpleLineIcons name="pencil" size={20} color={colors.black} />
@@ -168,7 +176,7 @@ const DiaryArtDisplay = props => (
     }}>
     <Image
       style={{width: width * 0.9}}
-      source={require('../../assets/soccer_diary2.png')}
+      source={require('../../../assets/soccer_diary2.png')}
     />
     {props.showTutorial && (
       <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />

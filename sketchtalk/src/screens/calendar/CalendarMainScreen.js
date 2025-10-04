@@ -8,7 +8,7 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-
+import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -26,22 +26,22 @@ const dummyData = [
   },
   {
     id: 2,
-    date: new Date(2025, 5, 23),
+    date: new Date(2025, 5, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
   },
   {
     id: 3,
-    date: new Date(2025, 5, 23),
+    date: new Date(2025, 5, 22),
     title: '넘어졌지만 괜찮아!',
   },
   {
     id: 4,
-    date: new Date(2025, 5, 23),
+    date: new Date(2025, 6, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
   },
   {
     id: 5,
-    date: new Date(2025, 5, 23),
+    date: new Date(2025, 5, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
   },
 ];
@@ -61,6 +61,14 @@ export default function CalenderMainScreen() {
     },
     [date, showPicker],
   );
+
+  const navigation = useNavigation();
+  function TempNavigate(date) {
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {date: new Date(date), isCalendar: true},
+    });
+  }
 
   return (
     <Background
@@ -96,7 +104,9 @@ export default function CalenderMainScreen() {
           keyExtractor={item => item.id}
           fadingEdgeLength={100}
           data={dummyData}
-          renderItem={({item}) => <CalendarItem {...item} />}
+          renderItem={({item}) => (
+            <CalendarItem {...item} onPress={() => TempNavigate(item.date)} />
+          )}
           numColumns={2}></FlatList>
       </View>
     </Background>

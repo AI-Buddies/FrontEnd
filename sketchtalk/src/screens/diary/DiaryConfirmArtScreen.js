@@ -11,7 +11,10 @@ const {width, height} = Dimensions.get('window');
 export default function DiaryConfirmArtScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryResultScreen');
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {date: new Date(2025, 4, 1), isCalendar: false},
+    });
   }
   return (
     <Background

@@ -15,10 +15,10 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-export default function DiaryArtRedrawScreen() {
+export default function DiaryArtRedrawScreen({route}) {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryStackNavigator', {screen: 'DiaryResultScreen'});
+    navigation.navigate('DiaryResultScreen', {...route.params});
   }
   return (
     <Background

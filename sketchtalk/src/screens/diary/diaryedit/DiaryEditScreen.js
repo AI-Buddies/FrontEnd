@@ -23,16 +23,17 @@ const dummyData = {
     '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
 };
 
-export default function DiaryEditScreen() {
+export default function DiaryEditScreen({route}) {
   const [value, onChangeText] = useState(dummyData.content);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   function TempNavigateToResultScreen() {
-    navigation.navigate('DiaryStackNavigator', {screen: 'DiaryResultScreen'});
+    navigation.navigate('DiaryResultScreen', {...route.params});
   }
   function TempNavigateToRedrawScreen() {
-    navigation.navigate('DiaryArtRedrawScreen');
+    navigation.navigate('DiaryArtRedrawScreen', {...route.params});
   }
+  const {date, isCalendar} = route.params;
 
   return (
     <Background
