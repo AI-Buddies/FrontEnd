@@ -9,10 +9,10 @@ import {
   Modal,
 } from 'react-native';
 import {React, useEffect, useState} from 'react';
-import colors from '../../constants/colors';
+import colors from '../../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
-import ConfirmButton from '../../components/confirmbutton';
+import ConfirmButton from '../../../components/confirmbutton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
 const {width, height} = Dimensions.get('window');
@@ -28,7 +28,7 @@ export default function DiaryEditScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   function TempNavigateToResultScreen() {
-    navigation.navigate('DiaryResultScreen');
+    navigation.navigate('DiaryStackNavigator', {screen: 'DiaryResultScreen'});
   }
   function TempNavigateToRedrawScreen() {
     navigation.navigate('DiaryArtRedrawScreen');
@@ -36,7 +36,7 @@ export default function DiaryEditScreen() {
 
   return (
     <Background
-      source={require('../../assets/background/yellow_bg.png')}
+      source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <DiaryDisplay
         title={dummyData.title}
@@ -132,18 +132,6 @@ const ConfirmRedrawPopup = props => (
       </View>
     </View>
   </Modal>
-);
-
-const CharacterImage = () => (
-  <View
-    style={{
-      flex: 3,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingTop: 19,
-    }}>
-    <Image source={require('../../assets/character/question_bear.png')} />
-  </View>
 );
 
 const DiaryDisplay = props => (

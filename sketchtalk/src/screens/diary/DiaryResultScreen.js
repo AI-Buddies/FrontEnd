@@ -33,7 +33,7 @@ export default function DiaryResultScreen() {
     navigation.navigate('TabNavigator');
   }
   function TempNavigateToEditScreen() {
-    navigation.navigate('DiaryEditScreen');
+    navigation.navigate('DiaryEditStackNavigator');
   }
   const [modalVisible, setModalVisible] = useState(true);
 

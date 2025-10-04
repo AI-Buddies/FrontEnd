@@ -7,9 +7,9 @@ import {
   Pressable,
 } from 'react-native';
 import React from 'react';
-import ConfirmText from '../../components/confirmtext';
-import ConfirmButton from '../../components/confirmbutton';
-import colors from '../../constants/colors';
+import ConfirmText from '../../../components/confirmtext';
+import ConfirmButton from '../../../components/confirmbutton';
+import colors from '../../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 
@@ -18,11 +18,11 @@ const {width, height} = Dimensions.get('window');
 export default function DiaryArtRedrawScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryResultScreen');
+    navigation.navigate('DiaryStackNavigator', {screen: 'DiaryResultScreen'});
   }
   return (
     <Background
-      source={require('../../assets/background/yellow_bg.png')}
+      source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <Text
         style={{
@@ -72,7 +72,7 @@ const DiaryRedrawArtDisplay = props => (
         {props.text}
       </Text>
       <Pressable onPress={props.onPress}>
-        <Image source={require('../../assets/soccer_diary2.png')} />
+        <Image source={require('../../../assets/soccer_diary2.png')} />
       </Pressable>
     </View>
   </View>

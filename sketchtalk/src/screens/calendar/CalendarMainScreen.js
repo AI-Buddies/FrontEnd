@@ -171,7 +171,7 @@ const CalendarNavigator = props => (
     </Pressable>
     <Pressable
       style={{
-        flex: 1,
+        flex: 1.5,
         marginBottom: 5,
       }}
       onPress={props.onDatePress}>
