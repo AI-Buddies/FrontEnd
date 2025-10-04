@@ -49,9 +49,9 @@
 	<false/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>MangoDdobak-B(ttf).ttf</string>
-		<string>MangoDdobak-L(ttf).ttf</string>
-		<string>MangoDdobak-R(ttf).ttf</string>
+		<string>MangoDdobak-B.ttf</string>
+		<string>MangoDdobak-L.ttf</string>
+		<string>MangoDdobak-R.ttf</string>
 	</array>
 </dict>
 </plist>

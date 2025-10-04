@@ -108,7 +108,14 @@ const ConfirmRedrawPopup = props => (
             onPress={props.closeOnPress}>
             <EvilIcons name="close" size={37} color={colors.black} />
           </Pressable>
-          <Text style={{fontSize: 16, flex: 1, marginTop: 15}}>
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
             수정된 일기로 그림을 다시 만들까요?
           </Text>
           <View style={{flex: 1, flexDirection: 'row'}}>
@@ -184,7 +191,14 @@ const DiaryDisplayHeader = props => (
       borderColor: colors.black,
       borderBottomWidth: 1,
     }}>
-    <Text style={{flex: 8, marginLeft: 10, fontSize: 20, marginBottom: 4}}>
+    <Text
+      style={{
+        flex: 8,
+        marginLeft: 10,
+        fontSize: 20,
+        fontFamily: 'MangoDdobak-B',
+        includeFontPadding: false,
+      }}>
       2025년 5월 25일
     </Text>
   </View>
@@ -211,16 +225,41 @@ const DiaryTextDisplay = props => (
       <NotebookLine />
       <NotebookLine />
     </View>
-    <Text
+    <View
       style={{
-        fontSize: 14,
-        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        alignSelf: 'flex-end',
         width: width * 0.9 - 2,
-        paddingHorizontal: 10,
-        lineHeight: 30,
       }}>
-      제목 : {props.title}
-    </Text>
+      <Text
+        style={{
+          fontSize: 14,
+          fontFamily: 'MangoDdobak-B',
+          includeFontPadding: false,
+          justifyContent: 'flex-end',
+          paddingLeft: 9,
+          marginBottom: 1,
+          lineHeight: 30,
+        }}>
+        제목 :
+      </Text>
+      <TextInput
+        multiline={false}
+        editable
+        textAlignVertical="top"
+        maxLength={20}
+        style={{
+          fontSize: 14,
+          fontFamily: 'MangoDdobak-B',
+          includeFontPadding: false,
+          justifyContent: 'flex-start',
+          paddingRight: 9,
+          lineHeight: 30,
+          marginVertical: -10,
+        }}>
+        {props.title}
+      </TextInput>
+    </View>
     <TextInput
       multiline
       editable
@@ -230,6 +269,8 @@ const DiaryTextDisplay = props => (
       value={props.content}
       style={{
         fontSize: 14,
+        fontFamily: 'MangoDdobak-R',
+        includeFontPadding: false,
         justifyContent: 'flex-start',
         paddingHorizontal: 10,
         width: width * 0.9 - 2,

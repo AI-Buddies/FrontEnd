@@ -151,7 +151,15 @@ const DiaryDisplayHeader = props => (
       alignItems: 'center',
       width: width * 0.9,
     }}>
-    <Text style={{flex: 8, marginLeft: 10, fontSize: 20, marginBottom: 4}}>
+    <Text
+      style={{
+        flex: 8,
+        marginLeft: 10,
+        fontSize: 20,
+        fontFamily: 'MangoDdobak-B',
+        includeFontPadding: false,
+        marginBottom: -1,
+      }}>
       {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
     </Text>
     <Pressable style={{flex: 1}} onPress={props.editOnPress}>
@@ -191,7 +199,7 @@ const ButtonTutorialPopup = props => (
       backgroundColor: colors.creamWhite,
       zIndex: 100,
       elevation: 100,
-      width: 230,
+      width: 240,
       height: 110,
       borderColor: colors.black,
       borderWidth: 1,
@@ -205,27 +213,39 @@ const ButtonTutorialPopup = props => (
     }}>
     <View
       style={{
-        width: 220,
+        width: 230,
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
       }}>
       <SimpleLineIcons name="pencil" size={20} color={colors.black} />
-      <Text style={{fontSize: 16, marginTop: -5}}>
+      <Text
+        style={{
+          fontSize: 16,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
+          marginTop: 0,
+        }}>
         을 눌러 일기를 수정하거나
       </Text>
     </View>
     <View
       style={{
-        width: 220,
+        width: 230,
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
       }}>
       <Feather name="download" size={20} color={colors.black} />
-      <Text style={{fontSize: 16, marginTop: -5}}>
+      <Text
+        style={{
+          fontSize: 16,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
+          marginTop: 0,
+        }}>
         을 눌러 다운로드할 수 있어!
       </Text>
     </View>
@@ -262,6 +282,8 @@ const DiaryTextDisplay = props => (
     <Text
       style={{
         fontSize: 14,
+        fontFamily: 'MangoDdobak-B',
+        includeFontPadding: false,
         justifyContent: 'flex-start',
         width: width * 0.9 - 2,
         paddingHorizontal: 10,
@@ -272,6 +294,8 @@ const DiaryTextDisplay = props => (
     <Text
       style={{
         fontSize: 14,
+        fontFamily: 'MangoDdobak-R',
+        includeFontPadding: false,
         justifyContent: 'flex-start',
         paddingHorizontal: 10,
         width: width * 0.9 - 2,

@@ -29,8 +29,10 @@ const CommentText = props => (
       </View>
       <Text
         style={{
-          fontSize: 16,
+          fontSize: 14,
           textAlign: 'left',
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           paddingHorizontal: 10,
           marginBottom: 3,
           color: colors.black,

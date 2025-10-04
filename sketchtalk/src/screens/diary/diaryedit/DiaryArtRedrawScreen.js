@@ -28,6 +28,8 @@ export default function DiaryArtRedrawScreen({route}) {
         style={{
           flex: 1,
           fontSize: 30,
+          fontFamily: 'MangoDdobak-B',
+          includeFontPadding: false,
           color: colors.primary,
           textAlign: 'center',
           textAlignVertical: 'center',
@@ -65,6 +67,8 @@ const DiaryRedrawArtDisplay = props => (
       <Text
         style={{
           fontSize: 25,
+          fontFamily: 'MangoDdobak-B',
+          includeFontPadding: false,
           textAlign: 'left',
           width: width * 0.9,
           marginBottom: 15,
