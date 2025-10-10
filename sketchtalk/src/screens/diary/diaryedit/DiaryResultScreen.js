@@ -151,23 +151,49 @@ const DiaryDisplayHeader = props => (
       alignItems: 'center',
       width: width * 0.9,
     }}>
-    <Text
+    <View
       style={{
-        flex: 8,
+        flex: 4.2,
+        flexDirection: 'row',
         marginLeft: 10,
-        fontSize: 20,
-        fontFamily: 'MangoDdobak-B',
-        includeFontPadding: false,
-        marginBottom: -1,
+        justifyContent: 'center',
+        alignItems: 'center',
       }}>
-      {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
-    </Text>
-    <Pressable style={{flex: 1}} onPress={props.editOnPress}>
-      <SimpleLineIcons name="pencil" size={20} color={colors.black} />
-    </Pressable>
-    <Pressable style={{flex: 1}}>
-      <Feather name="download" size={22} color={colors.black} />
-    </Pressable>
+      <Text
+        style={{
+          flex: 2,
+          fontSize: 20,
+          fontFamily: 'MangoDdobak-B',
+          includeFontPadding: false,
+          marginBottom: -1,
+        }}>
+        {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
+      </Text>
+      <View style={{flex: 1, marginTop: 5}}>
+        <Image
+          style={{
+            width: 50,
+            height: 50,
+          }}
+          resizeMode="contain"
+          source={require('../../../assets/emotions/emotion_happy.png')}
+        />
+      </View>
+    </View>
+    <View
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Pressable style={{flex: 1}} onPress={props.editOnPress}>
+        <SimpleLineIcons name="pencil" size={20} color={colors.black} />
+      </Pressable>
+      <Pressable style={{flex: 1}}>
+        <Feather name="download" size={22} color={colors.black} />
+      </Pressable>
+    </View>
   </View>
 );
 
