@@ -70,6 +70,8 @@ const dummyData = [
   },
 ];
 
+const dummyMarkedDates = ['2025-06-28', '2025-06-29'];
+
 export default function CalenderMainScreen({route}) {
   const {calendarDate, calendarListView} = route.params;
   const [date, setDate] = useState(calendarDate);
@@ -150,6 +152,7 @@ export default function CalenderMainScreen({route}) {
             hideArrows={true}
             disableMonthChange={true}
             customHeaderTitle={<></>} /* 월 숨기기 */
+            disableAllTouchEventsForInactiveDays
             style={{
               marginTop: 10,
               width: width * 0.9,
@@ -162,6 +165,22 @@ export default function CalenderMainScreen({route}) {
               shadowOpacity: 0.18,
               shadowRadius: 1.0,
               elevation: 1,
+            }}
+            dayComponent={({date}) => {
+              return (
+                <View>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      lineHeight: 31,
+                      color: dummyMarkedDates.includes(date.dateString)
+                        ? colors.primary
+                        : 'black',
+                    }}>
+                    {date.day}
+                  </Text>
+                </View>
+              );
             }}
           />
         )}
