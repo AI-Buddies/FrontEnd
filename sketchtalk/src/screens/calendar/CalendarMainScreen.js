@@ -21,6 +21,7 @@ import {
   LocaleConfig,
 } from 'react-native-calendars';
 import 'moment/locale/ko';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -137,28 +138,63 @@ export default function CalenderMainScreen() {
             )}
             numColumns={2}></FlatList>
         )}
-        <Calendar
-          initialDate={date}
-          hideArrows={true}
-          disableMonthChange={true}
-          customHeaderTitle={<></>} /* 월 숨기기 */
-          style={{
-            width: width * 0.9,
-            height: 330,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 1,
-            },
-            shadowOpacity: 0.18,
-            shadowRadius: 1.0,
-            elevation: 1,
-          }}
-        />
+        {!listView && (
+          <Calendar
+            initialDate={date}
+            hideArrows={true}
+            disableMonthChange={true}
+            customHeaderTitle={<></>} /* 월 숨기기 */
+            style={{
+              marginTop: 10,
+              width: width * 0.9,
+              height: 330,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 1,
+              },
+              shadowOpacity: 0.18,
+              shadowRadius: 1.0,
+              elevation: 1,
+            }}
+          />
+        )}
       </View>
+      <SwitchViewButton onPress={() => setListView(!listView)} />
     </Background>
   );
 }
+
+const SwitchViewButton = props => (
+  <View
+    style={{
+      position: 'absolute',
+      right: 20,
+      bottom: 20,
+      alignSelf: 'flex-end',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+    }}>
+    <Pressable
+      style={{
+        borderRadius: Math.round(158) / 2,
+        width: 65,
+        height: 65,
+        backgroundColor: '#F6BC65',
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 1,
+      }}
+      onPress={props.onPress}>
+      <SimpleLineIcons name="menu" size={27} color={colors.white} />
+    </Pressable>
+  </View>
+);
 
 const CalendarItem = item => (
   <Pressable
