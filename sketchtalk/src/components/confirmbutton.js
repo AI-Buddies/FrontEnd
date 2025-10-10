@@ -38,6 +38,7 @@ const ConfirmButton = ({
       <Text
         style={{
           fontSize: fontSize,
+          fontFamily: 'MangoDdobak-B',
           color: colors.white,
           textAlignVertical: 'bottom',
           marginbottom: 6,

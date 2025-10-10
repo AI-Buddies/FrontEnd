@@ -30,9 +30,11 @@ const ConfirmText = props => (
       <Text
         style={{
           fontSize: 16,
+          fontFamily: 'MangoDdobak-R',
           textAlign: 'left',
+          lineHeight: 25,
           paddingHorizontal: 10,
-          marginBottom: 3,
+          marginBottom: 2,
           color: colors.black,
         }}>
         {props.text}

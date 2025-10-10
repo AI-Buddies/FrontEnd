@@ -77,6 +77,7 @@ export default function CalenderMainScreen() {
       <Text
         style={{
           fontSize: 25,
+          fontFamily: 'MangoDdobak-B',
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
@@ -147,6 +148,8 @@ const CalendarItem = item => (
           marginLeft: 10,
           alignSelf: 'flex-start',
           fontSize: 12,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           color: '#d9d9d9',
         }}>
         {moment(item.date).format('LL').toString()}
@@ -155,6 +158,8 @@ const CalendarItem = item => (
         style={{
           flex: 1,
           marginHorizontal: 10,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           alignSelf: 'flex-start',
           fontSize: 15,
         }}
@@ -182,12 +187,13 @@ const CalendarNavigator = props => (
     <Pressable
       style={{
         flex: 1.5,
-        marginBottom: 5,
       }}
       onPress={props.onDatePress}>
       <Text
         style={{
           fontSize: 25,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           textAlign: 'center',
           textAlignVertical: 'top',
         }}>

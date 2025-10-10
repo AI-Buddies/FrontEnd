@@ -89,6 +89,7 @@ const DiaryDisplay = props => (
       <Text
         style={{
           fontSize: 14,
+          fontFamily: 'MangoDdobak-R',
           justifyContent: 'flex-start',
           width: width * 0.9 - 2,
           paddingHorizontal: 10,
@@ -99,6 +100,8 @@ const DiaryDisplay = props => (
       <Text
         style={{
           fontSize: 14,
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           justifyContent: 'flex-start',
           paddingHorizontal: 10,
           width: width * 0.9 - 2,
