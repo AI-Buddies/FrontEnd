@@ -118,7 +118,7 @@ const CalendarItem = item => (
   <Pressable
     style={{
       width: 162,
-      height: 202,
+      height: 182,
       textAlign: 'center',
       marginHorizontal: 5,
       marginVertical: 10,
@@ -136,15 +136,25 @@ const CalendarItem = item => (
       justifyContent: 'center',
     }}
     onPress={item.onPress}>
-    <Image
+    <ImageBackground
       style={{width: 150, height: 129}}
       resizeMode="contain"
-      source={require('../../assets/soccer_diary.png')}
-    />
-    <View style={{width: 162, height: 50}}>
+      source={require('../../assets/soccer_diary.png')}>
+      <Image
+        style={{
+          width: 50,
+          height: 50,
+          position: 'absolute',
+          alignSelf: 'flex-end',
+        }}
+        resizeMode="contain"
+        source={require('../../assets/emotions/emotion_happy.png')}
+      />
+    </ImageBackground>
+    <View style={{width: 162, height: 60}}>
       <Text
         style={{
-          flex: 1,
+          height: 25,
           marginLeft: 10,
           alignSelf: 'flex-start',
           fontSize: 12,
@@ -156,7 +166,7 @@ const CalendarItem = item => (
       </Text>
       <Text
         style={{
-          flex: 1,
+          height: 20,
           marginHorizontal: 10,
           fontFamily: 'MangoDdobak-R',
           includeFontPadding: false,
