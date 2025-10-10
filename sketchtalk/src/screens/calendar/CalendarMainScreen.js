@@ -14,7 +14,30 @@ import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import moment from 'moment';
 import MonthPicker from 'react-native-month-year-picker';
+import {
+  Calendar,
+  CalendarList,
+  Agenda,
+  LocaleConfig,
+} from 'react-native-calendars';
 import 'moment/locale/ko';
+
+LocaleConfig.locales['kr'] = {
+  monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
+  monthNamesShort: ['', '', '', '', '', '', '', '', '', '', '', ''],
+  dayNames: [
+    '월요일',
+    '화요일',
+    '수요일',
+    '목요일',
+    '금요일',
+    '토요일',
+    '일요일',
+  ],
+  dayNamesShort: ['월', '화', '수', '목', '금', '토', '일'],
+  today: "Aujourd'hui",
+};
+LocaleConfig.defaultLocale = 'kr';
 
 const {width, height} = Dimensions.get('window');
 
@@ -47,10 +70,11 @@ const dummyData = [
 ];
 
 export default function CalenderMainScreen() {
-  const [date, setDate] = useState(new Date(2025, 5));
-  const [show, setShow] = useState(false);
+  const [date, setDate] = useState(new Date(2025, 5, 1));
+  const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
+  const [listView, setListView] = useState(false);
 
-  const showPicker = useCallback(value => setShow(value), []);
+  const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
   const onValueChange = useCallback(
     (event, newDate) => {
@@ -86,10 +110,12 @@ export default function CalenderMainScreen() {
       <CalendarNavigator
         date={date}
         onDatePress={() => showPicker(true)}
-        onLeftPress={() => setDate(moment(date).subtract(1, 'months'))}
-        onRightPress={() => setDate(moment(date).add(1, 'months'))}
+        onLeftPress={() =>
+          setDate(new Date(moment(date).subtract(1, 'months')))
+        }
+        onRightPress={() => setDate(new Date(moment(date).add(1, 'months')))}
       />
-      {show && (
+      {showYearMonthPicker && (
         <MonthPicker
           onChange={onValueChange}
           value={new Date(date)}
@@ -97,18 +123,38 @@ export default function CalenderMainScreen() {
         />
       )}
       <View style={{flex: 7}}>
-        <FlatList
-          contentContainerStyle={{
-            alignItems: 'flex-start',
-            justifyContent: 'center',
+        {listView && (
+          <FlatList
+            contentContainerStyle={{
+              alignItems: 'flex-start',
+              justifyContent: 'center',
+            }}
+            keyExtractor={item => item.id}
+            fadingEdgeLength={100}
+            data={dummyData}
+            renderItem={({item}) => (
+              <CalendarItem {...item} onPress={() => TempNavigate(item.date)} />
+            )}
+            numColumns={2}></FlatList>
+        )}
+        <Calendar
+          initialDate={date}
+          hideArrows={true}
+          disableMonthChange={true}
+          customHeaderTitle={<></>} /* 월 숨기기 */
+          style={{
+            width: width * 0.9,
+            height: 330,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: 1,
+            },
+            shadowOpacity: 0.18,
+            shadowRadius: 1.0,
+            elevation: 1,
           }}
-          keyExtractor={item => item.id}
-          fadingEdgeLength={100}
-          data={dummyData}
-          renderItem={({item}) => (
-            <CalendarItem {...item} onPress={() => TempNavigate(item.date)} />
-          )}
-          numColumns={2}></FlatList>
+        />
       </View>
     </Background>
   );
