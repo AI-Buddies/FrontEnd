@@ -70,7 +70,14 @@ const dummyData = [
   },
 ];
 
-const dummyMarkedDates = ['2025-06-28', '2025-06-29'];
+const dummyMarkedDates = [
+  {date: '2025-06-10'},
+  {date: '2025-06-22'},
+  {date: '2025-06-29'},
+  {date: '2025-06-30'},
+  {date: '2025-11-30'},
+  ,
+];
 
 export default function CalenderMainScreen({route}) {
   const {calendarDate, calendarListView} = route.params;
@@ -156,7 +163,7 @@ export default function CalenderMainScreen({route}) {
             style={{
               marginTop: 10,
               width: width * 0.9,
-              height: 330,
+              height: 380,
               shadowColor: '#000',
               shadowOffset: {
                 width: 0,
@@ -166,20 +173,30 @@ export default function CalenderMainScreen({route}) {
               shadowRadius: 1.0,
               elevation: 1,
             }}
-            dayComponent={({date}) => {
+            theme={{
+              'stylesheet.calendar.header': {
+                dayHeader: {
+                  fontFamily: 'MangoDdobak-R',
+                  fontSize: 14,
+                  color: colors.gray300,
+                  fontHeight: 31,
+                  marginBottom: 20,
+                },
+              },
+            }}
+            dayComponent={({date, state}) => {
+              function hasDiary() {
+                const array = dummyMarkedDates.filter(obj =>
+                  Object.values(obj).some(val => val.includes(date.dateString)),
+                );
+                return !array === undefined || !array.length == 0;
+              }
               return (
-                <View>
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      lineHeight: 31,
-                      color: dummyMarkedDates.includes(date.dateString)
-                        ? colors.primary
-                        : 'black',
-                    }}>
-                    {date.day}
-                  </Text>
-                </View>
+                <CustomDayComponent
+                  hasDiary={hasDiary()}
+                  date={date}
+                  state={state}
+                />
               );
             }}
           />
@@ -189,6 +206,34 @@ export default function CalenderMainScreen({route}) {
     </Background>
   );
 }
+
+const CustomDayComponent = props => (
+  <View style={{alignItems: 'center', justifyContent: 'center', height: 40}}>
+    {props.hasDiary && props.state !== 'disabled' ? (
+      <Image
+        style={{
+          width: 50,
+          height: 50,
+          alignSelf: 'flex-start',
+          justifyContent: 'flex-start',
+          marginTop: 5,
+        }}
+        resizeMode="contain"
+        source={require('../../assets/emotions/emotion_happy.png')}></Image>
+    ) : (
+      <Text
+        style={{
+          textAlign: 'center',
+          fontFamily: 'MangoDdobak-R',
+          lineHeight: 31,
+          color: props.state === 'disabled' ? colors.white : colors.black,
+          fontSize: 16,
+        }}>
+        {props.date.day}
+      </Text>
+    )}
+  </View>
+);
 
 const SwitchViewButton = props => (
   <View
