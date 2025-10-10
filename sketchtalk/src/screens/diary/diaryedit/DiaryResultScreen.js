@@ -33,13 +33,16 @@ export default function DiaryResultScreen({route}) {
     navigation.navigate('TabNavigator');
   }
   function TempNavigateToCalendar() {
-    navigation.navigate('TabNavigator', {screen: 'CalendarStackNavigator'});
+    navigation.navigate('TabNavigator', {
+      screen: 'CalendarStackNavigator',
+      params: {screen: 'CalendarMainScreen', params: {...route.params}},
+    });
   }
   function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen', {...route.params});
   }
   const [modalVisible, setModalVisible] = useState(true);
-  const {date, isCalendar} = route.params;
+  const {diaryDate, isCalendar} = route.params;
 
   return (
     <Background
@@ -47,7 +50,7 @@ export default function DiaryResultScreen({route}) {
       resizeMode="cover">
       <DiaryDisplay
         item={diaryDummyData}
-        date={date}
+        date={diaryDate}
         editOnPress={TempNavigateToEditScreen}
         showTutorial={modalVisible}
         tutorialOnPress={() => setModalVisible(false)}

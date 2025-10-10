@@ -34,7 +34,7 @@ export default function DiaryEditScreen({route}) {
   function TempNavigateToRedrawScreen() {
     navigation.navigate('DiaryArtRedrawScreen', {...route.params});
   }
-  const {date, isCalendar} = route.params;
+  const {diaryDate, isCalendar} = route.params;
 
   return (
     <Background
@@ -44,7 +44,7 @@ export default function DiaryEditScreen({route}) {
         title={dummyData.title}
         content={value}
         onChangeText={text => onChangeText(text)}
-        date={date}
+        date={diaryDate}
       />
       <ConfirmButton
         text={'저장'}

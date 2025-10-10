@@ -1,5 +1,5 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import CalendarMainScreen from '../screens/calendar/CalendarMainScreen';
 
@@ -13,10 +13,13 @@ const CalendarStackNavigator = () => (
     <Stack.Screen
       name="CalendarMainScreen"
       component={CalendarMainScreen}
-      options={{ title: '달력 홈' }}
+      options={{title: '달력 홈'}}
+      initialParams={{
+        calendarListView: false,
+        calendarDate: new Date(2025, 5, 1),
+      }}
     />
   </Stack.Navigator>
 );
-
 
 export default CalendarStackNavigator;

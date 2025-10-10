@@ -70,10 +70,11 @@ const dummyData = [
   },
 ];
 
-export default function CalenderMainScreen() {
-  const [date, setDate] = useState(new Date(2025, 5, 1));
+export default function CalenderMainScreen({route}) {
+  const {calendarDate, calendarListView} = route.params;
+  const [date, setDate] = useState(calendarDate);
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
-  const [listView, setListView] = useState(false);
+  const [listView, setListView] = useState(calendarListView);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -88,10 +89,15 @@ export default function CalenderMainScreen() {
   );
 
   const navigation = useNavigation();
-  function TempNavigate(date) {
+  function TempNavigate(diaryDate) {
     navigation.navigate('DiaryResultStackNavigator', {
       screen: 'DiaryResultScreen',
-      params: {date: new Date(date), isCalendar: true},
+      params: {
+        diaryDate: new Date(diaryDate),
+        isCalendar: true,
+        calendarDate: date,
+        calendarListView: listView,
+      },
     });
   }
 
