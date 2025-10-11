@@ -70,57 +70,65 @@ export default function DiaryResultScreen({route}) {
         isCalendar={isCalendar}
       />
       {achievementDummyData !== undefined && (
-        <Modal
+        <AchievementModal
           isVisible={achievementModalVisible}
-          backdropOpacity={0.9}
-          animationInTiming={600}
-          animationOutTiming={1}
-          backdropTransitionInTiming={600}
-          backdropTransitionOutTiming={1}
+          achievementIndex={achievementIndex}
           onBackdropPress={() => {
             achievementDummyData[achievementIndex + 1] !== undefined
               ? setAchievementIndex(achievementIndex + 1)
               : setAchievementModalVisible(false);
           }}
-          style={{alignItems: 'center', justifyContent: 'center'}}>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 300,
-            }}>
-            <Text
-              style={{
-                flex: 1,
-                color: colors.creamWhite,
-                fontFamily: 'MangoDdobak-B',
-                fontSize: 24,
-                textAlignVertical: 'center',
-              }}>
-              도전과제 달성!
-            </Text>
-            <AchievementRow
-              width={width}
-              color={colors.creamWhite}
-              title={achievementDummyData[achievementIndex].title}
-              description={achievementDummyData[achievementIndex].description}
-            />
-            <Text
-              style={{
-                flex: 1,
-                color: colors.creamWhite,
-                fontFamily: 'MangoDdobak-R',
-                fontSize: 16,
-                textAlignVertical: 'center',
-              }}>
-              화면을 눌러 계속
-            </Text>
-          </View>
-        </Modal>
+        />
       )}
     </Background>
   );
 }
+
+const AchievementModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    backdropOpacity={0.9}
+    animationInTiming={600}
+    animationOutTiming={1}
+    backdropTransitionInTiming={600}
+    backdropTransitionOutTiming={1}
+    onBackdropPress={props.onBackdropPress}
+    style={{alignItems: 'center', justifyContent: 'center'}}>
+    <View
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 300,
+      }}>
+      <Text
+        style={{
+          flex: 1,
+          color: colors.creamWhite,
+          fontFamily: 'MangoDdobak-B',
+          fontSize: 24,
+          textAlignVertical: 'center',
+        }}>
+        도전과제 달성!
+      </Text>
+      <AchievementRow
+        width={width}
+        color={colors.creamWhite}
+        title={achievementDummyData[props.achievementIndex].title}
+        description={achievementDummyData[props.achievementIndex].description}
+      />
+      <Text
+        style={{
+          flex: 1,
+          color: colors.creamWhite,
+          fontFamily: 'MangoDdobak-R',
+          fontSize: 16,
+          textAlignVertical: 'center',
+        }}>
+        화면을 눌러 계속
+      </Text>
+    </View>
+  </Modal>
+);
 
 const CharacterCommentDisplay = props => (
   <View
