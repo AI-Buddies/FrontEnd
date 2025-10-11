@@ -4,7 +4,7 @@ import React from 'react';
 const AchievementRow = props => (
   <View
     style={{
-      flex: 4,
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       width: props.width * 0.9,
@@ -19,14 +19,10 @@ const AchievementRow = props => (
         borderRadius: 36,
         backgroundColor: props.color,
         marginBottom: props.marginBottom,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 1,
-        },
-        shadowOpacity: 0.18,
-        shadowRadius: 1.0,
-        elevation: 1,
+        shadowColor: '#ffffffff',
+        shadowOpacity: 1.0,
+        shadowRadius: 50000,
+        elevation: 20,
       }}
       onPress={props.onPress}>
       <View
@@ -58,7 +54,9 @@ const AchievementRow = props => (
             alignItems: 'center',
             marginVertical: 5,
           }}>
-          <Text style={{fontSize: 25}}>축구</Text>
+          <Text style={{fontSize: 25, fontFamily: 'MangoDdobak-B'}}>
+            {props.title}
+          </Text>
         </View>
         <View
           style={{
@@ -68,7 +66,9 @@ const AchievementRow = props => (
             alignItems: 'center',
             marginVertical: 5,
           }}>
-          <Text>축구가 언급되는 일기 작성</Text>
+          <Text style={{fontSize: 14, fontFamily: 'MangoDdobak-R'}}>
+            {props.description}
+          </Text>
         </View>
       </View>
     </Pressable>

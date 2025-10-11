@@ -14,7 +14,9 @@ import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 import CommentText from '../../../components/commenttext';
 import ConfirmButton from '../../../components/confirmbutton';
+import Modal from 'react-native-modal';
 import moment from 'moment';
+import AchievementRow from '../../../components/achievementrow';
 
 const {width, height} = Dimensions.get('window');
 
@@ -26,6 +28,12 @@ const diaryDummyData = {
 
 const commentDummyData =
   '와~ 다쳐도 즐겁게 놀다니, 너 정말 멋지구나! 내일은 꼭 골도 넣어보자! ⚽😊';
+
+const achievementDummyData = [
+  {title: '축구', description: '축구가 언급되는 일기 작성'},
+  {title: '야구', description: '야구가 언급되는 일기 작성'},
+  {title: '농구', description: '농구가 언급되는 일기 작성'},
+];
 
 export default function DiaryResultScreen({route}) {
   const navigation = useNavigation();
@@ -41,7 +49,9 @@ export default function DiaryResultScreen({route}) {
   function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen', {...route.params});
   }
-  const [modalVisible, setModalVisible] = useState(true);
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(true);
+  const [achievementIndex, setAchievementIndex] = useState(0);
   const {diaryDate, isCalendar} = route.params;
 
   return (
@@ -52,13 +62,62 @@ export default function DiaryResultScreen({route}) {
         item={diaryDummyData}
         date={diaryDate}
         editOnPress={TempNavigateToEditScreen}
-        showTutorial={modalVisible}
-        tutorialOnPress={() => setModalVisible(false)}
+        showTutorial={tutorialModalVisible}
+        tutorialOnPress={() => setTutorialModalVisible(false)}
       />
       <CharacterCommentDisplay
         onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
         isCalendar={isCalendar}
       />
+      {achievementDummyData !== undefined && (
+        <Modal
+          isVisible={achievementModalVisible}
+          backdropOpacity={0.9}
+          animationInTiming={600}
+          animationOutTiming={1}
+          backdropTransitionInTiming={600}
+          backdropTransitionOutTiming={1}
+          onBackdropPress={() => {
+            achievementDummyData[achievementIndex + 1] !== undefined
+              ? setAchievementIndex(achievementIndex + 1)
+              : setAchievementModalVisible(false);
+          }}
+          style={{alignItems: 'center', justifyContent: 'center'}}>
+          <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 300,
+            }}>
+            <Text
+              style={{
+                flex: 1,
+                color: colors.creamWhite,
+                fontFamily: 'MangoDdobak-B',
+                fontSize: 24,
+                textAlignVertical: 'center',
+              }}>
+              도전과제 달성!
+            </Text>
+            <AchievementRow
+              width={width}
+              color={colors.creamWhite}
+              title={achievementDummyData[achievementIndex].title}
+              description={achievementDummyData[achievementIndex].description}
+            />
+            <Text
+              style={{
+                flex: 1,
+                color: colors.creamWhite,
+                fontFamily: 'MangoDdobak-R',
+                fontSize: 16,
+                textAlignVertical: 'center',
+              }}>
+              화면을 눌러 계속
+            </Text>
+          </View>
+        </Modal>
+      )}
     </Background>
   );
 }
