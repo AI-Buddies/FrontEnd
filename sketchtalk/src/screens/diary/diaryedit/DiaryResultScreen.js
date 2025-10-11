@@ -164,7 +164,7 @@ const DiaryDisplayHeader = props => (
       }}>
       <Text
         style={{
-          flex: 2,
+          flex: 2.5,
           fontSize: 20,
           fontFamily: 'MangoDdobak-B',
           includeFontPadding: false,

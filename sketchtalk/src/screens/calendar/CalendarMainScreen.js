@@ -214,8 +214,13 @@ export default function CalenderMainScreen({route}) {
       <SwitchViewButton onPress={() => setListView(!listView)} />
       {!listView && (
         <CalendarPreviewModal
+          date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
+          onSwipeComplete={() => {
+            setPreviewVisible(false);
+            TempNavigate(new Date());
+          }}
         />
       )}
     </Background>
@@ -226,70 +231,91 @@ const CalendarPreviewModal = props => (
   <Modal
     isVisible={props.isVisible}
     coverScreen={false}
+    animationInTiming={200}
     animationOutTiming={1}
-    onBackdropPress={props.onBackdropPress}>
+    backdropTransitionOutTiming={1}
+    backdropTransitionInTiming={1}
+    hideModalContentWhileAnimating={true}
+    onBackdropPress={props.onBackdropPress}
+    onBackButtonPress={props.onBackdropPress}
+    swipeDirection="up"
+    swipeThreshold={100}
+    onSwipeComplete={props.onSwipeComplete}>
     <View
       style={{
         position: 'absolute',
         width: width,
-        height: 370,
+        height: 1770,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         backgroundColor: colors.white,
         alignSelf: 'center',
         alignItems: 'center',
-        bottom: -40,
+        bottom: -1440,
       }}>
       <View
         style={{
-          position: 'absolute',
-          width: width * 0.4,
-          height: 7,
-          top: 10,
-          backgroundColor: colors.gray200,
-          borderRadius: 20,
-        }}
-      />
-      <Image
-        style={{
-          flex: 4,
-          width: width * 0.9,
-          height: 200,
-          top: -10,
+          width: width,
+          height: 370,
           alignSelf: 'center',
-        }}
-        resizeMode="contain"
-        source={require('../../assets/soccer_diary.png')}
-      />
-      <View
-        style={{flex: 1, flexDirection: 'row', width: width * 0.9, bottom: 30}}>
-        <View style={{flex: 3}}>
-          <Text
-            style={{
-              flex: 1,
-              fontFamily: 'MangoDdobak-R',
-              fontSize: 14,
-              color: colors.gray300,
-            }}>
-            {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
-          </Text>
-          <Text
-            style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
-            numberOfLines={1}>
-            축구하다가 넘어졌지만 재미있었어!
-          </Text>
-        </View>
+          alignItems: 'center',
+        }}>
+        <View
+          style={{
+            position: 'absolute',
+            width: width * 0.4,
+            height: 7,
+            top: 10,
+            backgroundColor: colors.gray200,
+            borderRadius: 20,
+          }}
+        />
         <Image
           style={{
-            flex: 1,
-            width: 80,
-            height: 80,
-            bottom: 6,
+            flex: 4,
+            width: width * 0.9,
+            height: 200,
+            top: -10,
             alignSelf: 'center',
           }}
           resizeMode="contain"
-          source={require('../../assets/emotions/emotion_happy.png')}
+          source={require('../../assets/soccer_diary.png')}
         />
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            width: width * 0.9,
+            bottom: 30,
+          }}>
+          <View style={{flex: 3}}>
+            <Text
+              style={{
+                flex: 1,
+                fontFamily: 'MangoDdobak-R',
+                fontSize: 14,
+                color: colors.gray300,
+              }}>
+              {props.date}
+            </Text>
+            <Text
+              style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
+              numberOfLines={1}>
+              축구하다가 넘어졌지만 재미있었어!
+            </Text>
+          </View>
+          <Image
+            style={{
+              flex: 1,
+              width: 80,
+              height: 80,
+              bottom: 6,
+              alignSelf: 'center',
+            }}
+            resizeMode="contain"
+            source={require('../../assets/emotions/emotion_happy.png')}
+          />
+        </View>
       </View>
     </View>
   </Modal>
