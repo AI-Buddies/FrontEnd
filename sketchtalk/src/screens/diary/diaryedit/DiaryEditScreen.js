@@ -14,6 +14,7 @@ import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 import ConfirmButton from '../../../components/confirmbutton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import moment from 'moment';
 
 const {width, height} = Dimensions.get('window');
 
@@ -33,7 +34,7 @@ export default function DiaryEditScreen({route}) {
   function TempNavigateToRedrawScreen() {
     navigation.navigate('DiaryArtRedrawScreen', {...route.params});
   }
-  const {date, isCalendar} = route.params;
+  const {diaryDate, isCalendar} = route.params;
 
   return (
     <Background
@@ -43,6 +44,7 @@ export default function DiaryEditScreen({route}) {
         title={dummyData.title}
         content={value}
         onChangeText={text => onChangeText(text)}
+        date={diaryDate}
       />
       <ConfirmButton
         text={'저장'}
@@ -170,7 +172,7 @@ const DiaryDisplay = props => (
         shadowRadius: 1.0,
         elevation: 1,
       }}>
-      <DiaryDisplayHeader />
+      <DiaryDisplayHeader date={props.date} />
       <DiaryTextDisplay
         title={props.title}
         content={props.content}
@@ -199,7 +201,7 @@ const DiaryDisplayHeader = props => (
         fontFamily: 'MangoDdobak-B',
         includeFontPadding: false,
       }}>
-      2025년 5월 25일
+      {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
     </Text>
   </View>
 );
