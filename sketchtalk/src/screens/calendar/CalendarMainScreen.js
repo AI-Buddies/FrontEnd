@@ -14,6 +14,7 @@ import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import moment from 'moment';
 import MonthPicker from 'react-native-month-year-picker';
+import Modal from 'react-native-modal';
 import {
   Calendar,
   CalendarList,
@@ -76,7 +77,6 @@ const dummyMarkedDates = [
   {date: '2025-06-29'},
   {date: '2025-06-30'},
   {date: '2025-11-30'},
-  ,
 ];
 
 export default function CalenderMainScreen({route}) {
@@ -84,6 +84,7 @@ export default function CalenderMainScreen({route}) {
   const [date, setDate] = useState(calendarDate);
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
+  const [isPreviewVisible, setPreviewVisible] = useState(false);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -139,6 +140,7 @@ export default function CalenderMainScreen({route}) {
         />
       )}
       <View style={{flex: 7}}>
+        {/*       리스트       */}
         {listView && (
           <FlatList
             contentContainerStyle={{
@@ -149,10 +151,14 @@ export default function CalenderMainScreen({route}) {
             fadingEdgeLength={100}
             data={dummyData}
             renderItem={({item}) => (
-              <CalendarItem {...item} onPress={() => TempNavigate(item.date)} />
+              <CalendarListViewItem
+                {...item}
+                onPress={() => TempNavigate(item.date)}
+              />
             )}
             numColumns={2}></FlatList>
         )}
+        {/*       달력        */}
         {!listView && (
           <Calendar
             initialDate={date}
@@ -196,6 +202,9 @@ export default function CalenderMainScreen({route}) {
                   hasDiary={hasDiary()}
                   date={date}
                   state={state}
+                  onPress={() => {
+                    setPreviewVisible(true);
+                  }}
                 />
               );
             }}
@@ -203,23 +212,104 @@ export default function CalenderMainScreen({route}) {
         )}
       </View>
       <SwitchViewButton onPress={() => setListView(!listView)} />
+      {!listView && (
+        <CalendarPreviewModal
+          isVisible={isPreviewVisible}
+          onBackdropPress={() => setPreviewVisible(false)}
+        />
+      )}
     </Background>
   );
 }
 
+const CalendarPreviewModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    coverScreen={false}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        position: 'absolute',
+        width: width,
+        height: 370,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        backgroundColor: colors.white,
+        alignSelf: 'center',
+        alignItems: 'center',
+        bottom: -40,
+      }}>
+      <View
+        style={{
+          position: 'absolute',
+          width: width * 0.4,
+          height: 7,
+          top: 10,
+          backgroundColor: colors.gray200,
+          borderRadius: 20,
+        }}
+      />
+      <Image
+        style={{
+          flex: 4,
+          width: width * 0.9,
+          height: 200,
+          top: -10,
+          alignSelf: 'center',
+        }}
+        resizeMode="contain"
+        source={require('../../assets/soccer_diary.png')}
+      />
+      <View
+        style={{flex: 1, flexDirection: 'row', width: width * 0.9, bottom: 30}}>
+        <View style={{flex: 3}}>
+          <Text
+            style={{
+              flex: 1,
+              fontFamily: 'MangoDdobak-R',
+              fontSize: 14,
+              color: colors.gray300,
+            }}>
+            {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
+          </Text>
+          <Text
+            style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
+            numberOfLines={1}>
+            축구하다가 넘어졌지만 재미있었어!
+          </Text>
+        </View>
+        <Image
+          style={{
+            flex: 1,
+            width: 80,
+            height: 80,
+            bottom: 6,
+            alignSelf: 'center',
+          }}
+          resizeMode="contain"
+          source={require('../../assets/emotions/emotion_happy.png')}
+        />
+      </View>
+    </View>
+  </Modal>
+);
+
 const CustomDayComponent = props => (
   <View style={{alignItems: 'center', justifyContent: 'center', height: 40}}>
     {props.hasDiary && props.state !== 'disabled' ? (
-      <Image
-        style={{
-          width: 50,
-          height: 50,
-          alignSelf: 'flex-start',
-          justifyContent: 'flex-start',
-          marginTop: 5,
-        }}
-        resizeMode="contain"
-        source={require('../../assets/emotions/emotion_happy.png')}></Image>
+      <Pressable onPress={props.onPress}>
+        <Image
+          style={{
+            width: 50,
+            height: 50,
+            alignSelf: 'flex-start',
+            justifyContent: 'flex-start',
+            marginTop: 5,
+          }}
+          resizeMode="contain"
+          source={require('../../assets/emotions/emotion_happy.png')}></Image>
+      </Pressable>
     ) : (
       <Text
         style={{
@@ -266,7 +356,7 @@ const SwitchViewButton = props => (
   </View>
 );
 
-const CalendarItem = item => (
+const CalendarListViewItem = item => (
   <Pressable
     style={{
       width: 162,
