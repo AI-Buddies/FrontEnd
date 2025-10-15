@@ -7,6 +7,8 @@ import CalendarStackNavigator from './CalendarStackNavigator.js';
 import DiaryStackNavigator from './DiaryStackNavigator.js';
 import MypageStackNavigator from './MypageStackNavigator.js';
 import ChallengeStackNavigator from './ChallengeStackNavigator.js';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import Feather from 'react-native-vector-icons/Feather';
 
 const Tab = createBottomTabNavigator();
 
@@ -18,6 +20,13 @@ const TabNavigator = () => (
       options={{
         tabBarLabel: '홈 화면',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontFamily: 'MangoDdobak-R',
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarIcon: ({color}) => (
+          <SimpleLineIcons name="pencil" size={16} color={color} />
+        ),
       }}
     />
     <Tab.Screen
@@ -26,22 +35,28 @@ const TabNavigator = () => (
       options={{
         tabBarLabel: '달력',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontFamily: 'MangoDdobak-R',
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarIcon: ({color}) => (
+          <Feather name="calendar" size={16} color={color} />
+        ),
       }}
     />
-    {/*<Tab.Screen
-      name="DiaryStackNavigator"
-      component={DiaryStackNavigator}
-      options={{
-        tabBarLabel: '일기작성',
-        headerShown: false,
-      }}
-    />*/}
     <Tab.Screen
       name="ChallengeStackNavigator"
       component={ChallengeStackNavigator}
       options={{
         tabBarLabel: '도전과제',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontFamily: 'MangoDdobak-R',
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarIcon: ({color}) => (
+          <SimpleLineIcons name="star" size={16} color={color} />
+        ),
       }}
     />
     <Tab.Screen
@@ -50,6 +65,13 @@ const TabNavigator = () => (
       options={{
         tabBarLabel: '마이페이지',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontFamily: 'MangoDdobak-R',
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarIcon: ({color}) => (
+          <Feather name="user" size={16} color={color} />
+        ),
       }}
     />
   </Tab.Navigator>
