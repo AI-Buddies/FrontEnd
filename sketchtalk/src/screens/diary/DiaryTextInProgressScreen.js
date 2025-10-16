@@ -75,9 +75,23 @@ const CharacterImage = () => (
       flex: 3,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingTop: 19,
     }}>
-    <Image source={require('../../assets/character/writing_bear.png')} />
+    <ImageBackground
+      source={require('../../assets/character/ellipse.png')}
+      style={{
+        width: 360,
+        height: 360,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Image
+        style={{
+          shadowColor: colors.primary,
+          borderRadius: 120,
+        }}
+        source={require('../../assets/character/writing_bear.png')}
+      />
+    </ImageBackground>
   </View>
 );
 
