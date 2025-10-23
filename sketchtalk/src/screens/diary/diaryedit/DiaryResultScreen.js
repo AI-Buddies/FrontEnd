@@ -17,6 +17,7 @@ import ConfirmButton from '../../../components/confirmbutton';
 import Modal from 'react-native-modal';
 import moment from 'moment';
 import AchievementRow from '../../../components/achievementrow';
+import CommentTextDownload from '../../../components/commenttextdownload';
 
 const {width, height} = Dimensions.get('window');
 
@@ -50,7 +51,7 @@ export default function DiaryResultScreen({route}) {
     navigation.navigate('DiaryEditScreen', {...route.params});
   }
   const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(true);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
   const [achievementIndex, setAchievementIndex] = useState(0);
   const {diaryDate, isCalendar} = route.params;
 
@@ -80,6 +81,20 @@ export default function DiaryResultScreen({route}) {
           }}
         />
       )}
+      <Background
+        source={require('../../../assets/background/diary_bg_happy.png')}
+        resizeMode="contain"
+        style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
+        <View
+          style={{
+            width: width * 0.8,
+            marginLeft: 25,
+            flex: 1,
+          }}>
+          <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
+          <DownloadCharacterCommentDisplay />
+        </View>
+      </Background>
     </Background>
   );
 }
@@ -148,14 +163,16 @@ const CharacterCommentDisplay = props => (
       <Image
         style={{
           flex: 1,
+          marginLeft: 5,
           justifyContent: 'center',
           alignItems: 'center',
-          marginLeft: 5,
         }}
         source={require('../../../assets/character/comment_bear.png')}
       />
+
       <CommentText flex={2} text={commentDummyData} width={width} />
     </View>
+
     <ConfirmButton
       color={colors.primary}
       text={props.isCalendar ? '달력으로' : '홈으로'}
@@ -164,15 +181,57 @@ const CharacterCommentDisplay = props => (
   </View>
 );
 
-const CharacterImage = () => (
+const DownloadCharacterCommentDisplay = props => (
   <View
     style={{
-      flex: 3,
+      flex: 1,
+      width: width * 0.8,
+      marginLeft: 10,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingTop: 19,
+      marginBottom: 105,
     }}>
-    <Image source={require('../../../assets/character/question_bear.png')} />
+    <View
+      style={{
+        flex: 1.5,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 130,
+          marginBottom: 22,
+        }}>
+        <Image
+          style={{
+            flex: 100,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          resizeMode="contain"
+          source={require('../../../assets/character/comment_bear.png')}
+        />
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 16,
+            fontFamily: 'MangoDdobak-B',
+            includeFontPadding: false,
+          }}>
+          또리
+        </Text>
+      </View>
+      <CommentTextDownload
+        flex={2}
+        text={commentDummyData}
+        width={width * 0.75}
+        height={120}
+      />
+    </View>
   </View>
 );
 
@@ -209,6 +268,125 @@ const DiaryDisplay = props => (
         showTutorial={props.showTutorial}
       />
       <DiaryTextDisplay item={props.item} />
+    </View>
+  </View>
+);
+
+const DownloadDiaryDisplay = props => (
+  <View
+    style={{
+      flex: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: width * 0.8,
+      marginTop: 50,
+    }}>
+    <View
+      style={{
+        height: 500,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: width * 0.8,
+          marginBottom: 7,
+          marginTop: -7,
+        }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            marginLeft: 10,
+            marginTop: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{
+              flex: 1.5,
+              fontSize: 15,
+              fontFamily: 'MangoDdobak-B',
+              includeFontPadding: false,
+              marginBottom: -1,
+            }}>
+            {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
+          </Text>
+          <View style={{flex: 1, marginTop: 5, marginRight: 15}}>
+            <Image
+              style={{
+                width: 35,
+                height: 35,
+              }}
+              resizeMode="contain"
+              source={require('../../../assets/emotions/emotion_happy.png')}
+            />
+          </View>
+        </View>
+      </View>
+      <View
+        style={{
+          flex: 3.5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: width * 0.7,
+          borderColor: colors.black,
+        }}>
+        <Image
+          style={{width: 270, height: 180}}
+          source={require('../../../assets/soccer_diary2.png')}
+        />
+        {props.showTutorial && (
+          <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
+        )}
+      </View>
+      <View
+        style={{
+          flex: 5,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          width: width * 0.7,
+          marginTop: 5,
+        }}>
+        <View style={{position: 'absolute'}}>
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: 'MangoDdobak-B',
+            includeFontPadding: false,
+            justifyContent: 'flex-start',
+            width: width * 0.8 - 2,
+            paddingHorizontal: 10,
+            lineHeight: 30,
+          }}>
+          제목 : {props.item.title}
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: 'MangoDdobak-R',
+            includeFontPadding: false,
+            justifyContent: 'flex-start',
+            paddingHorizontal: 10,
+            width: width * 0.8 - 2,
+            lineHeight: 30,
+          }}>
+          {props.item.content}
+        </Text>
+      </View>
     </View>
   </View>
 );
@@ -411,11 +589,16 @@ const Background = styled(ImageBackground)`
   align-items: center;
 `;
 
-const NotebookLine = () => (
+const NotebookLine = ({
+  lineWidth = width * 0.9,
+  lineHeight = 30.4,
+  ...props
+}) => (
   <View
     style={{
-      height: 30.4,
-      width: width * 0.9 - 12,
+      height: lineHeight,
+      alignSelf: 'center',
+      width: lineWidth - 12,
       borderTopColor: '#0000',
       borderLeftColor: '#0000',
       borderRightColor: '#0000',
