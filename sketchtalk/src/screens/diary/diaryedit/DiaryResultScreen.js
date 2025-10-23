@@ -126,6 +126,13 @@ export default function DiaryResultScreen({route}) {
       )}
       <ViewShot
         ref={captureRef}
+        options={{
+          fileName: moment(diaryDate)
+            .format('YYYY[년] M[월] D[일] [그림일기]')
+            .toString(),
+          format: 'png',
+          quality: 0.9,
+        }}
         style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
         <Background
           source={require('../../../assets/background/diary_bg_happy.png')}
