@@ -5,8 +5,10 @@ import {
   ImageBackground,
   Image,
   Pressable,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
@@ -18,6 +20,8 @@ import Modal from 'react-native-modal';
 import moment from 'moment';
 import AchievementRow from '../../../components/achievementrow';
 import CommentTextDownload from '../../../components/commenttextdownload';
+import ViewShot from 'react-native-view-shot';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 
 const {width, height} = Dimensions.get('window');
 
@@ -55,6 +59,47 @@ export default function DiaryResultScreen({route}) {
   const [achievementIndex, setAchievementIndex] = useState(0);
   const {diaryDate, isCalendar} = route.params;
 
+  // 다운로드 기능
+
+  const captureRef = useRef();
+
+  const getPhotoUri = async () => {
+    const uri = await captureRef.current.capture();
+    console.log('👂👂 Image saved to', uri);
+    return uri;
+  };
+
+  const hasAndroidPermission = async () => {
+    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+
+    const hasPermission = await PermissionsAndroid.check(permission);
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(permission);
+    return status === 'granted';
+  };
+
+  const onSave = async () => {
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'External Storage Write Permission',
+        message: 'App needs write permission',
+      },
+    );
+    if (!status === 'granted') {
+      toast('갤러리 접근 권한이 없어요');
+
+      return;
+    }
+
+    const uri = await getPhotoUri();
+    const result = await CameraRoll.save(uri);
+    console.log('🐤result', result);
+  };
+
   return (
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
@@ -63,6 +108,7 @@ export default function DiaryResultScreen({route}) {
         item={diaryDummyData}
         date={diaryDate}
         editOnPress={TempNavigateToEditScreen}
+        downloadOnPress={onSave}
         showTutorial={tutorialModalVisible}
         tutorialOnPress={() => setTutorialModalVisible(false)}
       />
@@ -81,20 +127,23 @@ export default function DiaryResultScreen({route}) {
           }}
         />
       )}
-      <Background
-        source={require('../../../assets/background/diary_bg_happy.png')}
-        resizeMode="contain"
+      <ViewShot
+        ref={captureRef}
         style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
-        <View
-          style={{
-            width: width * 0.8,
-            marginLeft: 25,
-            flex: 1,
-          }}>
-          <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
-          <DownloadCharacterCommentDisplay />
-        </View>
-      </Background>
+        <Background
+          source={require('../../../assets/background/diary_bg_happy.png')}
+          resizeMode="contain">
+          <View
+            style={{
+              width: width * 0.8,
+              marginLeft: 25,
+              flex: 1,
+            }}>
+            <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
+            <DownloadCharacterCommentDisplay />
+          </View>
+        </Background>
+      </ViewShot>
     </Background>
   );
 }
@@ -208,7 +257,7 @@ const DownloadCharacterCommentDisplay = props => (
         }}>
         <Image
           style={{
-            flex: 100,
+            flex: 5,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -218,11 +267,11 @@ const DownloadCharacterCommentDisplay = props => (
         <Text
           style={{
             flex: 1,
-            fontSize: 16,
+            fontSize: 14,
             fontFamily: 'MangoDdobak-B',
             includeFontPadding: false,
           }}>
-          또리
+          또리의 말
         </Text>
       </View>
       <CommentTextDownload
@@ -262,7 +311,11 @@ const DiaryDisplay = props => (
         shadowRadius: 1.0,
         elevation: 1,
       }}>
-      <DiaryDisplayHeader editOnPress={props.editOnPress} date={props.date} />
+      <DiaryDisplayHeader
+        editOnPress={props.editOnPress}
+        downloadOnPress={props.downloadOnPress}
+        date={props.date}
+      />
       <DiaryArtDisplay
         tutorialOnPress={props.tutorialOnPress}
         showTutorial={props.showTutorial}
@@ -439,7 +492,7 @@ const DiaryDisplayHeader = props => (
       <Pressable style={{flex: 1}} onPress={props.editOnPress}>
         <SimpleLineIcons name="pencil" size={20} color={colors.black} />
       </Pressable>
-      <Pressable style={{flex: 1}}>
+      <Pressable style={{flex: 1}} onPress={props.downloadOnPress}>
         <Feather name="download" size={22} color={colors.black} />
       </Pressable>
     </View>
