@@ -5,8 +5,10 @@ import {
   ImageBackground,
   Image,
   Pressable,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
@@ -17,6 +19,9 @@ import ConfirmButton from '../../../components/confirmbutton';
 import Modal from 'react-native-modal';
 import moment from 'moment';
 import AchievementRow from '../../../components/achievementrow';
+import CommentTextDownload from '../../../components/commenttextdownload';
+import ViewShot from 'react-native-view-shot';
+import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 
 const {width, height} = Dimensions.get('window');
 
@@ -50,9 +55,47 @@ export default function DiaryResultScreen({route}) {
     navigation.navigate('DiaryEditScreen', {...route.params});
   }
   const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(true);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [downloadEventModalVisible, setDownloadEventModalVisible] =
+    useState(false);
+  //0: not downloading
+  //1: downloading
+  //2: download complete
+  //3: download failed
+  const [downloadStatus, setDownloadStatus] = useState(0);
   const [achievementIndex, setAchievementIndex] = useState(0);
   const {diaryDate, isCalendar} = route.params;
+
+  // 다운로드 기능
+
+  const captureRef = useRef();
+
+  const getPhotoUri = async () => {
+    const uri = await captureRef.current.capture();
+    console.log('👂👂 Image saved to', uri);
+    return uri;
+  };
+
+  const downloadDiary = async () => {
+    setDownloadStatus(1);
+    setDownloadEventModalVisible(true);
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'External Storage Write Permission',
+        message: 'App needs write permission',
+      },
+    );
+    if (!status === 'granted') {
+      setDownloadStatus(3);
+      return;
+    }
+
+    const uri = await getPhotoUri();
+    const result = await CameraRoll.save(uri);
+    console.log('🐤result', result);
+    setDownloadStatus(2);
+  };
 
   return (
     <Background
@@ -62,6 +105,7 @@ export default function DiaryResultScreen({route}) {
         item={diaryDummyData}
         date={diaryDate}
         editOnPress={TempNavigateToEditScreen}
+        downloadOnPress={downloadDiary}
         showTutorial={tutorialModalVisible}
         tutorialOnPress={() => setTutorialModalVisible(false)}
       />
@@ -77,6 +121,40 @@ export default function DiaryResultScreen({route}) {
             achievementDummyData[achievementIndex + 1] !== undefined
               ? setAchievementIndex(achievementIndex + 1)
               : setAchievementModalVisible(false);
+          }}
+        />
+      )}
+      <ViewShot
+        ref={captureRef}
+        options={{
+          fileName: moment(diaryDate)
+            .format('YYYY[년] M[월] D[일] [그림일기]')
+            .toString(),
+          format: 'png',
+          quality: 0.9,
+        }}
+        style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
+        <Background
+          source={require('../../../assets/background/diary_bg_happy.png')}
+          resizeMode="contain">
+          <View
+            style={{
+              width: width * 0.8,
+              marginLeft: 25,
+              flex: 1,
+            }}>
+            <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
+            <DownloadCharacterCommentDisplay />
+          </View>
+        </Background>
+      </ViewShot>
+      {downloadEventModalVisible && (
+        <DownloadEventModal
+          isVisible={downloadEventModalVisible}
+          downloadStatus={downloadStatus}
+          confirmOnPress={() => {
+            setDownloadEventModalVisible(false);
+            setDownloadStatus(0);
           }}
         />
       )}
@@ -148,14 +226,16 @@ const CharacterCommentDisplay = props => (
       <Image
         style={{
           flex: 1,
+          marginLeft: 5,
           justifyContent: 'center',
           alignItems: 'center',
-          marginLeft: 5,
         }}
         source={require('../../../assets/character/comment_bear.png')}
       />
+
       <CommentText flex={2} text={commentDummyData} width={width} />
     </View>
+
     <ConfirmButton
       color={colors.primary}
       text={props.isCalendar ? '달력으로' : '홈으로'}
@@ -164,15 +244,57 @@ const CharacterCommentDisplay = props => (
   </View>
 );
 
-const CharacterImage = () => (
+const DownloadCharacterCommentDisplay = props => (
   <View
     style={{
-      flex: 3,
+      flex: 1,
+      width: width * 0.8,
+      marginLeft: 10,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingTop: 19,
+      marginBottom: 105,
     }}>
-    <Image source={require('../../../assets/character/question_bear.png')} />
+    <View
+      style={{
+        flex: 1.5,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+      }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 130,
+          marginBottom: 22,
+        }}>
+        <Image
+          style={{
+            flex: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          resizeMode="contain"
+          source={require('../../../assets/character/comment_bear.png')}
+        />
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 14,
+            fontFamily: 'MangoDdobak-B',
+            includeFontPadding: false,
+          }}>
+          또리의 말
+        </Text>
+      </View>
+      <CommentTextDownload
+        flex={2}
+        text={commentDummyData}
+        width={width * 0.75}
+        height={120}
+      />
+    </View>
   </View>
 );
 
@@ -203,12 +325,135 @@ const DiaryDisplay = props => (
         shadowRadius: 1.0,
         elevation: 1,
       }}>
-      <DiaryDisplayHeader editOnPress={props.editOnPress} date={props.date} />
+      <DiaryDisplayHeader
+        editOnPress={props.editOnPress}
+        downloadOnPress={props.downloadOnPress}
+        date={props.date}
+      />
       <DiaryArtDisplay
         tutorialOnPress={props.tutorialOnPress}
         showTutorial={props.showTutorial}
       />
       <DiaryTextDisplay item={props.item} />
+    </View>
+  </View>
+);
+
+const DownloadDiaryDisplay = props => (
+  <View
+    style={{
+      flex: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: width * 0.8,
+      marginTop: 50,
+    }}>
+    <View
+      style={{
+        height: 500,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: width * 0.8,
+          marginBottom: 7,
+          marginTop: -7,
+        }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            marginLeft: 10,
+            marginTop: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{
+              flex: 1.5,
+              fontSize: 15,
+              fontFamily: 'MangoDdobak-B',
+              includeFontPadding: false,
+              marginBottom: -1,
+            }}>
+            {moment(props.date).format('YYYY[년] M[월] D[일]').toString()}
+          </Text>
+          <View style={{flex: 1, marginTop: 5, marginRight: 15}}>
+            <Image
+              style={{
+                width: 35,
+                height: 35,
+              }}
+              resizeMode="contain"
+              source={require('../../../assets/emotions/emotion_happy.png')}
+            />
+          </View>
+        </View>
+      </View>
+      <View
+        style={{
+          flex: 3.5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: width * 0.7,
+          borderColor: colors.black,
+        }}>
+        <Image
+          style={{width: 270, height: 180}}
+          source={require('../../../assets/soccer_diary2.png')}
+        />
+        {props.showTutorial && (
+          <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
+        )}
+      </View>
+      <View
+        style={{
+          flex: 5,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          width: width * 0.7,
+          marginTop: 5,
+        }}>
+        <View style={{position: 'absolute'}}>
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+          <NotebookLine lineWidth={width * 0.8} lineHeight={30} />
+        </View>
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: 'MangoDdobak-B',
+            includeFontPadding: false,
+            justifyContent: 'flex-start',
+            width: width * 0.8 - 2,
+            paddingHorizontal: 10,
+            lineHeight: 30,
+          }}>
+          제목 : {props.item.title}
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: 'MangoDdobak-R',
+            includeFontPadding: false,
+            justifyContent: 'flex-start',
+            paddingHorizontal: 10,
+            width: width * 0.8 - 2,
+            lineHeight: 30,
+          }}>
+          {props.item.content}
+        </Text>
+      </View>
     </View>
   </View>
 );
@@ -261,7 +506,7 @@ const DiaryDisplayHeader = props => (
       <Pressable style={{flex: 1}} onPress={props.editOnPress}>
         <SimpleLineIcons name="pencil" size={20} color={colors.black} />
       </Pressable>
-      <Pressable style={{flex: 1}}>
+      <Pressable style={{flex: 1}} onPress={props.downloadOnPress}>
         <Feather name="download" size={22} color={colors.black} />
       </Pressable>
     </View>
@@ -403,6 +648,75 @@ const DiaryTextDisplay = props => (
   </View>
 );
 
+const DownloadEventModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            {props.downloadStatus === 1 && '다운로드 중...'}
+            {props.downloadStatus === 2 && '일기를 다운로드했어요!'}
+            {props.downloadStatus === 3 && '저장장치 권한을 허용해 주세요.'}
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {props.downloadStatus !== 1 && (
+              <ConfirmButton
+                color={colors.primary}
+                width={138}
+                height={37}
+                fontSize={14}
+                text={'확인'}
+                onPress={props.confirmOnPress}
+              />
+            )}
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
+);
+
 const Background = styled(ImageBackground)`
   flex: 1;
   width: ${width};
@@ -411,11 +725,16 @@ const Background = styled(ImageBackground)`
   align-items: center;
 `;
 
-const NotebookLine = () => (
+const NotebookLine = ({
+  lineWidth = width * 0.9,
+  lineHeight = 30.4,
+  ...props
+}) => (
   <View
     style={{
-      height: 30.4,
-      width: width * 0.9 - 12,
+      height: lineHeight,
+      alignSelf: 'center',
+      width: lineWidth - 12,
       borderTopColor: '#0000',
       borderLeftColor: '#0000',
       borderRightColor: '#0000',
