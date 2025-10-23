@@ -56,6 +56,13 @@ export default function DiaryResultScreen({route}) {
   }
   const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
   const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [downloadEventModalVisible, setDownloadEventModalVisible] =
+    useState(false);
+  //0: not downloading
+  //1: downloading
+  //2: download complete
+  //3: download failed
+  const [downloadStatus, setDownloadStatus] = useState(0);
   const [achievementIndex, setAchievementIndex] = useState(0);
   const {diaryDate, isCalendar} = route.params;
 
@@ -69,19 +76,9 @@ export default function DiaryResultScreen({route}) {
     return uri;
   };
 
-  const hasAndroidPermission = async () => {
-    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-
-    const hasPermission = await PermissionsAndroid.check(permission);
-    if (hasPermission) {
-      return true;
-    }
-
-    const status = await PermissionsAndroid.request(permission);
-    return status === 'granted';
-  };
-
-  const onSave = async () => {
+  const downloadDiary = async () => {
+    setDownloadStatus(1);
+    setDownloadEventModalVisible(true);
     const status = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       {
@@ -90,14 +87,14 @@ export default function DiaryResultScreen({route}) {
       },
     );
     if (!status === 'granted') {
-      toast('갤러리 접근 권한이 없어요');
-
+      setDownloadStatus(3);
       return;
     }
 
     const uri = await getPhotoUri();
     const result = await CameraRoll.save(uri);
     console.log('🐤result', result);
+    setDownloadStatus(2);
   };
 
   return (
@@ -108,7 +105,7 @@ export default function DiaryResultScreen({route}) {
         item={diaryDummyData}
         date={diaryDate}
         editOnPress={TempNavigateToEditScreen}
-        downloadOnPress={onSave}
+        downloadOnPress={downloadDiary}
         showTutorial={tutorialModalVisible}
         tutorialOnPress={() => setTutorialModalVisible(false)}
       />
@@ -144,6 +141,16 @@ export default function DiaryResultScreen({route}) {
           </View>
         </Background>
       </ViewShot>
+      {downloadEventModalVisible && (
+        <DownloadEventModal
+          isVisible={downloadEventModalVisible}
+          downloadStatus={downloadStatus}
+          confirmOnPress={() => {
+            setDownloadEventModalVisible(false);
+            setDownloadStatus(0);
+          }}
+        />
+      )}
     </Background>
   );
 }
@@ -632,6 +639,75 @@ const DiaryTextDisplay = props => (
       {props.item.content}
     </Text>
   </View>
+);
+
+const DownloadEventModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            {props.downloadStatus === 1 && '다운로드 중...'}
+            {props.downloadStatus === 2 && '일기를 다운로드했어요!'}
+            {props.downloadStatus === 3 && '저장장치 권한을 허용해 주세요.'}
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {props.downloadStatus !== 1 && (
+              <ConfirmButton
+                color={colors.primary}
+                width={138}
+                height={37}
+                fontSize={14}
+                text={'확인'}
+                onPress={props.confirmOnPress}
+              />
+            )}
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`
