@@ -87,6 +87,7 @@ export default function DiaryResultScreen({route}) {
 const AchievementModal = props => (
   <Modal
     isVisible={props.isVisible}
+    statusBarTranslucent={true}
     backdropOpacity={0.9}
     animationInTiming={600}
     animationOutTiming={1}
