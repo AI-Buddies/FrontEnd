@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet, TouchableOpacity} from 'react-native';
+import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
+import FormScrollContainer from '../../components/layout/formScrollContainer';
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,14 +13,16 @@ export default function AuthScreen({navigation}){
 
     return(
         <SafeAreaView style={{flex: 1}}>
-            <ImageBackground source={require('../../assets/background/yellow_bg.png')}
+          <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-        <View style={styles.container}>
-            <Image
-            source={require('../../assets/main_logo.png')}
-            style={styles.logo}/>
+            <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
+              {({scrollToEnd}) => (
+            <View style={styles.container}>
+              <Image
+                source={require('../../assets/main_logo.png')}
+                style={styles.logo}/>
 
             <View style={styles.loginCard}>
 
@@ -30,6 +33,7 @@ export default function AuthScreen({navigation}){
               placeholder="아이디"
               value={id}
               onChangeText={setId}
+              onFocus={scrollToEnd}
             />
 
             <InputField
@@ -38,20 +42,21 @@ export default function AuthScreen({navigation}){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              onFocus={scrollToEnd}
             />
           </View>
-          <View style={styles.button}>
+                </View>
+                )}</FormScrollContainer> 
+                <View style={styles.button}>
             <ConfirmButton
             text = "로그인"
             color = {colors.primary}
             width = {width}
 
             onPress={() => navigation.replace('TabNavigator')} // 누르면 TabNavigator로 이동
-      />
-        </View>
-        </View>
-
-                </ImageBackground>
+                    />
+                  </View>
+              </ImageBackground>
         </SafeAreaView>
     )
 }

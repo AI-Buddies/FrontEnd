@@ -4,6 +4,7 @@ import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import FormScrollContainer from '../../components/layout/formScrollContainer'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,36 +31,39 @@ export default function SignupInfoScreen({ navigation }){
 
     return(
         <SafeAreaView style={{flex: 1}}>
-            <ImageBackground source={require('../../assets/background/yellow_bg.png')}
+          <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-        <View style={styles.container}>
-            <Image
-            source={require('../../assets/main_logo.png')}
-            style={styles.logo}/>
+          <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
+            {({scrollToEnd}) => (
+            <View style={styles.container}>
+              <Image
+                source={require('../../assets/main_logo.png')}
+                style={styles.logo}/>
 
-            <View style={styles.signupCard}>
+              <View style={styles.signupCard}>
 
-            <Text style={styles.title}>회원가입</Text>
+              <Text style={styles.title}>회원가입</Text>
 
-            <InputField
-              label="이름"
-              placeholder="이름"
-              value={name}
-              onChangeText={setName}
-              keyboardType = "default"
-            />
+              <InputField
+                label="이름"
+                placeholder="이름"
+                value={name}
+                onChangeText={setName}
+                keyboardType = "default"
+                onFocus={scrollToEnd} 
+              />
 
-            <InputField
-              label="생년월일"
-              placeholder="2000년 01월 01일"
-              value={bd}
-              onPressIn={openPicker}
-              showSoftInputOnFocus={false}
-              keyboardType= "numeric"
-            />
-            {showPicker &&(
+              <InputField
+                label="생년월일"
+                placeholder="2000년 01월 01일"
+                value={bd}
+                onPressIn={openPicker}
+                showSoftInputOnFocus={false}
+                keyboardType= "numeric"
+              />
+              {showPicker &&(
               <DateTimePicker
                 value={pickerDate}
                 mode="date"
@@ -67,10 +71,12 @@ export default function SignupInfoScreen({ navigation }){
                 maximumDate={new Date()}
                 onChange={onChangeDate}
               />
-            )}
-
-        </View>
-        <View style={styles.button}>
+              )}
+                </View>
+              </View>
+          )}</FormScrollContainer>
+            
+            <View style={styles.button}>
             <ConfirmButton
             text = "회원가입"
             color = {colors.primary}
@@ -78,9 +84,8 @@ export default function SignupInfoScreen({ navigation }){
             marginBottom = {10}
             onPress={() => navigation.navigate('Main')}
       />
-        </View>
-        </View>
-                </ImageBackground>
+            </View>
+          </ImageBackground>
         </SafeAreaView>
     )
 }

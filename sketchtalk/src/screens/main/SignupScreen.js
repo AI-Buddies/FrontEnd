@@ -3,6 +3,7 @@ import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
+import FormScrollContainer from '../../components/layout/formScrollContainer'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,17 +13,18 @@ export default function SignupScreen({ navigation }){
 
     return(
         <SafeAreaView style={{flex: 1}}>
-            <ImageBackground source={require('../../assets/background/yellow_bg.png')}
+          <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
-
-        <View style={styles.container}>
-            <Image
-            source={require('../../assets/main_logo.png')}
-            style={styles.logo}/>
+          
+          <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
+            {({scrollNearBottom, scrollToEnd}) =>(
+            <View style={styles.container}>
+              <Image
+                source={require('../../assets/main_logo.png')}
+                style={styles.logo}/>
 
             <View style={styles.signupCard}>
-
             <Text style={styles.title}>회원가입</Text>
 
             {/* 아이디 중복확인 */}
@@ -37,6 +39,7 @@ export default function SignupScreen({ navigation }){
               helperStatus="error"
               onRightPress={() => {}}
               helperText="이미 사용중인 아이디입니다."
+              onFocus={scrollToEnd}
             />
 
             <InputField
@@ -45,25 +48,29 @@ export default function SignupScreen({ navigation }){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              onFocus={scrollToEnd}
             />
             <InputField
               label="비밀번호 확인"
               placeholder="비밀번호"
               secureTextEntry
+              onFocus={()=>scrollNearBottom(100)}
             />
 
-        </View>
-        <View style={styles.button}>
-            <ConfirmButton
-            text = "다음"
-            color = {colors.primary}
-            width = {width}
-            marginBottom = {10}
-            onPress={() => navigation.navigate('SignupInfo')}
-      />
-        </View>
-        </View>
-                </ImageBackground>
+              </View>
+            </View>
+          )}</FormScrollContainer>
+
+          <View style={styles.button}>
+              <ConfirmButton
+                text = "다음"
+                color = {colors.primary}
+                width = {width}
+                marginBottom = {10}
+                onPress={() => navigation.navigate('SignupInfo')}
+              />
+            </View>
+          </ImageBackground>
         </SafeAreaView>
     )
 }
