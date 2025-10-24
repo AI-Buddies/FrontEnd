@@ -26,7 +26,7 @@ const DATA = [
         id: '3',
         title: '야구',
         subtitle: '야구가 언급되는 일기 생성',
-        image: require('../../assets/challenge/ball.png'),
+        image: require('../../assets/challenge/baseball.png'),
         completed: false,
     },
     {

@@ -14,7 +14,10 @@ function ChallengeList({
     const disabled = !completed;
 
     return(
-        <View style = {[styles.card, style]}>
+        <View style = {[
+            styles.card,
+            disabled ? styles.cardDisabled : styles.cardEnabled,
+            style]}>
             {completed && (
                 <Image source={require('../assets/challenge/challengeStamp.png')} style={styles.badge} resizeMode="contain" />
             )}
@@ -52,6 +55,22 @@ card: {
     elevation: 4,
     marginHorizontal: 16,
     marginBottom: 14,
+},
+cardEnabled:{
+    elavation: 6,
+    shadowColor: colors.primary,
+    borderRadius: 18,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+},
+cardDisabled:{
+    elavation: 6,
+    shadowColor: colors.gray400,
+    borderRadius: 18,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
 },
 left: {
     width: 84,

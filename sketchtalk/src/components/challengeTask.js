@@ -14,8 +14,9 @@ function ChallengeTask({
     completed,  // 완료여부
     })  {
         const safeTotal = Math.max(total, 0);
-        const ratio = safeTotal === 0 ? 0 : Math.min(1, Math.max(0, done / safeTotal));
-        const isCompleted = typeof completed === 'boolean' ? completed : (safeTotal > 0 && done >= safeTotal);
+        const safeDone = Math.min(done, safeTotal);
+        const ratio = safeTotal === 0 ? 0 : Math.min(1, Math.max(0, safeDone / safeTotal));
+        const isCompleted = typeof completed === 'boolean' ? completed : (safeTotal > 0 && safeDone >= safeTotal);
 
     return(
         <Pressable
@@ -43,7 +44,7 @@ function ChallengeTask({
             </View>
 
             <Text numberOfLines={1} style={[styles.title, disabled && styles.disabledText]}>{title}</Text>
-            <Text style={[styles.countText, disabled && styles.disabledText]}>{done} / {safeTotal}</Text>
+            <Text style={[styles.countText, disabled && styles.disabledText]}>{safeDone} / {safeTotal}</Text>
             <View style={styles.progressTrack}>
                 <View style={[
                     styles.progressFill,
@@ -76,8 +77,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   image: {
-    width: 68,
-    height: 68,
+    width: 80,
+    height: 80,
   },
   badge: {
     position: 'absolute',
