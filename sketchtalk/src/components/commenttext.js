@@ -2,7 +2,7 @@ import {View, Text} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
 
-const CommentText = props => (
+const CommentText = ({height = 100, ...props}) => (
   <View
     style={{
       flex: props.flex,
@@ -20,6 +20,7 @@ const CommentText = props => (
         borderBottomLeftRadius: 18,
         borderColor: colors.black,
         borderWidth: 1,
+        height: height,
       }}>
       <View style={{position: 'absolute', marginLeft: 5, marginTop: 7}}>
         <NotebookLine {...props} />
@@ -28,11 +29,14 @@ const CommentText = props => (
       </View>
       <Text
         style={{
-          fontSize: 16,
+          fontSize: 14,
           textAlign: 'left',
+          fontFamily: 'MangoDdobak-R',
+          includeFontPadding: false,
           paddingHorizontal: 10,
           marginBottom: 3,
           color: colors.black,
+          lineHeight: 26,
         }}>
         {props.text}
       </Text>

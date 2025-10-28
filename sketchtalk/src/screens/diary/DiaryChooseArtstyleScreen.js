@@ -24,10 +24,9 @@ const dummyData = [
   {style_name: '화풍7'},
   {style_name: '화풍8'},
   {style_name: '화풍9'},
-  {style_name: '화풍10'},
 ];
 
-export default function DiaryConfirmArtstyleScreen() {
+export default function DiaryChooseArtstyleScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
     navigation.navigate('DiaryArtInProgressScreen');
@@ -45,7 +44,7 @@ export default function DiaryConfirmArtstyleScreen() {
         }}>
         <FlatList
           contentContainerStyle={{
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
           }}
           keyExtractor={item => item.style_name}
@@ -67,11 +66,13 @@ const MessageItem = item => (
       width: 150,
       height: 125,
       textAlign: 'center',
-      margin: 10,
+      marginHorizontal: 5,
+      marginVertical: 10,
     }}
     onPress={item.onPress}>
     <Image
-      style={{width: 150}}
+      style={{width: 150, height: 125}}
+      resizeMode="contain"
       source={require('../../assets/soccer_diary.png')}
     />
     <Text style={{alignSelf: 'flex-end'}}>{item.style_name}</Text>

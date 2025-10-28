@@ -8,35 +8,30 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = {
-  title: '축구하다가 넘어졌지만 재밌었어!',
-  content:
-    '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
-};
-
-export default function DiaryConfirmTextScreen() {
+export default function DiaryConfirmArtScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryResultScreen');
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {date: new Date(2025, 4, 1), isCalendar: false},
+    });
   }
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
-      <DiaryArtDisplay item={dummyData} />
+      <DiaryArtDisplay />
       <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
       <View style={{flex: 1.7}}>
         <ConfirmButton
           text={'응! 다시 그려줘.'}
           color={colors.primary}
-          width={width}
           marginBottom={0}
         />
         <ConfirmButton
           text={'아니야! 마음에 들어.'}
           color={colors.blue}
-          width={width}
           marginBottom={22}
           onPress={TempNavigate}
         />
