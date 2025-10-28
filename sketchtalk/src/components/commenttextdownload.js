@@ -2,14 +2,15 @@ import {View, Text} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
 
-const CommentText = ({height = 100, ...props}) => (
+const CommentTextDownload = ({height = 100, ...props}) => (
   <View
     style={{
       flex: props.flex,
       alignItems: 'flex-start',
-      width: props.width * 0.9,
+      width: props.width * 0.8,
       marginVertical: props.marginVertical,
       paddingRight: 15,
+      paddingLeft: 10,
     }}>
     <View
       style={{
@@ -18,7 +19,7 @@ const CommentText = ({height = 100, ...props}) => (
         borderTopRightRadius: 18,
         borderBottomRightRadius: 18,
         borderBottomLeftRadius: 18,
-        borderColor: colors.black,
+        borderColor: colors.creamWhite,
         borderWidth: 1,
         height: height,
       }}>
@@ -27,9 +28,10 @@ const CommentText = ({height = 100, ...props}) => (
         <NotebookLine {...props} />
         <NotebookLine {...props} />
       </View>
+
       <Text
         style={{
-          fontSize: 14,
+          fontSize: 12,
           textAlign: 'left',
           fontFamily: 'MangoDdobak-R',
           includeFontPadding: false,
@@ -58,4 +60,4 @@ const NotebookLine = props => (
   />
 );
 
-export default CommentText;
+export default CommentTextDownload;

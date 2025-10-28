@@ -2,18 +2,24 @@ import {Pressable, Text, View} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
 
-const ConfirmButton = props => (
+const ConfirmButton = ({
+  flex = 1,
+  width = 260,
+  height = 55,
+  fontSize = 20,
+  ...props
+}) => (
   <View
     style={{
-      flex: 1,
+      flex: flex,
       justifyContent: 'center',
       alignItems: 'center',
-      width: props.width * 0.65,
+      width: width,
     }}>
     <Pressable
       style={{
-        width: props.width * 0.65,
-        height: 55,
+        width: width,
+        height: height,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 36,
@@ -29,7 +35,14 @@ const ConfirmButton = props => (
         elevation: 1,
       }}
       onPress={props.onPress}>
-      <Text style={{fontSize: 20, paddingBottom: 6, color: colors.white}}>
+      <Text
+        style={{
+          fontSize: fontSize,
+          fontFamily: 'MangoDdobak-B',
+          color: colors.white,
+          textAlignVertical: 'bottom',
+          marginbottom: 6,
+        }}>
         {props.text}
       </Text>
     </Pressable>

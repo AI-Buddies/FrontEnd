@@ -196,9 +196,11 @@ function MessageItem({item}) {
         <Text
           style={{
             fontSize: 16,
+            fontFamily: 'MangoDdobak-R',
+            lineHeight: 25,
             textAlign: 'left',
             paddingHorizontal: 10,
-            marginBottom: 3,
+            marginBottom: 2,
             color: colors.black,
           }}>
           {item.text}
@@ -233,8 +235,10 @@ function MessageItem({item}) {
           style={{
             fontSize: 16,
             textAlign: 'left',
+            fontFamily: 'MangoDdobak-R',
+            lineHeight: 25,
             paddingHorizontal: 10,
-            marginBottom: 3,
+            marginBottom: 2,
             color: colors.white,
           }}>
           {item.text}

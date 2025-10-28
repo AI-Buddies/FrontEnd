@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/MangoDdobak/static/MangoDdobak-B.ttf",
+      "sha1": "5a7b663c6e51c076c4f57e3114645e4b5271ad8b"
+    },
+    {
+      "path": "src/assets/fonts/MangoDdobak/static/MangoDdobak-L.ttf",
+      "sha1": "b36154b10a9a8f36ade85c9c4e962d19692ef282"
+    },
+    {
+      "path": "src/assets/fonts/MangoDdobak/static/MangoDdobak-R.ttf",
+      "sha1": "c5d61bf4db21f9756f5bd7adbd214c8099bb3ff0"
+    }
+  ]
+}

@@ -26,6 +26,7 @@ export default function DiaryArtInProgressScreen() {
         style={{
           flex: 1,
           marginTop: 100,
+          fontFamily: 'MangoDdobak-B',
           fontSize: 30,
           color: colors.primary,
         }}>
@@ -42,11 +43,24 @@ export default function DiaryArtInProgressScreen() {
         <Pressable
           style={{alignSelf: 'flex-start', fontSize: 25, marginTop: 20}}
           onPress={TempNavigate}>
-          <Text style={{alignSelf: 'flex-start', fontSize: 25, marginTop: 0}}>
+          <Text
+            style={{
+              alignSelf: 'flex-start',
+              fontSize: 25,
+              fontFamily: 'MangoDdobak-B',
+              marginTop: 0,
+            }}>
             오늘의 추천💡
           </Text>
         </Pressable>
-        <Text style={{alignSelf: 'flex-start', fontSize: 20, marginTop: 20}}>
+        <Text
+          style={{
+            alignSelf: 'flex-start',
+            fontSize: 20,
+            fontFamily: 'MangoDdobak-R',
+            lineHeight: 29,
+            marginTop: 20,
+          }}>
           일기를 쓸 때 너무 많은 걸 쓰려고 하지 말고, 가장 기억에 남는 한 가지를
           고르면 좋아! 오늘 친구랑 축구한 것처럼 말이야 :) 일기를 쓸 때 너무
           많은 걸 쓰려고 하지 말고, 가장 기억에 남는 한 가지를 고르면 좋아! 오늘
@@ -63,9 +77,23 @@ const CharacterImage = () => (
       flex: 3,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingTop: 19,
     }}>
-    <Image source={require('../../assets/character/writing_bear.png')} />
+    <ImageBackground
+      source={require('../../assets/character/ellipse.png')}
+      style={{
+        width: 360,
+        height: 360,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Image
+        style={{
+          shadowColor: colors.primary,
+          borderRadius: 120,
+        }}
+        source={require('../../assets/character/writing_bear.png')}
+      />
+    </ImageBackground>
   </View>
 );
 
