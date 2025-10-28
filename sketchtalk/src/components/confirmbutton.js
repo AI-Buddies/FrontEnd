@@ -25,7 +25,7 @@ const ConfirmButton = ({
         borderRadius: 36,
         backgroundColor: props.color,
         marginBottom: props.marginBottom,
-        shadowColor: '#000',
+        shadowColor: colors.black,
         shadowOffset: {
           width: 0,
           height: 1,

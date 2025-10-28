@@ -9,7 +9,7 @@ export default function HomeScreen() {
   return (
     <Container>
       <Pressable onPress={() => navigation.navigate('DiaryStackNavigator')}>
-        <Message>메인 화면</Message>
+        <Message>홈 화면</Message>
       </Pressable>
     </Container>
   );
