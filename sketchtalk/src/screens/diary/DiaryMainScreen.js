@@ -13,7 +13,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 //api
-import {useDiaryChatFetch} from './api/useDiaryChatFetch';
+import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/useDiaryInitialFetch';
 
 const {width, height} = Dimensions.get('window');
@@ -23,7 +23,7 @@ const dummyData = [];
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryTextInProgressScreen');
+    navigation.navigate('DiaryConfirmTextScreen');
   }
 
   //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
@@ -68,7 +68,7 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton />
+      <MicButton onPress={TempNavigate} />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
@@ -95,7 +95,7 @@ const MessageList = styled.FlatList`
   width: ${width};
 `;
 
-const MicButton = () => (
+const MicButton = props => (
   <View
     style={{
       flex: 1.5,
@@ -108,6 +108,7 @@ const MicButton = () => (
       shadowRadius: 1.0,
     }}>
     <Pressable
+      onPress={props.onPress}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
