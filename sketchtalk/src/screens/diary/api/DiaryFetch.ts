@@ -2,7 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
 type Chat = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     reply: string;
@@ -12,7 +12,7 @@ type Chat = {
 };
 
 type TextResult = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     title: string;
@@ -28,7 +28,7 @@ type TextConfirmRequest = {
 };
 
 type TextConfirmReply = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     diaryId: number;
@@ -45,7 +45,7 @@ type ArtResultRequest = {
 };
 
 type ArtResultReply = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     diaryId: number;
@@ -60,7 +60,7 @@ type ArtConfirmRequest = {
 };
 
 type ArtConfirmReply = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     diaryId: number;
@@ -85,7 +85,7 @@ type DiaryEditRequest = {
 };
 
 type DiaryEditReply = {
-  statusCode: string;
+  statusCode: number;
   message: string;
   data: {
     diaryId: number;
