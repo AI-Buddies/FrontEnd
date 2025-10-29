@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -12,6 +12,8 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+//api
+import {useDiaryChatFetch} from './api/useDiaryChatFetch';
 
 const {width, height} = Dimensions.get('window');
 
@@ -53,6 +55,21 @@ export default function DiaryMainScreen() {
   function TempNavigate() {
     navigation.navigate('DiaryTextInProgressScreen');
   }
+
+  const [userDialog, setUserDialog] = useState('');
+
+  function AddMessage(dialog, isAI) {
+    const messageArraySize = dummyData.size();
+    dummyData.push({id: messageArraySize, isAI: isAI, text: dialog});
+  }
+
+  function FetchMessage(dialog) {
+    AddMessage(dialog, false);
+    //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+    //AddMessage(data.data.reply, true);
+    AddMessage('답변이야', true);
+  }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
@@ -145,6 +162,8 @@ const TextBar = props => (
         elevation: 1,
       }}>
       <TextInput
+        value={userDialog}
+        onChangeText={setUserDialog}
         style={{
           flex: 6,
           textAlign: 'left',
