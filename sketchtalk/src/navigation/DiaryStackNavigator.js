@@ -5,7 +5,6 @@ import DiaryMainScreen from '../screens/diary/DiaryMainScreen';
 import DiaryConfirmTextScreen from '../screens/diary/DiaryConfirmTextScreen';
 import DiaryChooseArtstyleScreen from '../screens/diary/DiaryChooseArtstyleScreen';
 import DiaryConfirmArtScreen from '../screens/diary/DiaryConfirmArtScreen';
-import DiaryArtInProgressScreen from '../screens/diary/DiaryArtInProgressScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,11 +31,6 @@ const DiaryStackNavigator = () => (
     <Stack.Screen
       name="DiaryConfirmArtScreen"
       component={DiaryConfirmArtScreen}
-      options={{title: '일기작성'}}
-    />
-    <Stack.Screen
-      name="DiaryArtInProgressScreen"
-      component={DiaryArtInProgressScreen}
       options={{title: '일기작성'}}
     />
   </Stack.Navigator>

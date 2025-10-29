@@ -29,7 +29,7 @@ const dummyData = [
 export default function DiaryChooseArtstyleScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryArtInProgressScreen');
+    navigation.navigate('DiaryConfirmArtScreen');
   }
   return (
     <Background
