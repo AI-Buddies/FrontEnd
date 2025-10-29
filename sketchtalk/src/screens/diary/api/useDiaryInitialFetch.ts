@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
-type Todo = {
+type Chat = {
   statusCode: string;
   message: string;
   data: {
@@ -11,11 +11,11 @@ type Todo = {
   isSuccess: boolean;
 };
 
-export const useDiaryChatFetch = (dialog: string) => {
+export const useDiaryInitialFetch = () => {
   return useQuery({
-    queryKey: [{dialog}],
+    queryKey: [],
     queryFn: () => {
-      return axios.get<Todo>('about:blank');
+      return axios.get<Chat>('about:blank');
     },
     staleTime: 1000,
   });

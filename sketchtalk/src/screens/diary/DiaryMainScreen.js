@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -14,41 +14,11 @@ import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 //api
 import {useDiaryChatFetch} from './api/useDiaryChatFetch';
+import {useDiaryInitialFetch} from './api/useDiaryInitialFetch';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = [
-  {
-    id: 0,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 1,
-    isAI: true,
-    text: '우 와 ~',
-  },
-  {
-    id: 2,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 3,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 4,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 5,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-];
+const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
@@ -56,15 +26,20 @@ export default function DiaryMainScreen() {
     navigation.navigate('DiaryTextInProgressScreen');
   }
 
+  //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
   const [userDialog, setUserDialog] = useState('');
+  useEffect(() => {
+    //AddMessage(initdata.data.reply, true);
+    AddMessage('첫 메시지야', true);
+  });
 
   function AddMessage(dialog, isAI) {
     const messageArraySize = dummyData.size();
     dummyData.push({id: messageArraySize, isAI: isAI, text: dialog});
   }
 
-  function FetchMessage(dialog) {
-    AddMessage(dialog, false);
+  function FetchMessage() {
+    AddMessage(userDialog, false);
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
     //AddMessage(data.data.reply, true);
     AddMessage('답변이야', true);
@@ -84,7 +59,7 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton />
-      <TextBar onPress={TempNavigate} />
+      <TextBar onPress={FetchMessage()} />
     </Background>
   );
 }
