@@ -31,15 +31,17 @@ export default function DiaryMainScreen() {
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
     AddMessage('첫 메시지야', true);
-  });
+  }, []);
 
   function AddMessage(dialog, isAI) {
-    const messageArraySize = dummyData.size();
-    dummyData.push({id: messageArraySize, isAI: isAI, text: dialog});
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({id: messageArraySize, isAI: isAI, text: dialog});
   }
 
   function FetchMessage() {
+    if (userDialog === undefined || userDialog === '') return;
     AddMessage(userDialog, false);
+    setUserDialog('');
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
     //AddMessage(data.data.reply, true);
     AddMessage('답변이야', true);
@@ -51,7 +53,7 @@ export default function DiaryMainScreen() {
       resizeMode="cover">
       <CharacterImage />
       <MessageList
-        data={dummyData.reverse()}
+        data={dummyData}
         contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
@@ -59,7 +61,11 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton />
-      <TextBar onPress={FetchMessage()} />
+      <TextBar
+        onPress={() => FetchMessage()}
+        value={userDialog}
+        onChangeText={setUserDialog}
+      />
     </Background>
   );
 }
@@ -137,8 +143,8 @@ const TextBar = props => (
         elevation: 1,
       }}>
       <TextInput
-        value={userDialog}
-        onChangeText={setUserDialog}
+        value={props.value}
+        onChangeText={props.onChangeText}
         style={{
           flex: 6,
           textAlign: 'left',

@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
-type Todo = {
+type Chat = {
   statusCode: string;
   message: string;
   data: {
@@ -15,7 +15,7 @@ export const useDiaryChatFetch = (dialog: string) => {
   return useQuery({
     queryKey: [{dialog}],
     queryFn: () => {
-      return axios.get<Todo>('about:blank');
+      return axios.get<Chat>('about:blank');
     },
     staleTime: 1000,
   });
