@@ -44,11 +44,15 @@ export default function DiaryMainScreen() {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
     AddMessage(userDialog, false);
     setUserDialog('');
-    //setIsWaitingReply(true);
+    setIsWaitingReply(true);
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
     //if (!isLoading) setIsWaitingReply(false);
+    setTimeout(() => {
+      setIsWaitingReply(false);
+      AddMessage('답변이야', true);
+    }, 3000);
+
     //AddMessage(data.data.reply, true);
-    AddMessage('답변이야', true);
   }
 
   return (
