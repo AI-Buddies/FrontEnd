@@ -28,8 +28,10 @@ export default function DiaryMainScreen() {
 
   //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
   const [userDialog, setUserDialog] = useState('');
+  const [isWaitingReply, setIsWaitingReply] = useState(false);
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
+    dummyData.length = 0; //clear array
     AddMessage('첫 메시지야', true);
   }, []);
 
@@ -39,10 +41,12 @@ export default function DiaryMainScreen() {
   }
 
   function FetchMessage() {
-    if (userDialog === undefined || userDialog === '') return;
+    if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
     AddMessage(userDialog, false);
     setUserDialog('');
+    //setIsWaitingReply(true);
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+    //if (!isLoading) setIsWaitingReply(false);
     //AddMessage(data.data.reply, true);
     AddMessage('답변이야', true);
   }
@@ -63,8 +67,9 @@ export default function DiaryMainScreen() {
       <MicButton />
       <TextBar
         onPress={() => FetchMessage()}
-        value={userDialog}
-        onChangeText={setUserDialog}
+        value={isWaitingReply ? '' : userDialog}
+        onChangeText={!isWaitingReply && setUserDialog}
+        isWaitingReply={isWaitingReply}
       />
     </Background>
   );
@@ -142,19 +147,31 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      <TextInput
-        value={props.value}
-        onChangeText={props.onChangeText}
-        style={{
-          flex: 6,
-          textAlign: 'left',
-          color: colors.black,
-          paddingLeft: 12,
-          fontSize: 16,
-          height: 46,
-          paddingBottom: 12,
-        }}
-      />
+      {!props.isWaitingReply ? (
+        <TextInput
+          value={props.value}
+          onChangeText={props.onChangeText}
+          style={{
+            flex: 6,
+            textAlign: 'left',
+            color: colors.black,
+            paddingLeft: 12,
+            fontSize: 16,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 6,
+            color: colors.black,
+            paddingLeft: 12,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      )}
       <Pressable
         style={{
           flex: 1,
