@@ -99,7 +99,7 @@ type DiaryEditReply = {
 
 export const useDiaryInitialFetch = () => {
   return useQuery({
-    queryKey: [],
+    queryKey: ['useDiaryInitialFetch'],
     queryFn: () => {
       return axios.get<Chat>('about:blank');
     },
@@ -109,7 +109,7 @@ export const useDiaryInitialFetch = () => {
 
 export const useDiaryChatFetch = (dialog: string) => {
   return useQuery({
-    queryKey: [{dialog}],
+    queryKey: ['useDiaryChatFetch'],
     queryFn: () => {
       return axios.get<Chat>('about:blank');
     },
@@ -119,7 +119,7 @@ export const useDiaryChatFetch = (dialog: string) => {
 
 export const useDiaryGetTextFetch = (userId: number) => {
   return useQuery({
-    queryKey: [{userId}],
+    queryKey: ['useDiaryGetTextFetch'],
     queryFn: () => {
       return axios.get<TextResult>('about:blank');
     },
@@ -131,7 +131,7 @@ export const useDiaryConfirmTextFetch = (
   TextConfirmRequest: TextConfirmRequest,
 ) => {
   return useQuery({
-    queryKey: [TextConfirmRequest],
+    queryKey: ['useDiaryConfirmTextFetch'],
     queryFn: () => {
       return axios.get<TextConfirmReply>('about:blank');
     },
@@ -141,7 +141,7 @@ export const useDiaryConfirmTextFetch = (
 
 export const useDiaryGetArtFetch = (ArtResultRequest: ArtResultRequest) => {
   return useQuery({
-    queryKey: [ArtResultRequest],
+    queryKey: ['useDiaryGetArtFetch'],
     queryFn: () => {
       return axios.get<ArtResultReply>('about:blank');
     },
@@ -153,7 +153,7 @@ export const useDiaryConfirmArtFetch = (
   ArtConfirmRequest: ArtConfirmRequest,
 ) => {
   return useQuery({
-    queryKey: [ArtConfirmRequest],
+    queryKey: ['useDiaryConfirmArtFetch'],
     queryFn: () => {
       return axios.get<ArtConfirmReply>('about:blank');
     },
@@ -163,7 +163,7 @@ export const useDiaryConfirmArtFetch = (
 
 export const useDiaryEditFetch = (DiaryEditRequest: DiaryEditRequest) => {
   return useQuery({
-    queryKey: [DiaryEditRequest],
+    queryKey: ['useDiaryEditFetch'],
     queryFn: () => {
       return axios.get<DiaryEditReply>('about:blank');
     },

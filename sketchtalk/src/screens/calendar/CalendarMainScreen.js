@@ -138,7 +138,8 @@ export default function CalenderMainScreen({route}) {
     });
   }
 
-  //const {data, error, isFetching, isLoading} = listView ? useListViewQueryFetch(date) : useCalendarViewQueryFetch(date)
+  //const listViewQuery = useListViewQueryFetch(date)
+  //const calendarViewQuery = useCalendarViewQueryFetch(date)
 
   return (
     <Background

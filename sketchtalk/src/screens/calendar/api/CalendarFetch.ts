@@ -62,9 +62,11 @@ type DiaryViewReply = {
   isSuccess: boolean;
 };
 
-export const useCalendarViewQueryFetch = (month: number, year: number) => {
+export const useCalendarViewQueryFetch = (date: Date) => {
+  const month = date.getMonth;
+  const year = date.getFullYear;
   return useQuery({
-    queryKey: [],
+    queryKey: ['useCalendarViewQueryFetch', date],
     queryFn: () => {
       return axios.get<CalendarViewQueryReply>('about:blank');
     },
@@ -72,9 +74,11 @@ export const useCalendarViewQueryFetch = (month: number, year: number) => {
   });
 };
 
-export const useListViewQueryFetch = (month: number, year: number) => {
+export const useListViewQueryFetch = (date: Date) => {
+  const month = date.getMonth;
+  const year = date.getFullYear;
   return useQuery({
-    queryKey: [],
+    queryKey: ['useListViewQueryFetch', date],
     queryFn: () => {
       return axios.get<ListViewQueryReply>('about:blank');
     },
@@ -84,7 +88,7 @@ export const useListViewQueryFetch = (month: number, year: number) => {
 
 export const useDiaryPreviewQueryFetch = (diaryId: number) => {
   return useQuery({
-    queryKey: [],
+    queryKey: ['useDiaryPreviewQueryFetch'],
     queryFn: () => {
       return axios.get<DiaryPreviewReply>('about:blank');
     },
@@ -94,7 +98,7 @@ export const useDiaryPreviewQueryFetch = (diaryId: number) => {
 
 export const useDiaryViewQueryFetch = (diaryId: number) => {
   return useQuery({
-    queryKey: [],
+    queryKey: ['useDiaryViewQueryFetch'],
     queryFn: () => {
       return axios.get<DiaryViewReply>('about:blank');
     },
