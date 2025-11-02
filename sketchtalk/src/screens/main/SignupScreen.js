@@ -1,15 +1,23 @@
 import React, { useRef, useState } from 'react';
-import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
+import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet, FlatList} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
+import Popup from '../../components/popup';
 
 const { width, height } = Dimensions.get('window');
 
 export default function SignupScreen({ navigation }){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [idCheckOpen, setIdCheckOpen] = useState(false);
+  const [idChecker, setIDchecker] = useState(false);
 
+  const checkID = () => {
+    setIdCheckOpen(true);
+    setIDchecker(true);
+  }
+  
   const flatRef = useRef(null);
   const focusScrollTo = (index) => {
     flatRef.current?.scrollToIndex?.({index, animated: true});
@@ -37,9 +45,9 @@ export default function SignupScreen({ navigation }){
               onChangeText={setId}
               keyboardType="ascii-capable"
               rightButtonText="중복확인"
-              helperVisible={true}
+              helperVisible={idChecker}
               helperStatus="error"
-              onRightPress={() => {}}
+              onRightPress={checkID}
               helperText="이미 사용중인 아이디입니다."
               onFocus={() => focusScrollTo(0)}
             />
@@ -71,6 +79,17 @@ export default function SignupScreen({ navigation }){
                 onPress={() => navigation.navigate('SignupInfo')}
               />
             </View>
+
+          <Popup
+                  visible={idCheckOpen}
+                  message="아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해주세요."
+                  onClose={() => setIdCheckOpen(false)}
+                  primary={{
+                    text: '확인',
+                    variant: 'primary',
+                    onPress: () => setIdCheckOpen(false),
+                  }}
+                />
           </ImageBackground>
         </SafeAreaView>
     )

@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import {View, Text, Image, ImageBackground, Dimensions, StyleSheet} from 'react-native';
 import colors from '../../constants/colors';
 import MypageField from '../../components/mypagefield';
+import Popup from '../../components/popup';
 
 const { width, height } = Dimensions.get('window');
 
 export default function MypageMainScreen({ navigation }) {
   const [alarmOn, setAlarmOn] = useState(true);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawDoneOpen, setWithdrawDoneOpen] = useState(false);
 
   return (
     <ImageBackground
@@ -53,13 +57,66 @@ export default function MypageMainScreen({ navigation }) {
 
         <MypageField
           text="로그아웃"
-          onPress={() => navigation.replace('AuthStackNavigator')}
+          onPress={() => setLogoutOpen(true)}
         />
         <MypageField
           text="회원 탈퇴"
-          onPress={() => navigation.replace('AuthStackNavigator')}
+          onPress={() => setWithdrawOpen(true)}
         />
       </View>
+
+      <Popup
+        visible={logoutOpen}
+        message="로그아웃 하시겠어요?"
+        onClose={() => setLogoutOpen(false)}
+        secondary={{
+          text:'취소',
+          variant: 'gray',
+          onPress: () => setLogoutOpen(false),
+        }}
+        primary={{
+          text:'확인',
+          variant: 'primary',
+          onPress: () => {
+            setLogoutOpen(false);
+            navigation.replace('AuthStackNavigator');
+          }
+        }}
+      />
+      <Popup
+        visible={withdrawOpen}
+        message="정말 탈퇴하시겠어요? 모든 데이터가 삭제되어 복구가 어려워요."
+        onClose={() => setWithdrawOpen(false)}
+        secondary={{
+          text:'취소',
+          variant: 'gray',
+          onPress: () => setWithdrawOpen(false),
+        }}
+        primary={{
+          text:'확인',
+          variant: 'primary',
+          onPress: () => {
+            setWithdrawOpen(false);
+            setTimeout(() => setWithdrawDoneOpen(true), 300);
+          }
+        }}
+      />
+      <Popup
+        visible={withdrawDoneOpen}
+        message="회원탈퇴가 완료되었습니다."
+        onClose={() => {
+          setWithdrawDoneOpen(false);
+          navigation.replace('AuthStackNavigator');
+        }}
+        primary={{
+          text: '확인',
+          variant: 'primary',
+          onPress: () => {
+            setWithdrawDoneOpen(false);
+            navigation.replace('AuthStackNavigator');
+          }
+        }}
+      />
     </ImageBackground>
   );
 }
