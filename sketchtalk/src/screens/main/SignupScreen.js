@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
-import FormScrollContainer from '../../components/layout/formScrollContainer'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -11,14 +10,17 @@ export default function SignupScreen({ navigation }){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
 
+  const flatRef = useRef(null);
+  const focusScrollTo = (index) => {
+    flatRef.current?.scrollToIndex?.({index, animated: true});
+  };
+
     return(
         <SafeAreaView style={{flex: 1}}>
           <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
-          
-          <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
-            {({scrollNearBottom, scrollToEnd}) =>(
+
             <View style={styles.container}>
               <Image
                 source={require('../../assets/main_logo.png')}
@@ -39,7 +41,7 @@ export default function SignupScreen({ navigation }){
               helperStatus="error"
               onRightPress={() => {}}
               helperText="이미 사용중인 아이디입니다."
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(0)}
             />
 
             <InputField
@@ -48,18 +50,17 @@ export default function SignupScreen({ navigation }){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(1)}
             />
             <InputField
               label="비밀번호 확인"
               placeholder="비밀번호"
               secureTextEntry
-              onFocus={()=>scrollNearBottom(100)}
+              onFocus={() => focusScrollTo(2)}
             />
 
               </View>
             </View>
-          )}</FormScrollContainer>
 
           <View style={styles.button}>
               <ConfirmButton

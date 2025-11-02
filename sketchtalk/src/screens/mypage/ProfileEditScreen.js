@@ -3,7 +3,6 @@ import { ImageBackground, Dimensions, StyleSheet, View, Text, Pressable, StatusB
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import InputField from '../../components/inputfield';
-import FormScrollContainer from '../../components/layout/formScrollContainer';
 import ConfirmButton from '../../components/confirmbutton';
 import DateTimePicker from '@react-native-community/datetimepicker';
 

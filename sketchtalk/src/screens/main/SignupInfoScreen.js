@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet, Platform} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import FormScrollContainer from '../../components/layout/formScrollContainer'; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,14 +28,17 @@ export default function SignupInfoScreen({ navigation }){
       if (Platform.OS === 'android') setShowPicker(false);
     }
 
+    const flatRef = useRef(null);
+    const focusScrollTo = (index) => {
+      flatRef.current?.scrollToIndex?.({index, animated: true});
+    };
+
     return(
         <SafeAreaView style={{flex: 1}}>
           <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-          <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
-            {({scrollToEnd}) => (
             <View style={styles.container}>
               <Image
                 source={require('../../assets/main_logo.png')}
@@ -52,7 +54,7 @@ export default function SignupInfoScreen({ navigation }){
                 value={name}
                 onChangeText={setName}
                 keyboardType = "default"
-                onFocus={scrollToEnd} 
+                onFocus={() => focusScrollTo(0)} 
               />
 
               <InputField
@@ -74,7 +76,6 @@ export default function SignupInfoScreen({ navigation }){
               )}
                 </View>
               </View>
-          )}</FormScrollContainer>
             
             <View style={styles.button}>
             <ConfirmButton

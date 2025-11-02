@@ -1,9 +1,8 @@
-import React, {useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
-import FormScrollContainer from '../../components/layout/formScrollContainer';
 
 const { width, height } = Dimensions.get('window');
 
@@ -11,14 +10,17 @@ export default function AuthScreen({navigation}){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
 
+  const flatRef = useRef(null);
+  const focusScrollTo = (index) => {
+    flatRef.current?.scrollToIndex?.({index, animated: true});
+  };
+
     return(
         <SafeAreaView style={{flex: 1}}>
           <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-            <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
-              {({scrollToEnd}) => (
             <View style={styles.container}>
               <Image
                 source={require('../../assets/main_logo.png')}
@@ -33,7 +35,7 @@ export default function AuthScreen({navigation}){
               placeholder="아이디"
               value={id}
               onChangeText={setId}
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(0)}
             />
 
             <InputField
@@ -42,11 +44,10 @@ export default function AuthScreen({navigation}){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(1)}
             />
           </View>
                 </View>
-                )}</FormScrollContainer> 
                 <View style={styles.button}>
             <ConfirmButton
             text = "로그인"
