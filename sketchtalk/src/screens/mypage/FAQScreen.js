@@ -106,7 +106,7 @@ backBtn: {
 },
 title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
     letterSpacing: 0.3,
 },
@@ -132,11 +132,12 @@ answerBox: {
 answerLabel: {
     fontSize: 16,
     color: colors.redBrown,
-    fontWeight: '700',
+    fontFamily: 'MangoDdobak-B',
     marginBottom: 6,
   },
   answerText: {
     fontSize: 14,
+    fontFamily: 'MangoDdobak-R',
     color: colors.redBrown,
     lineHeight: 20,
   },

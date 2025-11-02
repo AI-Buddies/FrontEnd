@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
+        fontFamily: 'MangoDdobak-R',
         color: colors.brown,
     },
     dividerBase: { width: '100%' },

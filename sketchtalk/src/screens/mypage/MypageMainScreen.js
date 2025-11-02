@@ -102,12 +102,13 @@ const styles = StyleSheet.create({
   },
   headerName: {
     fontSize: 30,
-    fontWeight: '800',
+    fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
     letterSpacing: 0.5,
   },
   headerBirth: {
     fontSize: 16,
+    fontFamily: 'MangoDdobak-R',
     color: colors.redBrown,
     marginTop: 4,
   },

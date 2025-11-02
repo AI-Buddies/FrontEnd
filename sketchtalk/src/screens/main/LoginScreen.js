@@ -51,7 +51,7 @@ export default function AuthScreen({navigation}){
             <ConfirmButton
             text = "로그인"
             color = {colors.primary}
-            width = {width}
+            width = {width * 0.8}
 
             onPress={() => navigation.replace('TabNavigator')} // 누르면 TabNavigator로 이동
                     />
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   loginTitle: {
   fontSize: 30,
-  fontWeight: 'bold',
+  fontFamily: 'MangoDdobak-B',
   textAlign: 'center',
   marginBottom: 20,
   color: colors.redBrown,

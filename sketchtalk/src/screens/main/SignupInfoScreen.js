@@ -80,7 +80,7 @@ export default function SignupInfoScreen({ navigation }){
             <ConfirmButton
             text = "회원가입"
             color = {colors.primary}
-            width = {width}
+            width = {width * 0.8}
             marginBottom = {10}
             onPress={() => navigation.navigate('Main')}
       />
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   title: {
   fontSize: 30,
-  fontWeight: 'bold',
+  fontFamily: 'MangoDdobak-B',
   textAlign: 'center',
   marginBottom: 30,
   color: colors.redBrown,

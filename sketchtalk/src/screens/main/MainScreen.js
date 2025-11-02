@@ -25,7 +25,7 @@ export default function MainScreen({ navigation }) {
           <ConfirmButton
             text = "시작하기"
             color = {colors.primary}
-            width = {width}
+            width = {width * 0.8}
             onPress={() => navigation.navigate('Signup')}
       />
           <View style={styles.footer}>
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   },
   mainText: {
     color: colors.redBrown,
+    fontFamily: 'MangoDdobak-R',
   },
   // 시작하기 버튼 위치
   startBtnWrapper: {
@@ -69,9 +70,10 @@ const styles = StyleSheet.create({
   },
   footerText: {
     color: colors.redBrown,
+    fontFamily: 'MangoDdobak-R',
   },
   link: {
     color: colors.primary,
-    fontWeight: '700',
+    fontFamily: 'MangoDdobak-B',
   },
 });

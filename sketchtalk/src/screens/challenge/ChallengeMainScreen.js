@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     textAlign: 'center',
     fontSize: 24,
-    fontWeight: '700',
     color: colors.redBrown,
+    fontFamily: 'MangoDdobak-B',
   },
   headerRight: {
     position: 'absolute',

@@ -170,7 +170,7 @@ export default function ProfileEditScreen({ navigation }) {
                 <ConfirmButton
                     text="저장"
                     color={colors.primary}
-                    width={width}
+                    width={width * 0.8}
                     marginBottom={10}
                     onPress={onSave}
                 />
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-        fontWeight: '700',
+        fontFamily: 'MangoDdobak-B',
         color: colors.redBrown,
         letterSpacing: 0.3,
     },

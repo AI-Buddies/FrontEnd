@@ -110,7 +110,7 @@ header: {
 headerTitle: {
     textAlign: 'center',
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
 },
 headerRight: {
