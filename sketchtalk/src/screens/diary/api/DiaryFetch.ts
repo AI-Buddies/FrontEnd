@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
 import axios from 'axios';
 
 type Chat = {
@@ -97,76 +97,45 @@ type DiaryEditReply = {
   isSuccess: boolean;
 };
 
-export const useDiaryInitialFetch = () => {
-  return useQuery({
-    queryKey: ['useDiaryInitialFetch'],
-    queryFn: () => {
-      return axios.get<Chat>('about:blank');
-    },
-    staleTime: 100000,
-  });
+export const useDiaryInitialFetch = {
+  queryKey: ['useDiaryChatFetch'],
+  queryFn: () => {
+    return axios.get<Chat>('about:blank');
+  },
 };
 
-export const useDiaryChatFetch = (dialog: string) => {
-  return useQuery({
-    queryKey: ['useDiaryChatFetch'],
-    queryFn: () => {
-      return axios.get<Chat>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryChatFetch = useMutation({
+  mutationFn: (dialog: string) => {
+    return axios.post<Chat>('about:blank', dialog);
+  },
+});
 
-export const useDiaryGetTextFetch = (userId: number) => {
-  return useQuery({
-    queryKey: ['useDiaryGetTextFetch'],
-    queryFn: () => {
-      return axios.get<TextResult>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryGetTextFetch = useMutation({
+  mutationFn: (userId: number) => {
+    return axios.post<TextResult>('about:blank', userId);
+  },
+});
 
-export const useDiaryConfirmTextFetch = (
-  TextConfirmRequest: TextConfirmRequest,
-) => {
-  return useQuery({
-    queryKey: ['useDiaryConfirmTextFetch'],
-    queryFn: () => {
-      return axios.get<TextConfirmReply>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryConfirmTextFetch = useMutation({
+  mutationFn: (TextConfirmRequest: TextConfirmRequest) => {
+    return axios.post<TextConfirmReply>('about:blank', TextConfirmRequest);
+  },
+});
 
-export const useDiaryGetArtFetch = (ArtResultRequest: ArtResultRequest) => {
-  return useQuery({
-    queryKey: ['useDiaryGetArtFetch'],
-    queryFn: () => {
-      return axios.get<ArtResultReply>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryGetArtFetch = useMutation({
+  mutationFn: (ArtResultRequest: ArtResultRequest) => {
+    return axios.post<ArtResultReply>('about:blank', ArtResultRequest);
+  },
+});
 
-export const useDiaryConfirmArtFetch = (
-  ArtConfirmRequest: ArtConfirmRequest,
-) => {
-  return useQuery({
-    queryKey: ['useDiaryConfirmArtFetch'],
-    queryFn: () => {
-      return axios.get<ArtConfirmReply>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryConfirmArtFetch = useMutation({
+  mutationFn: (ArtConfirmRequest: ArtConfirmRequest) => {
+    return axios.post<ArtConfirmReply>('about:blank', ArtConfirmRequest);
+  },
+});
 
-export const useDiaryEditFetch = (DiaryEditRequest: DiaryEditRequest) => {
-  return useQuery({
-    queryKey: ['useDiaryEditFetch'],
-    queryFn: () => {
-      return axios.get<DiaryEditReply>('about:blank');
-    },
-    staleTime: 100000,
-  });
-};
+export const useDiaryEditFetch = useMutation({
+  mutationFn: (DiaryEditRequest: DiaryEditRequest) => {
+    return axios.put<DiaryEditReply>('about:blank', DiaryEditRequest);
+  },
+});
