@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -12,62 +12,69 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+//api
+import {useDiaryChatFetch} from './api/DiaryFetch';
+import {useDiaryInitialFetch} from './api/useDiaryInitialFetch';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = [
-  {
-    id: 0,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 1,
-    isAI: true,
-    text: '우 와 ~',
-  },
-  {
-    id: 2,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 3,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 4,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 5,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-];
+const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryTextInProgressScreen');
+    navigation.navigate('DiaryConfirmTextScreen');
   }
+
+  //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+  const [userDialog, setUserDialog] = useState('');
+  const [isWaitingReply, setIsWaitingReply] = useState(false);
+  useEffect(() => {
+    //AddMessage(initdata.data.reply, true);
+    dummyData.length = 0; //clear array
+    AddMessage('첫 메시지야', true);
+  }, []);
+
+  function AddMessage(dialog, isAI) {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({id: messageArraySize, isAI: isAI, text: dialog});
+  }
+
+  function FetchMessage() {
+    if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
+    AddMessage(userDialog, false);
+    setUserDialog('');
+    setIsWaitingReply(true);
+    //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+    //if (!isLoading) setIsWaitingReply(false);
+    setTimeout(() => {
+      setIsWaitingReply(false);
+      AddMessage('답변이야', true);
+    }, 3000);
+
+    //AddMessage(data.data.reply, true);
+  }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
       <MessageList
-        data={dummyData.reverse()}
+        data={dummyData}
         contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton />
-      <TextBar onPress={TempNavigate} />
+      <MicButton onPress={TempNavigate} />
+      <TextBar
+        onPress={() => FetchMessage()}
+        value={isWaitingReply ? '' : userDialog}
+        onChangeText={!isWaitingReply && setUserDialog}
+        isWaitingReply={isWaitingReply}
+      />
     </Background>
   );
 }
@@ -88,7 +95,7 @@ const MessageList = styled.FlatList`
   width: ${width};
 `;
 
-const MicButton = () => (
+const MicButton = props => (
   <View
     style={{
       flex: 1.5,
@@ -101,6 +108,7 @@ const MicButton = () => (
       shadowRadius: 1.0,
     }}>
     <Pressable
+      onPress={props.onPress}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -144,17 +152,31 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      <TextInput
-        style={{
-          flex: 6,
-          textAlign: 'left',
-          color: colors.black,
-          paddingLeft: 12,
-          fontSize: 16,
-          height: 46,
-          paddingBottom: 12,
-        }}
-      />
+      {!props.isWaitingReply ? (
+        <TextInput
+          value={props.value}
+          onChangeText={props.onChangeText}
+          style={{
+            flex: 6,
+            textAlign: 'left',
+            color: colors.black,
+            paddingLeft: 12,
+            fontSize: 16,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 6,
+            color: colors.black,
+            paddingLeft: 12,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      )}
       <Pressable
         style={{
           flex: 1,

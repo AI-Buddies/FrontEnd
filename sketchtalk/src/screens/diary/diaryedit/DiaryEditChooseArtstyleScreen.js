@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import React from 'react';
-import ConfirmText from '../../components/confirmtext';
+import ConfirmText from '../../../components/confirmtext';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 
@@ -26,14 +26,14 @@ const dummyData = [
   {style_name: '화풍9'},
 ];
 
-export default function DiaryChooseArtstyleScreen() {
+export default function DiaryEditChooseArtstyleScreen({route}) {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryConfirmArtScreen');
+    navigation.navigate('DiaryArtRedrawScreen', {...route.params});
   }
   return (
     <Background
-      source={require('../../assets/background/yellow_bg.png')}
+      source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <View
         style={{
@@ -73,7 +73,7 @@ const MessageItem = item => (
     <Image
       style={{width: 150, height: 125}}
       resizeMode="contain"
-      source={require('../../assets/soccer_diary.png')}
+      source={require('../../../assets/soccer_diary.png')}
     />
     <Text style={{alignSelf: 'flex-end'}}>{item.style_name}</Text>
   </Pressable>

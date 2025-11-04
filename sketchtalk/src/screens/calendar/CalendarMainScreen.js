@@ -1,4 +1,4 @@
-import {React, useState, useCallback} from 'react';
+import {React, useState, useCallback, useEffect} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -23,6 +23,8 @@ import {
 } from 'react-native-calendars';
 import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import {useCalendarViewQueryFetch} from './api/CalendarFetch';
+import {useListViewQueryFetch} from './api/CalendarFetch';
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -45,38 +47,63 @@ const {width, height} = Dimensions.get('window');
 
 const dummyData = [
   {
-    id: 1,
+    diaryId: 1,
     date: new Date(2025, 5, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 2,
-    date: new Date(2025, 5, 22),
+    diaryId: 2,
+    date: new Date(2025, 5, 23),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 3,
-    date: new Date(2025, 5, 22),
-    title: '넘어졌지만 괜찮아!',
-  },
-  {
-    id: 4,
-    date: new Date(2025, 6, 22),
+    diaryId: 3,
+    date: new Date(2025, 5, 24),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 5,
-    date: new Date(2025, 5, 22),
+    diaryId: 4,
+    date: new Date(2025, 5, 25),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
+  },
+  {
+    diaryId: 5,
+    date: new Date(2025, 5, 26),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
 ];
 
 const dummyMarkedDates = [
-  {date: '2025-06-10'},
-  {date: '2025-06-22'},
-  {date: '2025-06-29'},
-  {date: '2025-06-30'},
-  {date: '2025-11-30'},
+  {
+    diaryId: 1,
+    date: '2025-06-10',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 2,
+    date: '2025-06-11',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 3,
+    date: '2025-06-12',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 4,
+    date: '2025-06-13',
+    emotion: 'HAPPY',
+  },
 ];
 
 export default function CalenderMainScreen({route}) {
@@ -110,6 +137,9 @@ export default function CalenderMainScreen({route}) {
       },
     });
   }
+
+  //const listViewQuery = useListViewQueryFetch(date)
+  //const calendarViewQuery = useCalendarViewQueryFetch(date)
 
   return (
     <Background
@@ -147,7 +177,7 @@ export default function CalenderMainScreen({route}) {
               alignItems: 'flex-start',
               justifyContent: 'center',
             }}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
             data={dummyData}
             renderItem={({item}) => (
@@ -192,10 +222,10 @@ export default function CalenderMainScreen({route}) {
             }}
             dayComponent={({date, state}) => {
               function hasDiary() {
-                const array = dummyMarkedDates.filter(obj =>
-                  Object.values(obj).some(val => val.includes(date.dateString)),
+                const array = dummyMarkedDates.some(val =>
+                  val.date.includes(date.dateString),
                 );
-                return !array === undefined || !array.length == 0;
+                return array;
               }
               return (
                 <CustomDayComponent
