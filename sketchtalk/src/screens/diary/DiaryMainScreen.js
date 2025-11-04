@@ -14,7 +14,7 @@ import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
-import {useDiaryInitialFetch} from './api/useDiaryInitialFetch';
+import {useDiaryInitialFetch} from './api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
