@@ -1,3 +1,4 @@
+import {useQuery} from '@tanstack/react-query';
 import {useMutation} from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -11,7 +12,7 @@ const authConfig = {
   },
 };
 
-export const useDiaryInitialFetch = {
+export const useDiaryInitialFetch = useQuery({
   queryKey: ['useDiaryChatFetch'],
   queryFn: () => {
     return axios.get('about:blank', authConfig);
@@ -25,7 +26,7 @@ export const useDiaryInitialFetch = {
          isSuccess: boolean;
     };*/
   },
-};
+});
 
 export const useDiaryChatFetch = useMutation({
   mutationFn: dialog => {
