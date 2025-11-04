@@ -161,3 +161,27 @@ export const useDiaryEditFetch = useMutation({
     };*/
   },
 });
+
+export const useDiaryRedrawImageFetch = useMutation({
+  mutationFn: ({diaryId, content, prevImage}) => {
+    return axios.put(
+      'about:blank',
+      {
+        diaryId: diaryId,
+        content: content,
+        prevImage: prevImage,
+      },
+      authConfig,
+    );
+    /*type DiaryEditReply = {
+        statusCode: number;
+        message: string;
+        data: {
+          "diaryId" : 1,
+			    "imageUrl" : "sketchtalk.s3.~~2",
+			    "prevImageUrl" : "sketchtalk.s3.~~"
+        };
+        isSuccess: boolean;
+    };*/
+  },
+});
