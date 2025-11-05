@@ -27,10 +27,12 @@ export const stopRecording = async () => {
   const result = await audioRecorderPlayer.stopRecorder();
   setRecording(false);
   console.log('Recording saved at: ', result);
-  uploadAudio(filePath); // Upload the saved file
+  // const uploadResult = uploadAudio(filePath); // Upload the saved file
+  // return uploadResult;
+  playAudioFromFile(filePath);
 };
 
-export const uploadAudio = async filePath => {
+const uploadAudio = async filePath => {
   const file = {
     uri: `file://${filePath}`,
     type: 'audio/aac',
@@ -54,5 +56,28 @@ export const uploadAudio = async filePath => {
     return response;
   } catch (error) {
     console.error('Upload failed: ', error);
+  }
+};
+
+const playAudioFromFile = async filePath => {
+  try {
+    // Add 'file://' prefix for local files, especially on Android
+    const formattedPath =
+      Platform.OS === 'android' ? `file://${filePath}` : filePath;
+
+    await audioRecorderPlayer.startPlayer(formattedPath);
+    await audioRecorderPlayer.setVolume(1.0); // Set desired volume
+
+    // Optional: Add a playback listener to handle events like completion
+    audioRecorderPlayer.addPlayBackListener(e => {
+      if (e.currentPosition === e.duration) {
+        audioRecorderPlayer.stopPlayer();
+        audioRecorderPlayer.removePlayBackListener();
+        // Handle playback completion (e.g., update UI)
+      }
+      // Update playback progress if needed
+    });
+  } catch (err) {
+    console.error('Error playing audio:', err);
   }
 };
