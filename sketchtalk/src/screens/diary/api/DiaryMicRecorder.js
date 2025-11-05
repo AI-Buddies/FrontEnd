@@ -1,4 +1,4 @@
-import AudioRecorderPlayer, {
+/*import AudioRecorderPlayer, {
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
   AudioEncoderAndroidType,
@@ -84,3 +84,4 @@ const playAudioFromFile = async filePath => {
     console.error('Error playing audio:', err);
   }
 };
+*/

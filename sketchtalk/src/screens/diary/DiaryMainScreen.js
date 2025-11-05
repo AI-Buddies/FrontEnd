@@ -15,12 +15,8 @@ import {useNavigation} from '@react-navigation/native';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
-import {startRecording, stopRecording} from './api/DiaryMicRecorder';
 import AudioRecorderPlayer, {
-  AVEncoderAudioQualityIOSType,
-  AVEncodingOption,
   AudioEncoderAndroidType,
-  AudioSet,
   AudioSourceAndroidType,
 } from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
@@ -66,7 +62,6 @@ export default function DiaryMainScreen() {
   }
 
   // 녹음 기능
-  const [recording, setRecording] = useState(false);
   const [filePath, setFilePath] = useState('');
   const dirs = RNFS.ExternalDirectoryPath;
   const path = `${dirs}/hello.m4a`;
@@ -82,7 +77,6 @@ export default function DiaryMainScreen() {
       audioSet,
       true,
     );
-    setRecording(true);
     setFilePath(result);
     console.log('Recording started at: ', result);
   };
