@@ -15,6 +15,7 @@ const audioSet = {
 };
 
 export const startRecording = async () => {
+  if (recording) return;
   const dirs = RNFS.ExternalDirectoryPath;
   const path = `${dirs}/hello.m4a`;
   const result = await AudioRecorderPlayer.startRecorder(path, audioSet, true);
@@ -24,7 +25,8 @@ export const startRecording = async () => {
 };
 
 export const stopRecording = async () => {
-  const result = await audioRecorderPlayer.stopRecorder();
+  if (!recording) return;
+  const result = await AudioRecorderPlayer.stopRecorder();
   setRecording(false);
   console.log('Recording saved at: ', result);
   // const uploadResult = uploadAudio(filePath); // Upload the saved file
@@ -65,14 +67,14 @@ const playAudioFromFile = async filePath => {
     const formattedPath =
       Platform.OS === 'android' ? `file://${filePath}` : filePath;
 
-    await audioRecorderPlayer.startPlayer(formattedPath);
-    await audioRecorderPlayer.setVolume(1.0); // Set desired volume
+    await AudioRecorderPlayer.startPlayer(formattedPath);
+    await AudioRecorderPlayer.setVolume(1.0); // Set desired volume
 
     // Optional: Add a playback listener to handle events like completion
-    audioRecorderPlayer.addPlayBackListener(e => {
+    AudioRecorderPlayer.addPlayBackListener(e => {
       if (e.currentPosition === e.duration) {
-        audioRecorderPlayer.stopPlayer();
-        audioRecorderPlayer.removePlayBackListener();
+        AudioRecorderPlayer.stopPlayer();
+        AudioRecorderPlayer.removePlayBackListener();
         // Handle playback completion (e.g., update UI)
       }
       // Update playback progress if needed

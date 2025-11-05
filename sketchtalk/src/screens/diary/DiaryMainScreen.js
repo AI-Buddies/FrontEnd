@@ -15,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
+import {startRecording, stopRecording} from './api/DiaryMicRecorder';
 
 const {width, height} = Dimensions.get('window');
 
@@ -68,7 +69,10 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton onPress={TempNavigate} />
+      <MicButton
+        onPressIn={() => startRecording}
+        onPressOut={() => stopRecording}
+      />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
@@ -108,7 +112,9 @@ const MicButton = props => (
       shadowRadius: 1.0,
     }}>
     <Pressable
-      onPress={props.onPress}
+      //onPress={props.onPress}
+      onPressIn={props.onPressIn}
+      onPressOut={props.onPressOut}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
