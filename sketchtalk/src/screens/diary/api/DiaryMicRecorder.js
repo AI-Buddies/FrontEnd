@@ -1,4 +1,10 @@
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import AudioRecorderPlayer, {
+  AVEncoderAudioQualityIOSType,
+  AVEncodingOption,
+  AudioEncoderAndroidType,
+  AudioSet,
+  AudioSourceAndroidType,
+} from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import axios from 'axios';
 import {useState} from 'react';
@@ -7,15 +13,11 @@ const [recording, setRecording] = useState(false);
 const [filePath, setFilePath] = useState('');
 
 const audioSet = {
-  AudioEncoderAndroid: 'aac', // Audio encoding for Android
-  AudioSourceAndroid: 'mic', // Use the microphone
-  AVModeIOS: 'measurement', // iOS audio mode
-  AVEncoderAudioQualityKeyIOS: 'high', // High quality for iOS
-  AVFormatIDKeyIOS: 'aac', // AAC format for iOS
+  AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+  AudioSourceAndroid: AudioSourceAndroidType.MIC,
 };
 
 export const startRecording = async () => {
-  if (recording) return;
   const dirs = RNFS.ExternalDirectoryPath;
   const path = `${dirs}/hello.m4a`;
   const result = await AudioRecorderPlayer.startRecorder(path, audioSet, true);
@@ -25,7 +27,6 @@ export const startRecording = async () => {
 };
 
 export const stopRecording = async () => {
-  if (!recording) return;
   const result = await AudioRecorderPlayer.stopRecorder();
   setRecording(false);
   console.log('Recording saved at: ', result);
