@@ -125,7 +125,10 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton onPressIn={startRecording} onPress={stopRecording} />
+      <MicButton
+        //onPressIn={startRecording}
+        onPress={TempNavigate}
+      />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
