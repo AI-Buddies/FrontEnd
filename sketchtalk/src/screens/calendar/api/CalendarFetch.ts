@@ -17,7 +17,7 @@ export const useCalendarViewQueryFetch = (date: Date) => {
   return useQuery({
     queryKey: ['useCalendarViewQueryFetch', date],
     queryFn: () => {
-      return axios.get(`about:blank/${year}/${month}`, authConfig);
+      return axios.get(`https://sketch-talk.com/${year}/${month}`, authConfig);
     },
     staleTime: 100000,
   });
@@ -29,7 +29,7 @@ export const useListViewQueryFetch = (date: Date) => {
   return useQuery({
     queryKey: ['useListViewQueryFetch', date],
     queryFn: () => {
-      return axios.get(`about:blank/${year}/${month}`, authConfig);
+      return axios.get(`https://sketch-talk.com/${year}/${month}`, authConfig);
     },
     staleTime: 100000,
   });
@@ -39,7 +39,7 @@ export const useDiaryPreviewQueryFetch = (diaryId: number) => {
   return useQuery({
     queryKey: ['useDiaryPreviewQueryFetch'],
     queryFn: () => {
-      return axios.get(`about:blank/${diaryId}`, authConfig);
+      return axios.get(`https://sketch-talk.com/${diaryId}`, authConfig);
     },
     staleTime: 100000,
   });
@@ -49,7 +49,7 @@ export const useDiaryViewQueryFetch = (diaryId: number) => {
   return useQuery({
     queryKey: ['useDiaryViewQueryFetch'],
     queryFn: () => {
-      return axios.get(`about:blank/${diaryId}`, authConfig);
+      return axios.get(`https://sketch-talk.com/${diaryId}`, authConfig);
     },
     staleTime: 100000,
   });
