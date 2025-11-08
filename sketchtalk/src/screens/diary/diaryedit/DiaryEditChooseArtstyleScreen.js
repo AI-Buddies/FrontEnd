@@ -14,16 +14,10 @@ import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = [
-  {style_name: '화풍1'},
-  {style_name: '화풍2'},
-  {style_name: '화풍3'},
-  {style_name: '화풍4'},
-  {style_name: '화풍5'},
-  {style_name: '화풍6'},
-  {style_name: '화풍7'},
-  {style_name: '화풍8'},
-  {style_name: '화풍9'},
+const style_list = [
+  {style_name: 'pastel', display_name: '파스텔'},
+  {style_name: 'child book', display_name: '동화책'},
+  {style_name: 'coolkids', display_name: '쿨키즈'},
 ];
 
 export default function DiaryEditChooseArtstyleScreen({route}) {
@@ -37,19 +31,19 @@ export default function DiaryEditChooseArtstyleScreen({route}) {
       resizeMode="cover">
       <View
         style={{
-          flex: 1.15,
+          flex: 1,
           width: width * 0.9,
-          marginTop: 100,
+          marginTop: 150,
           marginBottom: 10,
         }}>
         <FlatList
           contentContainerStyle={{
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'center',
           }}
           keyExtractor={item => item.style_name}
           fadingEdgeLength={100}
-          data={dummyData}
+          data={style_list}
           renderItem={({item}) => (
             <MessageItem {...item} onPress={TempNavigate} />
           )}
@@ -75,7 +69,7 @@ const MessageItem = item => (
       resizeMode="contain"
       source={require('../../../assets/soccer_diary.png')}
     />
-    <Text style={{alignSelf: 'flex-end'}}>{item.style_name}</Text>
+    <Text style={{alignSelf: 'flex-end'}}>{item.display_name}</Text>
   </Pressable>
 );
 

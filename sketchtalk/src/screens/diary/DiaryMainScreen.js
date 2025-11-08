@@ -15,6 +15,12 @@ import {useNavigation} from '@react-navigation/native';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
+import AudioRecorderPlayer, {
+  AudioEncoderAndroidType,
+  AudioSourceAndroidType,
+} from 'react-native-audio-recorder-player';
+import RNFS from 'react-native-fs';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -55,6 +61,57 @@ export default function DiaryMainScreen() {
     //AddMessage(data.data.reply, true);
   }
 
+  // 녹음 기능
+  const [filePath, setFilePath] = useState('');
+  const dirs = RNFS.ExternalDirectoryPath;
+  const path = `${dirs}/hello.m4a`;
+
+  const audioSet = {
+    AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+    AudioSourceAndroid: AudioSourceAndroidType.MIC,
+  };
+
+  const startRecording = async () => {
+    const result = await AudioRecorderPlayer.startRecorder(
+      path,
+      audioSet,
+      true,
+    );
+    setFilePath(result);
+    console.log('Recording started at: ', result);
+  };
+
+  const stopRecording = async () => {
+    const result = await AudioRecorderPlayer.stopRecorder();
+    console.log('Recording saved at: ', result);
+    // const uploadResult = uploadAudio(filePath); // Upload the saved file
+    // return uploadResult;
+    playAudioFromFile(filePath);
+  };
+
+  const playAudioFromFile = async filePath => {
+    try {
+      // Add 'file://' prefix for local files, especially on Android
+      const formattedPath =
+        Platform.OS === 'android' ? `file://${filePath}` : filePath;
+
+      await AudioRecorderPlayer.startPlayer(formattedPath);
+      await AudioRecorderPlayer.setVolume(1.0); // Set desired volume
+
+      // Optional: Add a playback listener to handle events like completion
+      AudioRecorderPlayer.addPlayBackListener(e => {
+        if (e.currentPosition === e.duration) {
+          AudioRecorderPlayer.stopPlayer();
+          AudioRecorderPlayer.removePlayBackListener();
+          // Handle playback completion (e.g., update UI)
+        }
+        // Update playback progress if needed
+      });
+    } catch (err) {
+      console.error('Error playing audio:', err);
+    }
+  };
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
@@ -68,7 +125,10 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton onPress={TempNavigate} />
+      <MicButton
+        //onPressIn={startRecording}
+        onPress={TempNavigate}
+      />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
@@ -109,6 +169,8 @@ const MicButton = props => (
     }}>
     <Pressable
       onPress={props.onPress}
+      onPressIn={props.onPressIn}
+      //onPressOut={props.onPressOut}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,

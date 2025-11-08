@@ -15,7 +15,7 @@ const authConfig = {
 export const useDiaryInitialFetch = useQuery({
   queryKey: ['useDiaryChatFetch'],
   queryFn: () => {
-    return axios.get('about:blank', authConfig);
+    return axios.get('https://sketch-talk.com/', authConfig);
     /*type Chat = {
         statusCode: number;
         message: string;
@@ -30,7 +30,7 @@ export const useDiaryInitialFetch = useQuery({
 
 export const useDiaryChatFetch = useMutation({
   mutationFn: dialog => {
-    return axios.post('about:blank', {dialog: dialog}, authConfig);
+    return axios.post('https://sketch-talk.com/', {dialog: dialog}, authConfig);
     /*type Chat = {
         statusCode: number;
         message: string;
@@ -45,7 +45,7 @@ export const useDiaryChatFetch = useMutation({
 
 export const useDiaryGetTextFetch = useMutation({
   mutationFn: userId => {
-    return axios.post('about:blank', {userId: userId}, authConfig);
+    return axios.post('https://sketch-talk.com/', {userId: userId}, authConfig);
     /*type TextResult = {
          statusCode: number;
          message: string;
@@ -61,7 +61,7 @@ export const useDiaryGetTextFetch = useMutation({
 export const useDiaryConfirmTextFetch = useMutation({
   mutationFn: ({userId, title, content}) => {
     return axios.post(
-      'about:blank',
+      'https://sketch-talk.com/',
       {
         userId: userId,
         title: title,
@@ -84,12 +84,13 @@ export const useDiaryConfirmTextFetch = useMutation({
 });
 
 export const useDiaryGetArtFetch = useMutation({
-  mutationFn: ({userId, content}) => {
+  mutationFn: ({userId, content, style}) => {
     return axios.post(
-      'about:blank',
+      'https://sketch-talk.com/',
       {
         userId: userId,
         content: content,
+        style: style,
       },
       authConfig,
     );
@@ -108,7 +109,7 @@ export const useDiaryGetArtFetch = useMutation({
 export const useDiaryConfirmArtFetch = useMutation({
   mutationFn: ({diaryId, image_url}) => {
     return axios.post(
-      'about:blank',
+      'https://sketch-talk.com/',
       {
         diaryId: diaryId,
         image_url: image_url,
@@ -137,7 +138,7 @@ export const useDiaryConfirmArtFetch = useMutation({
 export const useDiaryEditFetch = useMutation({
   mutationFn: ({diaryId, date, title, emotion, content}) => {
     return axios.put(
-      'about:blank',
+      'https://sketch-talk.com/',
       {
         diaryId: diaryId,
         date: date,
@@ -163,13 +164,14 @@ export const useDiaryEditFetch = useMutation({
 });
 
 export const useDiaryRedrawImageFetch = useMutation({
-  mutationFn: ({diaryId, content, prevImage}) => {
+  mutationFn: ({diaryId, content, prevImage, style}) => {
     return axios.put(
-      'about:blank',
+      'https://sketch-talk.com/',
       {
         diaryId: diaryId,
         content: content,
         prevImage: prevImage,
+        style: style,
       },
       authConfig,
     );
