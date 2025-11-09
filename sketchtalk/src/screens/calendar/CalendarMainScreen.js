@@ -139,7 +139,7 @@ export default function CalenderMainScreen({route}) {
   }
 
   //const listViewQuery = useListViewQueryFetch(date)
-  //const calendarViewQuery = useCalendarViewQueryFetch(date)
+  const calendarViewQuery = useCalendarViewQueryFetch(date);
 
   return (
     <Background
@@ -152,7 +152,9 @@ export default function CalenderMainScreen({route}) {
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
-        달력
+        {calendarViewQuery.isLoading
+          ? '로딩중...'
+          : calendarViewQuery.error.message}
       </Text>
       <CalendarNavigator
         date={date}
