@@ -13,14 +13,29 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 //api
+import {
+  AudioConfig,
+  AudioInputStream,
+  AudioStreamFormat,
+  CancellationDetails,
+  CancellationReason,
+  NoMatchDetails,
+  NoMatchReason,
+  ResultReason,
+  SpeechConfig,
+  SpeechRecognizer,
+  SpeechTranslationConfig,
+  TranslationRecognizer,
+} from 'microsoft-cognitiveservices-speech-sdk';
+import {LogBox} from 'react-native';
+import AudioRecord from 'react-native-live-audio-stream';
+LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
 import AudioRecorderPlayer, {
   AudioEncoderAndroidType,
   AudioSourceAndroidType,
 } from 'react-native-audio-recorder-player';
-import RNFS from 'react-native-fs';
-import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -62,53 +77,133 @@ export default function DiaryMainScreen() {
   }
 
   // 녹음 기능
-  const [filePath, setFilePath] = useState('');
-  const dirs = RNFS.ExternalDirectoryPath;
-  const path = `${dirs}/hello.m4a`;
+  //CHANGE THESE VALUES
+  const key = 'YOUR_SUBSCRIPTION_KEY';
+  const region = 'YOUR_SUBSCRIPTION_REGION';
+  const language = 'es-ES';
+  const targetLanguage = 'en';
 
-  const audioSet = {
-    AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-    AudioSourceAndroid: AudioSourceAndroidType.MIC,
-  };
+  //Settings for the audio stream
+  //tuned to documentation at https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-use-audio-input-streams
+  //Do not change these values unless you're an expert
+  const channels = 1;
+  const bitsPerChannel = 16;
+  const sampleRate = 16000;
 
-  const startRecording = async () => {
-    const result = await AudioRecorderPlayer.startRecorder(
-      path,
-      audioSet,
-      true,
-    );
-    setFilePath(result);
-    console.log('Recording started at: ', result);
-  };
+  let initializedCorrectly = false;
+  let recognizer;
 
-  const stopRecording = async () => {
-    const result = await AudioRecorderPlayer.stopRecorder();
-    console.log('Recording saved at: ', result);
-    // const uploadResult = uploadAudio(filePath); // Upload the saved file
-    // return uploadResult;
-    playAudioFromFile(filePath);
-  };
+  //prompt for permissions if not granted
+  const checkPermissions = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const grants = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        ]);
 
-  const playAudioFromFile = async filePath => {
-    try {
-      // Add 'file://' prefix for local files, especially on Android
-      const formattedPath =
-        Platform.OS === 'android' ? `file://${filePath}` : filePath;
+        console.log('write external storage', grants);
 
-      await AudioRecorderPlayer.startPlayer(formattedPath);
-      await AudioRecorderPlayer.setVolume(1.0); // Set desired volume
-
-      // Optional: Add a playback listener to handle events like completion
-      AudioRecorderPlayer.addPlayBackListener(e => {
-        if (e.currentPosition === e.duration) {
-          AudioRecorderPlayer.stopPlayer();
-          AudioRecorderPlayer.removePlayBackListener();
-          // Handle playback completion (e.g., update UI)
+        if (
+          grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          grants['android.permission.READ_EXTERNAL_STORAGE'] ===
+            PermissionsAndroid.RESULTS.GRANTED &&
+          grants['android.permission.RECORD_AUDIO'] ===
+            PermissionsAndroid.RESULTS.GRANTED
+        ) {
+          console.log('Permissions granted');
+        } else {
+          console.log('All required permissions not granted');
+          return;
         }
-        // Update playback progress if needed
+      } catch (err) {
+        console.warn(err);
+        return;
+      }
+    }
+  };
+
+  //sets up speechrecognizer and audio stream
+  const initializeAudio = async () => {
+    await checkPermissions();
+    if (!initializedCorrectly) {
+      //creates a push stream system which allows new data to be pushed to the recognizer
+      const pushStream = AudioInputStream.createPushStream();
+      const options = {
+        sampleRate,
+        channels,
+        bitsPerChannel,
+        audioSource: 6,
+      };
+
+      AudioRecord.init(options);
+      //everytime data is recieved from the mic, push it to the pushStream
+      AudioRecord.on('data', data => {
+        const pcmData = Buffer.from(data, 'base64');
+        pushStream.write(pcmData);
       });
-    } catch (err) {
-      console.error('Error playing audio:', err);
+
+      AudioRecord.start();
+
+      const speechTranslationConfig = SpeechTranslationConfig.fromSubscription(
+        key,
+        region,
+      );
+      speechTranslationConfig.speechRecognitionLanguage = language;
+      speechTranslationConfig.addTargetLanguage(targetLanguage);
+      const audioConfig = AudioConfig.fromStreamInput(pushStream); //the recognizer uses the stream to get audio data
+      recognizer = new TranslationRecognizer(
+        speechTranslationConfig,
+        audioConfig,
+      );
+
+      recognizer.sessionStarted = (s, e) => {
+        console.log('sessionStarted');
+        console.log(e.sessionId);
+      };
+
+      recognizer.sessionStopped = (s, e) => {
+        console.log('sessionStopped');
+      };
+
+      recognizer.recognizing = (s, e) => {
+        //The recognizer will return partial results. This is not called when recognition is stopped and sentences are formed but when recognizer picks up scraps of words on-the-fly.
+        console.log(`RECOGNIZING: Text=${e.result.text}`);
+        console.log(
+          `RECOGNIZING: Text=${e.result.translations.get(targetLanguage)}`,
+        );
+        console.log(e.result.text);
+        console.log(e.sessionId);
+      };
+      recognizer.recognized = (s, e) => {
+        //The final result of the recognition with punctuation
+        console.log(`RECOGNIZED: Text=${e.result.text}`);
+        console.log(
+          `RECOGNIZING: Text=${e.result.translations.get(targetLanguage)}`,
+        );
+        console.log(e.result);
+      };
+      recognizer.startContinuousRecognitionAsync(
+        () => {
+          console.log('startContinuousRecognitionAsync');
+        },
+        err => {
+          console.log(err);
+        },
+      );
+
+      initializedCorrectly = true;
+    }
+  };
+
+  //stops the audio stream and recognizer
+  const stopAudio = async () => {
+    AudioRecord.stop();
+    if (!!recognizer) {
+      recognizer.stopContinuousRecognitionAsync();
+      initializedCorrectly = false;
     }
   };
 
