@@ -80,8 +80,8 @@ export default function DiaryMainScreen() {
   //CHANGE THESE VALUES
   const key = 'YOUR_SUBSCRIPTION_KEY';
   const region = 'YOUR_SUBSCRIPTION_REGION';
-  const language = 'es-ES';
-  const targetLanguage = 'en';
+  const language = 'ko-KR';
+  const targetLanguage = 'ko';
 
   //Settings for the audio stream
   //tuned to documentation at https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-use-audio-input-streams
