@@ -191,13 +191,9 @@ export const useDiaryRedrawImageFetch = useMutation({
 });
 
 //TTS
-// Text to speech
-const [speaking, setSpeaking] = useState(false);
-let speech;
-let timer;
 
 // Function to handle Text-to-Speech API call
-const speechToText = async (text, language) => {
+export const speechToText = async (text, language) => {
   const key = YOUR_API_KEY; // Replace with your actual API key
   const address = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${key}`;
   const payload = createRequest(text, language);
