@@ -13,6 +13,7 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import Loader from 'react-native-three-dots-loader';
 //api
 import {
   AudioConfig,
@@ -54,25 +55,53 @@ export default function DiaryMainScreen() {
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
     dummyData.length = 0; //clear array
-    AddMessage('첫 메시지야', true);
+    setIsWaitingReply(false);
+    AddFetchedMessage('첫 메세지야');
   }, []);
 
-  function AddMessage(dialog, isAI) {
+  function AddFetchedMessage(dialog) {
+    dummyData.shift();
     const messageArraySize = dummyData.length;
-    dummyData.unshift({id: messageArraySize, isAI: isAI, text: dialog});
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  function AddWaitingMessage() {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: true,
+      text: 'waiting...',
+    });
+  }
+
+  function AddUserMessage(dialog) {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: false,
+      isWaitingReply: false,
+      text: dialog,
+    });
   }
 
   function FetchMessage() {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
-    AddMessage(userDialog, false);
+    AddUserMessage(userDialog, false);
     setUserDialog('');
     setIsWaitingReply(true);
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
     //if (!isLoading) setIsWaitingReply(false);
+    AddWaitingMessage();
     setTimeout(() => {
       setIsWaitingReply(false);
-      AddMessage('답변이야', true);
-    }, 3000);
+      AddFetchedMessage('답변이야 답변이야 답변이야');
+    }, 10000);
 
     //AddMessage(data.data.reply, true);
   }
@@ -373,18 +402,37 @@ function MessageItem({item}) {
           borderBottomRightRadius: 18,
           elevation: 1,
         }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'MangoDdobak-R',
-            lineHeight: 25,
-            textAlign: 'left',
-            paddingHorizontal: 10,
-            marginBottom: 2,
-            color: colors.black,
-          }}>
-          {item.text}
-        </Text>
+        {item.isWaitingReply ? (
+          <View
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              height: 25,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+              marginBottom: 2,
+              color: colors.black,
+            }}>
+            <Loader
+              style={{
+                justifyContent: 'center',
+              }}
+            />
+          </View>
+        ) : (
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              lineHeight: 25,
+              textAlign: 'left',
+              paddingHorizontal: 10,
+              marginBottom: 2,
+              color: colors.black,
+            }}>
+            {item.text}
+          </Text>
+        )}
       </View>
     </View>
   ) : (
