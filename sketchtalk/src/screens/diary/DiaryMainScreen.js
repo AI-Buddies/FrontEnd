@@ -6,6 +6,7 @@ import {
   Pressable,
   View,
   TextInput,
+  PermissionsAndroid,
 } from 'react-native';
 import {styled} from 'styled-components/native';
 import colors from '../../constants/colors';
@@ -222,7 +223,7 @@ export default function DiaryMainScreen() {
       />
       <MicButton
         //onPressIn={startRecording}
-        onPress={TempNavigate}
+        onPress={() => checkPermissions()}
       />
       <TextBar
         onPress={() => FetchMessage()}
