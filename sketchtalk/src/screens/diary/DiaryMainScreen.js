@@ -405,13 +405,9 @@ function MessageItem({item}) {
         {item.isWaitingReply ? (
           <View
             style={{
-              fontSize: 16,
-              fontFamily: 'MangoDdobak-R',
               height: 25,
               justifyContent: 'center',
               paddingHorizontal: 10,
-              marginBottom: 2,
-              color: colors.black,
             }}>
             <Loader
               style={{
