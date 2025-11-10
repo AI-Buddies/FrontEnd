@@ -203,7 +203,7 @@ export default function CalenderMainScreen({route}) {
             contentContainerStyle={{
               alignItems: 'flex-start',
               justifyContent: 'center',
-              marginLeft: 8,
+              marginLeft: Math.floor((width - 172 * 2) / 2),
             }}
             keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
