@@ -14,7 +14,8 @@ import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Loader from 'react-native-three-dots-loader';
 //stt
-import {initializeAudio, stopAudio} from './api/DiaryMicRecorder';
+import {initializeAudio, stopAudio} from './api/DiarySTT';
+import {synthesizeSpeech} from './api/DiaryTTS';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
