@@ -13,19 +13,18 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Loader from 'react-native-three-dots-loader';
-//stt
+//stt tts
 import {initializeAudio, stopAudio} from './api/DiarySTT';
 import {synthesizeSpeech} from './api/DiaryTTS';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
-
 const {width, height} = Dimensions.get('window');
-
 const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
+
   function TempNavigate() {
     navigation.navigate('DiaryConfirmTextScreen');
   }
@@ -102,7 +101,7 @@ export default function DiaryMainScreen() {
       />
       <MicButton
         //onPressIn={initializeAudio}
-        onPress={() => synthesizeSpeech('ko-KR-SeoHyeonNeural', '안녕하세요')}
+        onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
       />
       <TextBar
         onPress={() => FetchMessage()}
