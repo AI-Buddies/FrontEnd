@@ -1,87 +1,144 @@
-/*import AudioRecorderPlayer, {
-  AVEncoderAudioQualityIOSType,
-  AVEncodingOption,
-  AudioEncoderAndroidType,
-  AudioSet,
-  AudioSourceAndroidType,
-} from 'react-native-audio-recorder-player';
-import RNFS from 'react-native-fs';
-import axios from 'axios';
-import {useState} from 'react';
+import {PermissionsAndroid, Platform} from 'react-native';
+import 'react-native-get-random-values';
+import 'node-libs-react-native/globals';
+import {Buffer} from 'buffer';
+import {
+  AudioConfig,
+  AudioInputStream,
+  SpeechConfig,
+  SpeechRecognizer,
+} from 'microsoft-cognitiveservices-speech-sdk';
+import {LogBox} from 'react-native';
+import LiveAudioStream from 'react-native-live-audio-stream';
+LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 
-const [recording, setRecording] = useState(false);
-const [filePath, setFilePath] = useState('');
+// 녹음 기능
+//CHANGE THESE VALUES
+// todo: find a way to securely keep these values
+const key = '';
+const region = '';
+const language = 'ko-KR';
 
-const audioSet = {
-  AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-  AudioSourceAndroid: AudioSourceAndroidType.MIC,
-};
+//Settings for the audio stream
+//tuned to documentation at https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-use-audio-input-streams
+//Do not change these values unless you're an expert
+const channels = 1;
+const bitsPerChannel = 16;
+const sampleRate = 16000;
 
-export const startRecording = async () => {
-  const dirs = RNFS.ExternalDirectoryPath;
-  const path = `${dirs}/hello.m4a`;
-  const result = await AudioRecorderPlayer.startRecorder(path, audioSet, true);
-  setRecording(true);
-  setFilePath(result);
-  console.log('Recording started at: ', result);
-};
+let initializedCorrectly = false;
+let recognizer;
 
-export const stopRecording = async () => {
-  const result = await AudioRecorderPlayer.stopRecorder();
-  setRecording(false);
-  console.log('Recording saved at: ', result);
-  // const uploadResult = uploadAudio(filePath); // Upload the saved file
-  // return uploadResult;
-  playAudioFromFile(filePath);
-};
-
-const uploadAudio = async filePath => {
-  const file = {
-    uri: `file://${filePath}`,
-    type: 'audio/aac',
-    name: 'audio.aac',
-  };
-  const formData = new FormData();
-  formData.append('audio_file', file);
-  formData.append('lang', 'en-US');
+//prompt for permissions if not granted
+const checkPermissions = async () => {
   try {
-    const response = await axios({
-      method: 'post',
-      url: 'about:blank',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer YOUR_API_TOKEN`,
-      },
-      data: formData,
-    });
-    console.log('Upload success: ', response);
-    return response;
-  } catch (error) {
-    console.error('Upload failed: ', error);
-  }
-};
-
-const playAudioFromFile = async filePath => {
-  try {
-    // Add 'file://' prefix for local files, especially on Android
-    const formattedPath =
-      Platform.OS === 'android' ? `file://${filePath}` : filePath;
-
-    await AudioRecorderPlayer.startPlayer(formattedPath);
-    await AudioRecorderPlayer.setVolume(1.0); // Set desired volume
-
-    // Optional: Add a playback listener to handle events like completion
-    AudioRecorderPlayer.addPlayBackListener(e => {
-      if (e.currentPosition === e.duration) {
-        AudioRecorderPlayer.stopPlayer();
-        AudioRecorderPlayer.removePlayBackListener();
-        // Handle playback completion (e.g., update UI)
+    const OsVer = Platform.constants['Release'];
+    if (OsVer >= 13) {
+      const grants = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      );
+      if (grants === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Permissions granted');
+      } else {
+        console.log('All required permissions not granted');
+        return;
       }
-      // Update playback progress if needed
-    });
+    } else {
+      const grants = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      ]);
+      if (
+        grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        grants['android.permission.READ_EXTERNAL_STORAGE'] ===
+          PermissionsAndroid.RESULTS.GRANTED &&
+        grants['android.permission.RECORD_AUDIO'] ===
+          PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        console.log('Permissions granted');
+      } else {
+        console.log('All required permissions not granted');
+        return;
+      }
+    }
   } catch (err) {
-    console.error('Error playing audio:', err);
+    console.warn(err);
+    return;
   }
 };
-*/
+
+//sets up speechrecognizer and audio stream
+export const initializeAudio = async () => {
+  await checkPermissions();
+  if (!initializedCorrectly) {
+    //creates a push stream system which allows new data to be pushed to the recognizer
+
+    const pushStream = AudioInputStream.createPushStream();
+    const options = {
+      sampleRate,
+      channels,
+      bitsPerChannel,
+      audioSource: 6,
+    };
+
+    LiveAudioStream.init(options);
+    //everytime data is recieved from the mic, push it to the pushStream
+    LiveAudioStream.on('data', data => {
+      const pcmData = Buffer.from(data, 'base64');
+      pushStream.write(pcmData);
+    });
+
+    LiveAudioStream.start();
+
+    try {
+      const speechConfig = SpeechConfig.fromSubscription(key, region);
+      speechConfig.speechRecognitionLanguage = language;
+      const audioConfig = AudioConfig.fromStreamInput(pushStream); //the recognizer uses the stream to get audio data
+      recognizer = new SpeechRecognizer(speechConfig, audioConfig);
+
+      recognizer.sessionStarted = (s, e) => {
+        console.log('sessionStarted');
+        console.log(e.sessionId);
+      };
+
+      recognizer.sessionStopped = (s, e) => {
+        console.log('sessionStopped');
+      };
+
+      recognizer.recognizing = (s, e) => {
+        //The recognizer will return partial results. This is not called when recognition is stopped and sentences are formed but when recognizer picks up scraps of words on-the-fly.
+        console.log(`RECOGNIZING: Text=${e.result.text}`);
+        console.log(e.result.text);
+        console.log(e.sessionId);
+      };
+      recognizer.recognized = (s, e) => {
+        //The final result of the recognition with punctuation
+        console.log(`RECOGNIZED: Text=${e.result.text}`);
+        console.log(e.result);
+      };
+      recognizer.startContinuousRecognitionAsync(
+        () => {
+          console.log('startContinuousRecognitionAsync');
+        },
+        err => {
+          console.log(err);
+        },
+      );
+
+      initializedCorrectly = true;
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+};
+
+//stops the audio stream and recognizer
+export const stopAudio = async () => {
+  LiveAudioStream.stop();
+  if (!!recognizer) {
+    recognizer.stopContinuousRecognitionAsync();
+    initializedCorrectly = false;
+  }
+};
