@@ -125,16 +125,24 @@ export default function DiaryMainScreen() {
 
   //prompt for permissions if not granted
   const checkPermissions = async () => {
-    if (Platform.OS === 'android') {
-      try {
+    try {
+      const OsVer = Platform.constants['Release'];
+      if (OsVer >= 13) {
+        const grants = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        );
+        if (grants === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Permissions granted');
+        } else {
+          console.log('All required permissions not granted');
+          return;
+        }
+      } else {
         const grants = await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         ]);
-
-        console.log('write external storage', grants);
-
         if (
           grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
             PermissionsAndroid.RESULTS.GRANTED &&
@@ -148,10 +156,10 @@ export default function DiaryMainScreen() {
           console.log('All required permissions not granted');
           return;
         }
-      } catch (err) {
-        console.warn(err);
-        return;
       }
+    } catch (err) {
+      console.warn(err);
+      return;
     }
   };
 
