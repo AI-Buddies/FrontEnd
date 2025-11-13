@@ -133,7 +133,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
-  const [testIsWaiting, setTestIsWaiting] = useState(true);
+  const [testIsWaiting, setTestIsWaiting] = useState(false);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
