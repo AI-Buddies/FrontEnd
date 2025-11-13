@@ -100,7 +100,10 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton onPressIn={initializeAudio} onPress={stopAudio} />
+      <MicButton
+        //onPressIn={initializeAudio}
+        onPress={() => synthesizeSpeech('ko-KR-SeoHyeonNeural', '안녕하세요')}
+      />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
