@@ -7,6 +7,7 @@ import {
   View,
   TextInput,
   PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import {styled} from 'styled-components/native';
 import colors from '../../constants/colors';
@@ -15,6 +16,9 @@ import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Loader from 'react-native-three-dots-loader';
 //api
+import 'react-native-get-random-values';
+import 'node-libs-react-native/globals';
+import {Buffer} from 'buffer';
 import {
   AudioConfig,
   AudioInputStream,
@@ -30,7 +34,7 @@ import {
   TranslationRecognizer,
 } from 'microsoft-cognitiveservices-speech-sdk';
 import {LogBox} from 'react-native';
-import AudioRecord from 'react-native-live-audio-stream';
+import LiveAudioStream from 'react-native-live-audio-stream';
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
@@ -108,10 +112,9 @@ export default function DiaryMainScreen() {
 
   // 녹음 기능
   //CHANGE THESE VALUES
-  const key = 'YOUR_SUBSCRIPTION_KEY';
-  const region = 'YOUR_SUBSCRIPTION_REGION';
+  const key = '';
+  const region = '';
   const language = 'ko-KR';
-  const targetLanguage = 'ko';
 
   //Settings for the audio stream
   //tuned to documentation at https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-use-audio-input-streams
@@ -168,6 +171,7 @@ export default function DiaryMainScreen() {
     await checkPermissions();
     if (!initializedCorrectly) {
       //creates a push stream system which allows new data to be pushed to the recognizer
+
       const pushStream = AudioInputStream.createPushStream();
       const options = {
         sampleRate,
@@ -176,69 +180,60 @@ export default function DiaryMainScreen() {
         audioSource: 6,
       };
 
-      AudioRecord.init(options);
+      LiveAudioStream.init(options);
       //everytime data is recieved from the mic, push it to the pushStream
-      AudioRecord.on('data', data => {
+      LiveAudioStream.on('data', data => {
         const pcmData = Buffer.from(data, 'base64');
         pushStream.write(pcmData);
       });
 
-      AudioRecord.start();
+      LiveAudioStream.start();
 
-      const speechTranslationConfig = SpeechTranslationConfig.fromSubscription(
-        key,
-        region,
-      );
-      speechTranslationConfig.speechRecognitionLanguage = language;
-      speechTranslationConfig.addTargetLanguage(targetLanguage);
-      const audioConfig = AudioConfig.fromStreamInput(pushStream); //the recognizer uses the stream to get audio data
-      recognizer = new TranslationRecognizer(
-        speechTranslationConfig,
-        audioConfig,
-      );
+      try {
+        const speechConfig = SpeechConfig.fromSubscription(key, region);
+        speechConfig.speechRecognitionLanguage = language;
+        const audioConfig = AudioConfig.fromStreamInput(pushStream); //the recognizer uses the stream to get audio data
+        recognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
-      recognizer.sessionStarted = (s, e) => {
-        console.log('sessionStarted');
-        console.log(e.sessionId);
-      };
+        recognizer.sessionStarted = (s, e) => {
+          console.log('sessionStarted');
+          console.log(e.sessionId);
+        };
 
-      recognizer.sessionStopped = (s, e) => {
-        console.log('sessionStopped');
-      };
+        recognizer.sessionStopped = (s, e) => {
+          console.log('sessionStopped');
+        };
 
-      recognizer.recognizing = (s, e) => {
-        //The recognizer will return partial results. This is not called when recognition is stopped and sentences are formed but when recognizer picks up scraps of words on-the-fly.
-        console.log(`RECOGNIZING: Text=${e.result.text}`);
-        console.log(
-          `RECOGNIZING: Text=${e.result.translations.get(targetLanguage)}`,
+        recognizer.recognizing = (s, e) => {
+          //The recognizer will return partial results. This is not called when recognition is stopped and sentences are formed but when recognizer picks up scraps of words on-the-fly.
+          console.log(`RECOGNIZING: Text=${e.result.text}`);
+          console.log(e.result.text);
+          console.log(e.sessionId);
+        };
+        recognizer.recognized = (s, e) => {
+          //The final result of the recognition with punctuation
+          console.log(`RECOGNIZED: Text=${e.result.text}`);
+          console.log(e.result);
+        };
+        recognizer.startContinuousRecognitionAsync(
+          () => {
+            console.log('startContinuousRecognitionAsync');
+          },
+          err => {
+            console.log(err);
+          },
         );
-        console.log(e.result.text);
-        console.log(e.sessionId);
-      };
-      recognizer.recognized = (s, e) => {
-        //The final result of the recognition with punctuation
-        console.log(`RECOGNIZED: Text=${e.result.text}`);
-        console.log(
-          `RECOGNIZING: Text=${e.result.translations.get(targetLanguage)}`,
-        );
-        console.log(e.result);
-      };
-      recognizer.startContinuousRecognitionAsync(
-        () => {
-          console.log('startContinuousRecognitionAsync');
-        },
-        err => {
-          console.log(err);
-        },
-      );
 
-      initializedCorrectly = true;
+        initializedCorrectly = true;
+      } catch (err) {
+        console.warn(err);
+      }
     }
   };
 
   //stops the audio stream and recognizer
   const stopAudio = async () => {
-    AudioRecord.stop();
+    LiveAudioStream.stop();
     if (!!recognizer) {
       recognizer.stopContinuousRecognitionAsync();
       initializedCorrectly = false;
@@ -258,10 +253,7 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton
-        //onPressIn={startRecording}
-        onPress={() => checkPermissions()}
-      />
+      <MicButton onPressIn={initializeAudio} onPress={stopAudio} />
       <TextBar
         onPress={() => FetchMessage()}
         value={isWaitingReply ? '' : userDialog}
