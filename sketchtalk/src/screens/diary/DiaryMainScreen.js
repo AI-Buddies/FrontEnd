@@ -17,8 +17,10 @@ import Loader from 'react-native-three-dots-loader';
 import {initializeAudio, stopAudio} from './api/DiarySTT';
 import {synthesizeSpeech} from './api/DiaryTTS';
 //api
-import {useDiaryChatFetch} from './api/DiaryFetch';
-import {useDiaryInitialFetch} from './api/DiaryFetch';
+import axios from 'axios';
+import {authConfig, useDiaryChatFetch} from './api/DiaryFetch';
+import {useMutation} from '@tanstack/react-query';
+
 const {width, height} = Dimensions.get('window');
 const dummyData = [];
 
@@ -70,13 +72,30 @@ export default function DiaryMainScreen() {
     });
   }
 
-  function FetchMessage() {
+  const useDiaryChatFetch = useMutation({
+    mutationFn: dialog => {
+      return axios.post(
+        'https://sketch-talk.com/',
+        {dialog: dialog},
+        authConfig,
+      );
+    },
+    onMutate: userDialog => {
+      AddUserMessage(userDialog, false);
+      AddWaitingMessage();
+    },
+    onSuccess: (data, variables, onMutateResult, context) => {
+      AddFetchedMessage(data.reply);
+    },
+  });
+
+  function FetchMessage(userDialog) {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
     AddUserMessage(userDialog, false);
     setUserDialog('');
     setIsWaitingReply(true);
-    //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
-    //if (!isLoading) setIsWaitingReply(false);
+    //useDiaryChatFetch.mutate(userDialog)
+    //the rest is handled by useDiaryChatFetch
     AddWaitingMessage();
     setTimeout(() => {
       setIsWaitingReply(false);
@@ -100,11 +119,13 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton
-        //onPressIn={initializeAudio}
-        onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
+        onPressIn={() => initializeAudio(FetchMessage)}
+        onPress={stopAudio}
+        isWaitingReply={isWaitingReply}
+        //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
       />
       <TextBar
-        onPress={() => FetchMessage()}
+        onPress={() => FetchMessage(userDialog)}
         value={isWaitingReply ? '' : userDialog}
         onChangeText={!isWaitingReply && setUserDialog}
         isWaitingReply={isWaitingReply}
@@ -144,7 +165,8 @@ const MicButton = props => (
     <Pressable
       onPress={props.onPress}
       onPressIn={props.onPressIn}
-      //onPressOut={props.onPressOut}
+      disabled={props.isWaitingReply}
+      //disabled={useDiaryChatFetch.isPending}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -188,6 +210,7 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
+      {/*{!useDiaryChatFetch.isPending ? (*/}
       {!props.isWaitingReply ? (
         <TextInput
           value={props.value}
@@ -219,6 +242,7 @@ const TextBar = props => (
           alignItems: 'center',
           justifyContent: 'center',
         }}
+        disabled={useDiaryChatFetch.isPending}
         onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>

@@ -70,7 +70,7 @@ const checkPermissions = async () => {
 };
 
 //sets up speechrecognizer and audio stream
-export const initializeAudio = async () => {
+export const initializeAudio = async callback => {
   await checkPermissions();
   if (!initializedCorrectly) {
     //creates a push stream system which allows new data to be pushed to the recognizer
@@ -117,6 +117,7 @@ export const initializeAudio = async () => {
         //The final result of the recognition with punctuation
         console.log(`RECOGNIZED: Text=${e.result.text}`);
         console.log(e.result);
+        callback(e.result.text);
       };
       recognizer.startContinuousRecognitionAsync(
         () => {

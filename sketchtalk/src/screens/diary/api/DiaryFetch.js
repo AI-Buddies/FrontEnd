@@ -1,12 +1,10 @@
 import {useQuery} from '@tanstack/react-query';
 import {useMutation} from '@tanstack/react-query';
 import axios from 'axios';
-import Sound from 'react-native-sound';
-import RNFS from 'react-native-fs';
 
 const token = '';
 
-const authConfig = {
+export const authConfig = {
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -30,20 +28,19 @@ export const useDiaryInitialFetch = useQuery({
   },
 });
 
-export const useDiaryChatFetch = useMutation({
+/*export const useDiaryChatFetch = useMutation({
   mutationFn: dialog => {
     return axios.post('https://sketch-talk.com/', {dialog: dialog}, authConfig);
-    /*type Chat = {
-        statusCode: number;
-        message: string;
-        data: {
-           reply: string;
-           isSufficient: boolean;
-         };
-         isSuccess: boolean;
-    };*/
   },
-});
+  onMutate: userDialog => {
+    AddUserMessage(userDialog, false);
+    AddWaitingMessage();
+  },
+  onSuccess:
+    AddFetchedMessage => (data, variables, onMutateResult, context) => {
+      AddFetchedMessage(data.reply);
+    },
+});*/
 
 export const useDiaryGetTextFetch = useMutation({
   mutationFn: userId => {
@@ -189,39 +186,3 @@ export const useDiaryRedrawImageFetch = useMutation({
     };*/
   },
 });
-
-//TTS
-
-// Function to handle Text-to-Speech API call
-export const speechToText = async (text, language) => {
-  const key = YOUR_API_KEY; // Replace with your actual API key
-  const address = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${key}`;
-  const payload = createRequest(text, language);
-  const path = `${RNFS.DocumentDirectoryPath}/voice.mp3`;
-
-  try {
-    // Send POST request to Text-to-Speech API
-    const response = await axios.post(address, payload);
-    const result = await response.data;
-
-    // Save audio content to local file
-    await RNFS.writeFile(path, result.audioContent, 'base64');
-
-    // Initiate playback of synthesized speech
-    playMusic(path);
-  } catch (err) {
-    console.warn(err);
-  }
-};
-
-// Function to play synthesized speech
-const playMusic = music => {
-  const speech = new Sound(music, '', error => {
-    if (error) {
-      console.warn('Failed to load the sound', error);
-      return;
-    }
-    // Start playback
-    speech.play();
-  });
-};
