@@ -105,6 +105,12 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    packagingOptions {
+    	pickFirst 'lib/armeabi-v7a/libNitroModules.so'
+    	pickFirst 'lib/arm64-v8a/libNitroModules.so'
+    	pickFirst 'lib/x86/libNitroModules.so'
+    	pickFirst 'lib/x86_64/libNitroModules.so'
+	}
 }
 
 dependencies {
@@ -116,6 +122,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.47.0'
 }
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

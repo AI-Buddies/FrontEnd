@@ -83,6 +83,27 @@ const dummyData = [
   },
 ];
 
+const dummyEmptyData = [
+  {
+    diaryId: 1,
+  },
+  {
+    diaryId: 2,
+  },
+  {
+    diaryId: 3,
+  },
+  {
+    diaryId: 4,
+  },
+  {
+    diaryId: 5,
+  },
+  {
+    diaryId: 6,
+  },
+];
+
 const dummyMarkedDates = [
   {
     diaryId: 1,
@@ -112,6 +133,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
+  const [testIsWaiting, setTestIsWaiting] = useState(false);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -139,7 +161,7 @@ export default function CalenderMainScreen({route}) {
   }
 
   //const listViewQuery = useListViewQueryFetch(date)
-  const calendarViewQuery = useCalendarViewQueryFetch(date);
+  //const calendarViewQuery = useCalendarViewQueryFetch(date);
 
   return (
     <Background
@@ -152,9 +174,10 @@ export default function CalenderMainScreen({route}) {
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
-        {calendarViewQuery.isLoading
+        {/*calendarViewQuery.isLoading
           ? '로딩중...'
-          : calendarViewQuery.error.message}
+          : calendarViewQuery.error.message*/}
+        달력
       </Text>
       <CalendarNavigator
         date={date}
@@ -171,27 +194,76 @@ export default function CalenderMainScreen({route}) {
           locale="ko"
         />
       )}
-      <View style={{flex: 7}}>
-        {/*       리스트       */}
-        {listView && (
+
+      {/*       리스트       */}
+
+      {listView && (
+        <View style={{flex: 7, width: width}}>
           <FlatList
             contentContainerStyle={{
               alignItems: 'flex-start',
               justifyContent: 'center',
+              marginLeft: Math.floor((width - 172 * 2) / 2),
             }}
             keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
-            data={dummyData}
-            renderItem={({item}) => (
-              <CalendarListViewItem
-                {...item}
-                onPress={() => TempNavigate(item.date)}
-              />
-            )}
+            data={testIsWaiting ? dummyEmptyData : dummyData}
+            renderItem={
+              testIsWaiting
+                ? () => <CalendarListViewEmptyItem />
+                : ({item}) => (
+                    <CalendarListViewItem
+                      {...item}
+                      onPress={() => TempNavigate(item.date)}
+                    />
+                  )
+            }
             numColumns={2}></FlatList>
-        )}
-        {/*       달력        */}
-        {!listView && (
+          {testIsWaiting && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width,
+                height: 1080,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  marginBottom: 700,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={require('../../assets/character/writing_bear.png')}
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+                    fontSize: 24,
+                  }}>
+                  로딩중...
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+        </View>
+      )}
+      {/*       달력        */}
+      {!listView && (
+        <View style={{flex: 7}}>
           <Calendar
             initialDate={date}
             hideArrows={true}
@@ -241,8 +313,50 @@ export default function CalenderMainScreen({route}) {
               );
             }}
           />
-        )}
-      </View>
+          {testIsWaiting && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width * 0.9,
+                height: 380,
+
+                backgroundColor: 'rgba(255, 255,255, 0.6)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={require('../../assets/character/writing_bear.png')}
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+
+                    fontSize: 24,
+                  }}>
+                  로딩중...
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+        </View>
+      )}
       <SwitchViewButton onPress={() => setListView(!listView)} />
       {!listView && (
         <CalendarPreviewModal
@@ -478,6 +592,30 @@ const CalendarListViewItem = item => (
       </Text>
     </View>
   </Pressable>
+);
+
+const CalendarListViewEmptyItem = item => (
+  <View
+    style={{
+      width: 162,
+      height: 182,
+      textAlign: 'center',
+      marginHorizontal: 5,
+      marginVertical: 10,
+      backgroundColor: colors.creamWhite,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+      elevation: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  />
 );
 
 const CalendarNavigator = props => (

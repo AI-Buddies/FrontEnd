@@ -12,22 +12,19 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import Loader from 'react-native-three-dots-loader';
+//stt tts
+import {initializeAudio, stopAudio} from './api/DiarySTT';
+import {synthesizeSpeech} from './api/DiaryTTS';
 //api
 import {useDiaryChatFetch} from './api/DiaryFetch';
 import {useDiaryInitialFetch} from './api/DiaryFetch';
-import AudioRecorderPlayer, {
-  AudioEncoderAndroidType,
-  AudioSourceAndroidType,
-} from 'react-native-audio-recorder-player';
-import RNFS from 'react-native-fs';
-import axios from 'axios';
-
 const {width, height} = Dimensions.get('window');
-
 const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
+
   function TempNavigate() {
     navigation.navigate('DiaryConfirmTextScreen');
   }
@@ -38,79 +35,56 @@ export default function DiaryMainScreen() {
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
     dummyData.length = 0; //clear array
-    AddMessage('첫 메시지야', true);
+    setIsWaitingReply(false);
+    AddFetchedMessage('첫 메세지야');
   }, []);
 
-  function AddMessage(dialog, isAI) {
+  function AddFetchedMessage(dialog) {
+    dummyData.shift();
     const messageArraySize = dummyData.length;
-    dummyData.unshift({id: messageArraySize, isAI: isAI, text: dialog});
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  function AddWaitingMessage() {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: true,
+      text: 'waiting...',
+    });
+  }
+
+  function AddUserMessage(dialog) {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: false,
+      isWaitingReply: false,
+      text: dialog,
+    });
   }
 
   function FetchMessage() {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
-    AddMessage(userDialog, false);
+    AddUserMessage(userDialog, false);
     setUserDialog('');
     setIsWaitingReply(true);
     //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
     //if (!isLoading) setIsWaitingReply(false);
+    AddWaitingMessage();
     setTimeout(() => {
       setIsWaitingReply(false);
-      AddMessage('답변이야', true);
-    }, 3000);
+      AddFetchedMessage('답변이야 답변이야 답변이야');
+    }, 10000);
 
     //AddMessage(data.data.reply, true);
   }
-
-  // 녹음 기능
-  const [filePath, setFilePath] = useState('');
-  const dirs = RNFS.ExternalDirectoryPath;
-  const path = `${dirs}/hello.m4a`;
-
-  const audioSet = {
-    AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-    AudioSourceAndroid: AudioSourceAndroidType.MIC,
-  };
-
-  const startRecording = async () => {
-    const result = await AudioRecorderPlayer.startRecorder(
-      path,
-      audioSet,
-      true,
-    );
-    setFilePath(result);
-    console.log('Recording started at: ', result);
-  };
-
-  const stopRecording = async () => {
-    const result = await AudioRecorderPlayer.stopRecorder();
-    console.log('Recording saved at: ', result);
-    // const uploadResult = uploadAudio(filePath); // Upload the saved file
-    // return uploadResult;
-    playAudioFromFile(filePath);
-  };
-
-  const playAudioFromFile = async filePath => {
-    try {
-      // Add 'file://' prefix for local files, especially on Android
-      const formattedPath =
-        Platform.OS === 'android' ? `file://${filePath}` : filePath;
-
-      await AudioRecorderPlayer.startPlayer(formattedPath);
-      await AudioRecorderPlayer.setVolume(1.0); // Set desired volume
-
-      // Optional: Add a playback listener to handle events like completion
-      AudioRecorderPlayer.addPlayBackListener(e => {
-        if (e.currentPosition === e.duration) {
-          AudioRecorderPlayer.stopPlayer();
-          AudioRecorderPlayer.removePlayBackListener();
-          // Handle playback completion (e.g., update UI)
-        }
-        // Update playback progress if needed
-      });
-    } catch (err) {
-      console.error('Error playing audio:', err);
-    }
-  };
 
   return (
     <Background
@@ -126,8 +100,8 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton
-        //onPressIn={startRecording}
-        onPress={TempNavigate}
+        //onPressIn={initializeAudio}
+        onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
       />
       <TextBar
         onPress={() => FetchMessage()}
@@ -277,18 +251,33 @@ function MessageItem({item}) {
           borderBottomRightRadius: 18,
           elevation: 1,
         }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'MangoDdobak-R',
-            lineHeight: 25,
-            textAlign: 'left',
-            paddingHorizontal: 10,
-            marginBottom: 2,
-            color: colors.black,
-          }}>
-          {item.text}
-        </Text>
+        {item.isWaitingReply ? (
+          <View
+            style={{
+              height: 25,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}>
+            <Loader
+              style={{
+                justifyContent: 'center',
+              }}
+            />
+          </View>
+        ) : (
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              lineHeight: 25,
+              textAlign: 'left',
+              paddingHorizontal: 10,
+              marginBottom: 2,
+              color: colors.black,
+            }}>
+            {item.text}
+          </Text>
+        )}
       </View>
     </View>
   ) : (
