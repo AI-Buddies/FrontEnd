@@ -6,7 +6,7 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
@@ -16,15 +16,23 @@ import {useDiaryGetArtFetch} from './api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
-export default function DiaryConfirmArtScreen() {
+export default function DiaryConfirmArtScreen({route}) {
   const navigation = useNavigation();
   function TempNavigate() {
     navigation.navigate('DiaryResultStackNavigator', {
       screen: 'DiaryResultScreen',
-      params: {date: new Date(2025, 4, 1), isCalendar: false},
+      params: {
+        date: new Date(2025, 4, 1),
+        isCalendar: false,
+        //image_url: useDiaryGetArtFetch.data.image_url,
+        image_url: 'image_url',
+        confirmArt: true,
+        ...route.params,
+      },
     });
   }
-  //const {data, error, isFetching, isLoading} = useDiaryGetArtFetch(userID);
+
+  //const {isPending, isError, data, error} = useDiaryGetArtFetch(userID, content, style_name);
   const [isLoading, setIsLoading] = useState(true);
   return (
     <Background

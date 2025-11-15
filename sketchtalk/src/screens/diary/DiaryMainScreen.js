@@ -119,9 +119,10 @@ export default function DiaryMainScreen() {
         fadingEdgeLength={100}
       />
       <MicButton
-        onPressIn={() => initializeAudio(FetchMessage)}
-        onPress={stopAudio}
+        //onPressIn={() => initializeAudio(FetchMessage)}
+        onPress={TempNavigate}
         isWaitingReply={isWaitingReply}
+        useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
         //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
       />
       <TextBar
@@ -129,6 +130,7 @@ export default function DiaryMainScreen() {
         value={isWaitingReply ? '' : userDialog}
         onChangeText={!isWaitingReply && setUserDialog}
         isWaitingReply={isWaitingReply}
+        useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
       />
     </Background>
   );
@@ -166,7 +168,7 @@ const MicButton = props => (
       onPress={props.onPress}
       onPressIn={props.onPressIn}
       disabled={props.isWaitingReply}
-      //disabled={useDiaryChatFetch.isPending}
+      //disabled={props.useDiaryChatFetch_isPending}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -210,7 +212,7 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      {/*{!useDiaryChatFetch.isPending ? (*/}
+      {/*{!props.useDiaryChatFetch_isPending ? (*/}
       {!props.isWaitingReply ? (
         <TextInput
           value={props.value}
@@ -242,7 +244,7 @@ const TextBar = props => (
           alignItems: 'center',
           justifyContent: 'center',
         }}
-        disabled={useDiaryChatFetch.isPending}
+        disabled={props.useDiaryChatFetch_isPending}
         onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>

@@ -15,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import ConfirmButton from '../../../components/confirmbutton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import moment from 'moment';
+import {useDiaryEditFetch} from '../api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
@@ -29,12 +30,18 @@ export default function DiaryEditScreen({route}) {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   function TempNavigateToResultScreen() {
-    navigation.navigate('DiaryResultScreen', {...route.params});
+    navigation.navigate('DiaryResultScreen', {
+      confirmArt: false,
+      ...route.params,
+    });
   }
   function TempNavigateToRedrawScreen() {
-    navigation.navigate('DiaryEditChooseArtstyleScreen', {...route.params});
+    navigation.navigate('DiaryEditChooseArtstyleScreen', {
+      confirmArt: true,
+      ...route.params,
+    });
   }
-  const {diaryDate, isCalendar} = route.params;
+  const {diaryDate} = route.params;
 
   return (
     <Background
@@ -56,6 +63,7 @@ export default function DiaryEditScreen({route}) {
         closeOnPress={() => setModalVisible(false)}
         yesOnPress={() => {
           setModalVisible(false);
+          useDiaryEditFetch.mutate(diaryId, date, title, emotion, content);
           TempNavigateToRedrawScreen();
         }}
         noOnPress={() => {

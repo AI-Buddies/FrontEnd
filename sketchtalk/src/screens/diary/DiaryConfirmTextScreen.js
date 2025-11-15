@@ -6,13 +6,13 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
-import {useDiaryConfirmTextFetch} from './api/DiaryFetch';
+import {useDiaryGetTextFetch, useDiaryConfirmTextFetch} from './api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
@@ -25,16 +25,29 @@ const dummyData = {
 export default function DiaryConfirmTextScreen() {
   const navigation = useNavigation();
   function TempNavigate() {
-    navigation.navigate('DiaryChooseArtstyleScreen');
+    /*useDiaryConfirmTextFetch.mutate(
+      userID,
+      useDiaryGetTextFetch.data.title,
+      useDiaryGetTextFetch.data.content,
+    );
+    navigation.navigate('DiaryChooseArtstyleScreen', {
+      diaryID: useDiaryConfirmTextFetch.data.diaryID, content: useDiaryGetTextFetch.data.content,
+    });*/
+    navigation.navigate('DiaryChooseArtstyleScreen', {
+      diaryID: 'diaryID',
+      content: 'content',
+    });
   }
 
-  //const {data, error, isFetching, isLoading} = useDiaryGetTextFetch(userID);
   const [isLoading, setIsLoading] = useState(true);
+
+  const {isPending, isError, data, error} = useDiaryGetTextFetch('userID');
 
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
+      {/*{useDiaryGetTextFetch.isPending ? (*/}
       {isLoading ? (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <Text
@@ -45,7 +58,8 @@ export default function DiaryConfirmTextScreen() {
               fontSize: 30,
               color: colors.primary,
             }}>
-            또리가 일기를 작성 중...
+            {/*또리가 일기를 작성 중...*/}
+            {!isPending ? error.message : '로딩중'}
           </Text>
           <LoadingCharacterImage />
           <View
@@ -85,7 +99,7 @@ export default function DiaryConfirmTextScreen() {
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <CharacterImage />
           <DiaryDisplay
-            //item={data.data}
+            //item={useDiaryGetTextFetch.data}
             item={dummyData}
           />
           <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />

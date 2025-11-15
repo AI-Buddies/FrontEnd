@@ -12,15 +12,22 @@ import ConfirmButton from '../../../components/confirmbutton';
 import colors from '../../../constants/colors';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
+import {useDiaryRedrawImageFetch} from '../api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
 export default function DiaryArtRedrawScreen({route}) {
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryResultScreen', {...route.params});
+  function TempNavigate(image_url) {
+    navigation.navigate('DiaryResultScreen', {
+      image_url: 'image_url', //new image
+      ...route.params,
+    });
   }
-  //const {data, error, isFetching, isLoading} = useDiaryGetArtFetch(userID);
+
+  const {content, style_name, image_url} = route.params;
+
+  //const {data, error, isFetching, isLoading} = useDiaryRedrawImageFetch(content, style_name, image_url);
   const [isLoading, setIsLoading] = useState(true);
   return (
     <Background

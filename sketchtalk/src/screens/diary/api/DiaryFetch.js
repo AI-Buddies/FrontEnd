@@ -42,20 +42,27 @@ export const useDiaryInitialFetch = useQuery({
     },
 });*/
 
-export const useDiaryGetTextFetch = useMutation({
-  mutationFn: userId => {
+/*export const useDiaryGetTextFetch = useQuery({
+  queryKey: ['useDiaryGetTextFetch'],
+  queryFn: userId => {
     return axios.post('https://sketch-talk.com/', {userId: userId}, authConfig);
-    /*type TextResult = {
-         statusCode: number;
-         message: string;
-         data: {
-             title: string;
-            content: string;
-           };
-      isSuccess: boolean;
-    };*/
+    
   },
-});
+}); 
+*/
+
+export function useDiaryGetTextFetch(userId) {
+  return useQuery({
+    queryKey: ['useDiaryGetTextFetch'],
+    queryFn: () => {
+      return axios.post(
+        'https://sketch-talk.com/',
+        {userId: userId},
+        authConfig,
+      );
+    },
+  });
+}
 
 export const useDiaryConfirmTextFetch = useMutation({
   mutationFn: ({userId, title, content}) => {
@@ -82,7 +89,7 @@ export const useDiaryConfirmTextFetch = useMutation({
   },
 });
 
-export const useDiaryGetArtFetch = useMutation({
+/*export const useDiaryGetArtFetch = useMutation({
   mutationFn: ({userId, content, style}) => {
     return axios.post(
       'https://sketch-talk.com/',
@@ -93,46 +100,42 @@ export const useDiaryGetArtFetch = useMutation({
       },
       authConfig,
     );
-    /*type ArtResultReply = {
-        statusCode: number;
-        message: string;
-        data: {
-          diaryId: number;
-          image_url: string;
-      };
-      isSuccess: boolean;
-      };*/
   },
 });
+*/
 
-export const useDiaryConfirmArtFetch = useMutation({
-  mutationFn: ({diaryId, image_url}) => {
-    return axios.post(
-      'https://sketch-talk.com/',
-      {
-        diaryId: diaryId,
-        image_url: image_url,
-      },
-      authConfig,
-    );
-    /*type ArtConfirmReply = {
-        statusCode: number;
-        message: string;
-        data: {
-          diaryId: number;
-          date: string;
-          emotion: string;
-          title: string;
-          content: string;
-          img_url: string;
-          comment: string;
-          achieved: boolean;
-          achieved_list: string[];
-        };
-        isSuccess: boolean;
-    };*/
-  },
-});
+export function useDiaryGetArtFetch(userId, content, style) {
+  return useQuery({
+    queryKey: ['useDiaryGetArtFetch'],
+    queryFn: () => {
+      return axios.post(
+        'https://sketch-talk.com/',
+        {
+          userId: userId,
+          content: content,
+          style: style,
+        },
+        authConfig,
+      );
+    },
+  });
+}
+
+export function useDiaryConfirmArtFetch(diaryId, image_url) {
+  return useQuery({
+    queryKey: ['useDiaryConfirmArtFetch'],
+    queryFn: () => {
+      return axios.post(
+        'https://sketch-talk.com/',
+        {
+          diaryId: diaryId,
+          image_url: image_url,
+        },
+        authConfig,
+      );
+    },
+  });
+}
 
 export const useDiaryEditFetch = useMutation({
   mutationFn: ({diaryId, date, title, emotion, content}) => {
@@ -162,27 +165,19 @@ export const useDiaryEditFetch = useMutation({
   },
 });
 
-export const useDiaryRedrawImageFetch = useMutation({
-  mutationFn: ({diaryId, content, prevImage, style}) => {
-    return axios.put(
-      'https://sketch-talk.com/',
-      {
-        diaryId: diaryId,
-        content: content,
-        prevImage: prevImage,
-        style: style,
-      },
-      authConfig,
-    );
-    /*type DiaryEditReply = {
-        statusCode: number;
-        message: string;
-        data: {
-          "diaryId" : 1,
-			    "imageUrl" : "sketchtalk.s3.~~2",
-			    "prevImageUrl" : "sketchtalk.s3.~~"
-        };
-        isSuccess: boolean;
-    };*/
-  },
-});
+export function useDiaryRedrawImageFetch(content, style, prevImage) {
+  return useQuery({
+    queryKey: ['useDiaryConfirmArtFetch'],
+    queryFn: () => {
+      return axios.post(
+        'https://sketch-talk.com/',
+        {
+          content: content,
+          style: style,
+          prevImage: prevImage,
+        },
+        authConfig,
+      );
+    },
+  });
+}

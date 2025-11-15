@@ -7,7 +7,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import ConfirmText from '../../../components/confirmtext';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
@@ -22,8 +22,11 @@ const style_list = [
 
 export default function DiaryEditChooseArtstyleScreen({route}) {
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryArtRedrawScreen', {...route.params});
+  function TempNavigate(style_name) {
+    navigation.navigate('DiaryArtRedrawScreen', {
+      style_name: style_name,
+      ...route.params,
+    });
   }
   return (
     <Background
@@ -45,7 +48,7 @@ export default function DiaryEditChooseArtstyleScreen({route}) {
           fadingEdgeLength={100}
           data={style_list}
           renderItem={({item}) => (
-            <MessageItem {...item} onPress={TempNavigate} />
+            <MessageItem {...item} onPress={TempNavigate(item.style_name)} />
           )}
           numColumns={2}></FlatList>
       </View>

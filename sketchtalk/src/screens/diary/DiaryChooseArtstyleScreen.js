@@ -7,7 +7,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
@@ -20,10 +20,13 @@ const style_list = [
   {style_name: 'coolkids', display_name: '쿨키즈'},
 ];
 
-export default function DiaryChooseArtstyleScreen() {
+export default function DiaryChooseArtstyleScreen({route}) {
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryConfirmArtScreen');
+  function TempNavigate(style_name) {
+    navigation.navigate('DiaryConfirmArtScreen', {
+      style_name: style_name,
+      ...route.params,
+    });
   }
   return (
     <Background

@@ -8,7 +8,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
@@ -22,6 +22,8 @@ import AchievementRow from '../../../components/achievementrow';
 import CommentTextDownload from '../../../components/commenttextdownload';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import {useDiaryConfirmArtFetch} from '../api/DiaryFetch';
+import {useDiaryViewQueryFetch} from '../../calendar/api/CalendarFetch';
 
 const {width, height} = Dimensions.get('window');
 
@@ -52,9 +54,12 @@ export default function DiaryResultScreen({route}) {
     });
   }
   function TempNavigateToEditScreen() {
-    navigation.navigate('DiaryEditScreen', {...route.params});
+    navigation.navigate('DiaryEditScreen', {
+      content: 'content',
+      ...route.params,
+    });
   }
-  const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(!isCalendar);
   const [achievementModalVisible, setAchievementModalVisible] = useState(false);
   const [downloadEventModalVisible, setDownloadEventModalVisible] =
     useState(false);
@@ -64,10 +69,14 @@ export default function DiaryResultScreen({route}) {
   //3: download failed
   const [downloadStatus, setDownloadStatus] = useState(0);
   const [achievementIndex, setAchievementIndex] = useState(0);
-  const {diaryDate, isCalendar} = route.params;
+  const {diaryDate, isCalendar, diaryId, image_url, confirmArt} = route.params;
+
+  const {isPending, isError, data, error} =
+    isCalendar && confirmArt
+      ? useDiaryConfirmArtFetch('diaryId', 'image_url')
+      : useDiaryViewQueryFetch('diaryId');
 
   // 다운로드 기능
-
   const captureRef = useRef();
 
   const getPhotoUri = async () => {
