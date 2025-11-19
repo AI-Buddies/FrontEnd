@@ -62,7 +62,7 @@ export default function DiaryResultScreen({route}) {
   }
   const {diaryDate, isCalendar, diaryId, image_url, confirmArt} = route.params;
   const [tutorialModalVisible, setTutorialModalVisible] = useState(!isCalendar);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(true);
   const [downloadEventModalVisible, setDownloadEventModalVisible] =
     useState(false);
   //0: not downloading
@@ -186,7 +186,7 @@ export default function DiaryResultScreen({route}) {
 const AchievementModal = props => (
   <Modal
     isVisible={props.isVisible}
-    statusBarTranslucent={true}
+    statusBarTranslucent={false}
     backdropOpacity={0.9}
     animationInTiming={600}
     animationOutTiming={1}

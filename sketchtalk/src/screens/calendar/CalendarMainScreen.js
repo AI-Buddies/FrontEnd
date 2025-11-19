@@ -25,6 +25,7 @@ import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useCalendarViewQueryFetch} from './api/CalendarFetch';
 import {useListViewQueryFetch} from './api/CalendarFetch';
+import {color} from 'react-native-elements/dist/helpers';
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -133,7 +134,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
-  const [testIsWaiting, setTestIsWaiting] = useState(false);
+  const [testIsWaiting, setTestIsWaiting] = useState(true);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -307,6 +308,7 @@ export default function CalenderMainScreen({route}) {
                   hasDiary={hasDiary()}
                   date={date}
                   state={state}
+                  testIsWaiting={testIsWaiting}
                   onPress={() => {
                     setPreviewVisible(true);
                   }}
@@ -470,7 +472,7 @@ const CalendarPreviewModal = props => (
 
 const CustomDayComponent = props => (
   <View style={{alignItems: 'center', justifyContent: 'center', height: 40}}>
-    {props.hasDiary && props.state !== 'disabled' ? (
+    {props.hasDiary && props.state !== 'disabled' && !props.testIsWaiting && (
       <Pressable onPress={props.onPress}>
         <Image
           style={{
@@ -483,13 +485,26 @@ const CustomDayComponent = props => (
           resizeMode="contain"
           source={require('../../assets/emotions/emotion_happy.png')}></Image>
       </Pressable>
-    ) : (
+    )}
+    {!props.hasDiary && !props.testIsWaiting && (
       <Text
         style={{
           textAlign: 'center',
           fontFamily: 'MangoDdobak-R',
           lineHeight: 31,
-          color: props.state === 'disabled' ? colors.white : colors.black,
+          color: props.state === 'disabled' ? '#FFFFFF00' : colors.black,
+          fontSize: 16,
+        }}>
+        {props.date.day}
+      </Text>
+    )}
+    {props.testIsWaiting && (
+      <Text
+        style={{
+          textAlign: 'center',
+          fontFamily: 'MangoDdobak-R',
+          lineHeight: 31,
+          color: colors.gray300,
           fontSize: 16,
         }}>
         {props.date.day}
