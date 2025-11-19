@@ -152,6 +152,7 @@ export default function CalenderMainScreen({route}) {
     navigation.navigate('DiaryResultStackNavigator', {
       screen: 'DiaryResultScreen',
       params: {
+        diaryId: '',
         diaryDate: new Date(diaryDate),
         isCalendar: true,
         calendarDate: date,

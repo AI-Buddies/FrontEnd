@@ -11,6 +11,7 @@ import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
+import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
 import {useDiaryGetTextFetch, useDiaryConfirmTextFetch} from './api/DiaryFetch';
 
@@ -41,7 +42,7 @@ export default function DiaryConfirmTextScreen() {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const {isPending, isError, data, error} = useDiaryGetTextFetch('userID');
+  //const {isPending, isError, data, error} = useDiaryGetTextFetch('userID');
 
   return (
     <Background
@@ -49,52 +50,11 @@ export default function DiaryConfirmTextScreen() {
       resizeMode="cover">
       {/*{useDiaryGetTextFetch.isPending ? (*/}
       {isLoading ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <Text
-            style={{
-              flex: 1,
-              marginTop: 100,
-              fontFamily: 'MangoDdobak-B',
-              fontSize: 30,
-              color: colors.primary,
-            }}>
-            {/*또리가 일기를 작성 중...*/}
-            {!isPending ? error.message : '로딩중'}
-          </Text>
-          <LoadingCharacterImage />
-          <View
-            style={{
-              flex: 3,
-              justifyContent: 'flex-start',
-              width: width * 0.9,
-              marginBottom: 50,
-            }}>
-            <Pressable
-              style={{alignSelf: 'flex-start', fontSize: 25, marginTop: 20}}
-              onPress={() => setIsLoading(false)}>
-              <Text
-                style={{
-                  alignSelf: 'flex-start',
-                  fontFamily: 'MangoDdobak-B',
-                  fontSize: 25,
-                  marginTop: 0,
-                }}>
-                오늘의 추천💡
-              </Text>
-            </Pressable>
-            <Text
-              style={{
-                alignSelf: 'flex-start',
-                fontSize: 20,
-                fontFamily: 'MangoDdobak-R',
-                lineHeight: 29,
-                marginTop: 20,
-              }}>
-              일기를 쓸 때 너무 많은 걸 쓰려고 하지 말고, 가장 기억에 남는 한
-              가지를 고르면 좋아! 오늘 친구랑 축구한 것처럼 말이야 :)
-            </Text>
-          </View>
-        </View>
+        <DiaryLoadingScreen
+          width={width}
+          onPress={() => setIsLoading(false)}
+          loadingText={'또리가 일기를 작성하는 중...'}
+        />
       ) : (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <CharacterImage />
@@ -131,32 +91,6 @@ const CharacterImage = () => (
       paddingTop: 19,
     }}>
     <Image source={require('../../assets/character/question_bear.png')} />
-  </View>
-);
-
-const LoadingCharacterImage = () => (
-  <View
-    style={{
-      flex: 3,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-    <ImageBackground
-      source={require('../../assets/character/ellipse.png')}
-      style={{
-        width: 360,
-        height: 360,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Image
-        style={{
-          shadowColor: colors.primary,
-          borderRadius: 120,
-        }}
-        source={require('../../assets/character/writing_bear.png')}
-      />
-    </ImageBackground>
   </View>
 );
 

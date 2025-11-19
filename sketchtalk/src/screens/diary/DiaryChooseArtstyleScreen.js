@@ -48,7 +48,10 @@ export default function DiaryChooseArtstyleScreen({route}) {
           fadingEdgeLength={100}
           data={style_list}
           renderItem={({item}) => (
-            <MessageItem {...item} onPress={TempNavigate} />
+            <MessageItem
+              {...item}
+              onPress={item => TempNavigate(item.style_name)}
+            />
           )}
           numColumns={2}></FlatList>
       </View>

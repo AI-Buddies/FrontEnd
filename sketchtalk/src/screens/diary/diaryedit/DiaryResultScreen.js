@@ -13,6 +13,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
 import styled from 'styled-components';
+import {DiaryLoadingScreen} from '../component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
 import CommentText from '../../../components/commenttext';
 import ConfirmButton from '../../../components/confirmbutton';
@@ -59,6 +60,7 @@ export default function DiaryResultScreen({route}) {
       ...route.params,
     });
   }
+  const {diaryDate, isCalendar, diaryId, image_url, confirmArt} = route.params;
   const [tutorialModalVisible, setTutorialModalVisible] = useState(!isCalendar);
   const [achievementModalVisible, setAchievementModalVisible] = useState(false);
   const [downloadEventModalVisible, setDownloadEventModalVisible] =
@@ -69,12 +71,12 @@ export default function DiaryResultScreen({route}) {
   //3: download failed
   const [downloadStatus, setDownloadStatus] = useState(0);
   const [achievementIndex, setAchievementIndex] = useState(0);
-  const {diaryDate, isCalendar, diaryId, image_url, confirmArt} = route.params;
+  const [isLoading, setIsLoading] = useState(true);
 
-  const {isPending, isError, data, error} =
+  /*const {isPending, isError, data, error} =
     isCalendar && confirmArt
       ? useDiaryConfirmArtFetch('diaryId', 'image_url')
-      : useDiaryViewQueryFetch('diaryId');
+      : useDiaryViewQueryFetch('diaryId');*/
 
   // 다운로드 기능
   const captureRef = useRef();
@@ -110,62 +112,72 @@ export default function DiaryResultScreen({route}) {
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <DiaryDisplay
-        item={diaryDummyData}
-        date={diaryDate}
-        editOnPress={TempNavigateToEditScreen}
-        downloadOnPress={downloadDiary}
-        showTutorial={tutorialModalVisible}
-        tutorialOnPress={() => setTutorialModalVisible(false)}
-      />
-      <CharacterCommentDisplay
-        onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
-        isCalendar={isCalendar}
-      />
-      {achievementDummyData !== undefined && (
-        <AchievementModal
-          isVisible={achievementModalVisible}
-          achievementIndex={achievementIndex}
-          onBackdropPress={() => {
-            achievementDummyData[achievementIndex + 1] !== undefined
-              ? setAchievementIndex(achievementIndex + 1)
-              : setAchievementModalVisible(false);
-          }}
+      {isLoading ? (
+        <DiaryLoadingScreen
+          width={width}
+          onPress={() => setIsLoading(false)}
+          loadingText={'또리가 일기를 불러오는 중...'}
         />
-      )}
-      <ViewShot
-        ref={captureRef}
-        options={{
-          fileName: moment(diaryDate)
-            .format('YYYY[년] M[월] D[일] [그림일기]')
-            .toString(),
-          format: 'png',
-          quality: 0.9,
-        }}
-        style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
-        <Background
-          source={require('../../../assets/background/diary_bg_happy.png')}
-          resizeMode="contain">
-          <View
-            style={{
-              width: width * 0.8,
-              marginLeft: 25,
-              flex: 1,
-            }}>
-            <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
-            <DownloadCharacterCommentDisplay />
-          </View>
-        </Background>
-      </ViewShot>
-      {downloadEventModalVisible && (
-        <DownloadEventModal
-          isVisible={downloadEventModalVisible}
-          downloadStatus={downloadStatus}
-          confirmOnPress={() => {
-            setDownloadEventModalVisible(false);
-            setDownloadStatus(0);
-          }}
-        />
+      ) : (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <DiaryDisplay
+            item={diaryDummyData}
+            date={diaryDate}
+            editOnPress={TempNavigateToEditScreen}
+            downloadOnPress={downloadDiary}
+            showTutorial={tutorialModalVisible}
+            tutorialOnPress={() => setTutorialModalVisible(false)}
+          />
+          <CharacterCommentDisplay
+            onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
+            isCalendar={isCalendar}
+          />
+          {achievementDummyData !== undefined && (
+            <AchievementModal
+              isVisible={achievementModalVisible}
+              achievementIndex={achievementIndex}
+              onBackdropPress={() => {
+                achievementDummyData[achievementIndex + 1] !== undefined
+                  ? setAchievementIndex(achievementIndex + 1)
+                  : setAchievementModalVisible(false);
+              }}
+            />
+          )}
+          <ViewShot
+            ref={captureRef}
+            options={{
+              fileName: moment(diaryDate)
+                .format('YYYY[년] M[월] D[일] [그림일기]')
+                .toString(),
+              format: 'png',
+              quality: 0.9,
+            }}
+            style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
+            <Background
+              source={require('../../../assets/background/diary_bg_happy.png')}
+              resizeMode="contain">
+              <View
+                style={{
+                  width: width * 0.8,
+                  marginLeft: 25,
+                  flex: 1,
+                }}>
+                <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
+                <DownloadCharacterCommentDisplay />
+              </View>
+            </Background>
+          </ViewShot>
+          {downloadEventModalVisible && (
+            <DownloadEventModal
+              isVisible={downloadEventModalVisible}
+              downloadStatus={downloadStatus}
+              confirmOnPress={() => {
+                setDownloadEventModalVisible(false);
+                setDownloadStatus(0);
+              }}
+            />
+          )}
+        </View>
       )}
     </Background>
   );

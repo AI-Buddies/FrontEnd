@@ -63,7 +63,7 @@ export default function DiaryEditScreen({route}) {
         closeOnPress={() => setModalVisible(false)}
         yesOnPress={() => {
           setModalVisible(false);
-          useDiaryEditFetch.mutate(diaryId, date, title, emotion, content);
+          //useDiaryEditFetch.mutate(diaryId, date, title, emotion, content);
           TempNavigateToRedrawScreen();
         }}
         noOnPress={() => {
