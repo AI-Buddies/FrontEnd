@@ -504,7 +504,7 @@ const CustomDayComponent = props => (
           textAlign: 'center',
           fontFamily: 'MangoDdobak-R',
           lineHeight: 31,
-          color: colors.gray300,
+          color: props.state === 'disabled' ? '#FFFFFF00' : colors.gray300,
           fontSize: 16,
         }}>
         {props.date.day}
