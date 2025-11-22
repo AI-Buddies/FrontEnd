@@ -25,6 +25,9 @@ import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useCalendarViewQueryFetch} from './api/CalendarFetch';
 import {useListViewQueryFetch} from './api/CalendarFetch';
+import {useMutation} from '@tanstack/react-query';
+import {token} from './api/CalendarFetch';
+import axios from 'axios';
 import {color} from 'react-native-elements/dist/helpers';
 
 LocaleConfig.locales['kr'] = {
@@ -134,7 +137,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
-  const [testIsWaiting, setTestIsWaiting] = useState(true);
+  const ls = require('local-storage');
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -162,8 +165,33 @@ export default function CalenderMainScreen({route}) {
     });
   }
 
-  //const listViewQuery = useListViewQueryFetch(date)
-  //const calendarViewQuery = useCalendarViewQueryFetch(date);
+  const calendarViewQuery = useCalendarViewQueryFetch(date);
+  if (calendarViewQuery.isSuccess) {
+    console.log(calendarViewQuery.data.data);
+  }
+  if (calendarViewQuery.isError) {
+    console.log(calendarViewQuery.error.message);
+  }
+  const listViewQuery = useListViewQueryFetch(date);
+
+  const useLoginFetch = useMutation({
+    mutationFn: newTodo => {
+      return axios.post('https://sketch-talk.com/user/login', newTodo);
+    },
+
+    onError: error => {
+      console.warn('login' + error);
+    },
+
+    onSuccess: data => {
+      console.log(data.data.data.accessToken);
+      ls('token', data.data.data.accessToken);
+    },
+  });
+
+  const TempLogin = () => {
+    useLoginFetch.mutate({loginId: 'testappleuser3', password: '1234apple'});
+  };
 
   return (
     <Background
@@ -176,14 +204,15 @@ export default function CalenderMainScreen({route}) {
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
-        {/*calendarViewQuery.isLoading
-          ? '로딩중...'
-          : calendarViewQuery.error.message*/}
+        {/*{calendarViewQuery.isLoading && '로딩중...'}
+        {calendarViewQuery.isError && calendarViewQuery.error.message}
+        {calendarViewQuery.isSuccess && '성공?'}*/}
         달력
       </Text>
       <CalendarNavigator
         date={date}
-        onDatePress={() => showPicker(true)}
+        //onDatePress={() => showPicker(true)}
+        onDatePress={() => TempLogin()}
         onLeftPress={() =>
           setDate(new Date(moment(date).subtract(1, 'months')))
         }
@@ -209,9 +238,13 @@ export default function CalenderMainScreen({route}) {
             }}
             keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
-            data={testIsWaiting ? dummyEmptyData : dummyData}
+            data={
+              listViewQuery.isLoading || listViewQuery.isError
+                ? dummyEmptyData
+                : dummyData
+            }
             renderItem={
-              testIsWaiting
+              listViewQuery.isLoading || listViewQuery.isError
                 ? () => <CalendarListViewEmptyItem />
                 : ({item}) => (
                     <CalendarListViewItem
@@ -221,7 +254,7 @@ export default function CalenderMainScreen({route}) {
                   )
             }
             numColumns={2}></FlatList>
-          {testIsWaiting && (
+          {!listViewQuery.isSuccess && (
             <View
               style={{
                 position: 'absolute',
@@ -247,7 +280,11 @@ export default function CalenderMainScreen({route}) {
                     height: 150,
                     resizeMode: 'contain',
                   }}
-                  source={require('../../assets/character/writing_bear.png')}
+                  source={
+                    listViewQuery.isError
+                      ? require('../../assets/character/question_bear.png')
+                      : require('../../assets/character/writing_bear.png')
+                  }
                 />
                 <Text
                   style={{
@@ -256,7 +293,9 @@ export default function CalenderMainScreen({route}) {
                     lineHeight: 31,
                     fontSize: 24,
                   }}>
-                  로딩중...
+                  {listViewQuery.isError
+                    ? '불러오는 데 실패했어요!'
+                    : '로딩중...'}
                 </Text>
               </ImageBackground>
             </View>
@@ -308,7 +347,7 @@ export default function CalenderMainScreen({route}) {
                   hasDiary={hasDiary()}
                   date={date}
                   state={state}
-                  testIsWaiting={testIsWaiting}
+                  isWaiting={!calendarViewQuery.isSuccess}
                   onPress={() => {
                     setPreviewVisible(true);
                   }}
@@ -316,7 +355,7 @@ export default function CalenderMainScreen({route}) {
               );
             }}
           />
-          {testIsWaiting && (
+          {!calendarViewQuery.isSuccess && (
             <View
               style={{
                 position: 'absolute',
@@ -343,7 +382,11 @@ export default function CalenderMainScreen({route}) {
                     height: 150,
                     resizeMode: 'contain',
                   }}
-                  source={require('../../assets/character/writing_bear.png')}
+                  source={
+                    listViewQuery.isError
+                      ? require('../../assets/character/question_bear.png')
+                      : require('../../assets/character/writing_bear.png')
+                  }
                 />
                 <Text
                   style={{
@@ -353,7 +396,9 @@ export default function CalenderMainScreen({route}) {
 
                     fontSize: 24,
                   }}>
-                  로딩중...
+                  {listViewQuery.isError
+                    ? '불러오는 데 실패했어요!'
+                    : '로딩중...'}
                 </Text>
               </ImageBackground>
             </View>
@@ -472,7 +517,7 @@ const CalendarPreviewModal = props => (
 
 const CustomDayComponent = props => (
   <View style={{alignItems: 'center', justifyContent: 'center', height: 40}}>
-    {props.hasDiary && props.state !== 'disabled' && !props.testIsWaiting && (
+    {props.hasDiary && props.state !== 'disabled' && !props.isWaiting && (
       <Pressable onPress={props.onPress}>
         <Image
           style={{
@@ -486,7 +531,7 @@ const CustomDayComponent = props => (
           source={require('../../assets/emotions/emotion_happy.png')}></Image>
       </Pressable>
     )}
-    {!props.hasDiary && !props.testIsWaiting && (
+    {!props.hasDiary && !props.isWaiting && (
       <Text
         style={{
           textAlign: 'center',
@@ -498,7 +543,7 @@ const CustomDayComponent = props => (
         {props.date.day}
       </Text>
     )}
-    {props.testIsWaiting && (
+    {props.isWaiting && (
       <Text
         style={{
           textAlign: 'center',
