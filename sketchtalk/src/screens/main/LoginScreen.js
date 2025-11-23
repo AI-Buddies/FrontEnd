@@ -3,16 +3,44 @@ import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
+import Popup from '../../components/popup';
+import {loginUser} from '../../api/auth';
 
 const { width, height } = Dimensions.get('window');
 
 export default function AuthScreen({navigation}){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [loginCheckOpen, setLoginCheckOpen] = useState(false);
+  const [loginErrorOpen, setLoginErrorOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const flatRef = useRef(null);
   const focusScrollTo = (index) => {
     flatRef.current?.scrollToIndex?.({index, animated: true});
+  };
+
+  const handleLogin = async () => {
+    if (!id || !password){
+      setLoginCheckOpen(true);
+      return;
+    }
+    try {
+      setLoading(true);
+
+      const data = await loginUser({
+        userId: id.trim(),
+        password,
+      });
+      console.log('login success:', data);
+
+      navigation.replace('TabNavigator');
+    } catch (e) {
+      console.log('login error:', e);
+      setLoginErrorOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
     return(
@@ -50,13 +78,36 @@ export default function AuthScreen({navigation}){
                 </View>
                 <View style={styles.button}>
             <ConfirmButton
-            text = "로그인"
+            text = {loading ? "로그인 중" : "로그인"}
             color = {colors.primary}
             width = {width * 0.8}
 
-            onPress={() => navigation.replace('TabNavigator')} // 누르면 TabNavigator로 이동
+            onPress={loading ? undefined : handleLogin}
+            disabled={loading}
                     />
                   </View>
+                  <Popup
+                    visible={loginCheckOpen}
+                    message="아이디와 비밀번호를 입력해주세요."
+                    onClose={() => setLoginCheckOpen(false)}
+                    primary={{
+                      text: '확인',
+                      variant: 'primary',
+                      onPress: () => setLoginCheckOpen(false),
+                    }}
+                  />
+                  <Popup
+                    visible={loginErrorOpen}
+                    message="로그인 중 오류가 발생했습니다. 다시 시도하여주세요."
+                    onClose={() => setLoginErrorOpen(false)}
+                    primary={{
+                      text: '확인',
+                      variant: 'primary',
+                      onPress: () => {setLoginErrorOpen(false),
+                        navigation.replace('TabNavigator'); // temp
+                      }
+                    }}
+                  />
               </ImageBackground>
         </SafeAreaView>
     )

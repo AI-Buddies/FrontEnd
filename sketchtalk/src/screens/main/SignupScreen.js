@@ -1,23 +1,95 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet, FlatList} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import Popup from '../../components/popup';
+import client from '../../api/client';
 
 const { width, height } = Dimensions.get('window');
 
 export default function SignupScreen({ navigation }){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordCheck, setPasswordCheck] = useState('');
+
   const [idCheckOpen, setIdCheckOpen] = useState(false);
   const [idChecker, setIDchecker] = useState(false);
+  const [idCheckStatus, setIdCheckStatus] = useState(''); // 'error' | 'success'
+  const [idCheckMsg, setIdCheckMsg] = useState('');
+  const [checking, setChecking] = useState(false);
 
-  const checkID = () => {
-    setIdCheckOpen(true);
-    setIDchecker(true);
-  }
+  // 유효성
+  const idValid = useMemo(() => id.trim().length >= 4, [id]);
+  const pwValid = useMemo(() => password.length >= 6, [password]);
+  const pwSame  = useMemo(() => password && passwordCheck && password === passwordCheck, [password, passwordCheck]);
+
+
+  const checkID = async () => {
+    if(!idValid){
+      setIDchecker(true);
+      setIdCheckOpen(true);
+      setIdCheckStatus('error');
+      setIdCheckMsg('4자 이상 입력해주세요.');
+      return;
+    }
+    /*
+    else {
+      setIDchecker(true);
+      setIdCheckStatus('success');
+      setIdCheckMsg('ID 사용 가능');
+    }
+    */
+    try {
+      setChecking(true);
+      // post(실제 서버 엔드포인트로 변경)
+      const res = await client.post('/user/id/availability', { userId: id.trim() });
+
+      // 공통 응답 { isSuccess, statusCode, message, data }
+      const { isSuccess, message, data } = res?.data ?? {};
+      if (!isSuccess) throw new Error(message || '중복확인 실패');
+
+      const available = data?.available ?? false;
+
+      setIDchecker(true);
+      if(available){
+        setIdCheckStatus('success');
+        setIdCheckMsg('사용 가능한 아이디입니다.');
+      }
+      else {
+        setIdCheckStatus('error');
+        setIdCheckMsg('이미 사용중인 아이디입니다.');
+      }
+    } catch (e) {
+      setIDchecker(true);
+      setIdCheckStatus('error');
+      setIdCheckMsg('중복확인 중 오류 발생');
+    } finally {
+      setChecking(false);
+    }
   
+  };
+
+  const goNext = () => {
+    if (!idValid) return setIdCheckOpen(true);
+    if (!pwValid) return setIdCheckOpen(true);
+    if (!pwSame)  return setIdCheckOpen(true);
+
+    if (idCheckStatus !== 'success'){
+      /* 중복확인 안했거나 실패한 상태
+      setIdCheckStatus('error');
+      setIdChecker(true);
+      setIdCheckOpen(true);
+      return;
+      */
+    }
+
+    navigation.navigate('SignupInfo', {
+      userId: id.trim(),
+      password,
+    });
+  };
+
   const flatRef = useRef(null);
   const focusScrollTo = (index) => {
     flatRef.current?.scrollToIndex?.({index, animated: true});
@@ -42,13 +114,18 @@ export default function SignupScreen({ navigation }){
               label="아이디"
               placeholder="아이디"
               value={id}
-              onChangeText={setId}
+              onChangeText={(t) => {
+                setId(t);
+                setIDchecker(false);
+                setIdCheckStatus('');
+                setIdCheckMsg('');
+              }}
               keyboardType="ascii-capable"
               rightButtonText="중복확인"
+              onRightPress={checking? undefined : checkID}
               helperVisible={idChecker}
-              helperStatus="error"
-              onRightPress={checkID}
-              helperText="이미 사용중인 아이디입니다."
+              helperStatus={idCheckStatus || 'default'} // 'error' | 'success' | 'default'
+              helperText= {idCheckMsg}
               onFocus={() => focusScrollTo(0)}
             />
 
@@ -58,12 +135,20 @@ export default function SignupScreen({ navigation }){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              helperVisible={!!password && !pwValid}
+              helperStatus="error"
+              helperText="6자 이상 입력해주세요."              
               onFocus={() => focusScrollTo(1)}
             />
             <InputField
               label="비밀번호 확인"
               placeholder="비밀번호"
+              value={passwordCheck}
+              onChangeText={setPasswordCheck}
               secureTextEntry
+              helperVisible={!!passwordCheck && !pwSame}
+              helperStatus="error"
+              helperText="비밀번호가 일치하지 않습니다."
               onFocus={() => focusScrollTo(2)}
             />
 
@@ -76,20 +161,21 @@ export default function SignupScreen({ navigation }){
                 color = {colors.primary}
                 width = {width * 0.8}
                 marginBottom = {10}
-                onPress={() => navigation.navigate('SignupInfo')}
+                onPress={goNext}
+                disabled={!(pwValid && pwSame)}
               />
             </View>
 
           <Popup
-                  visible={idCheckOpen}
-                  message="아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해주세요."
-                  onClose={() => setIdCheckOpen(false)}
-                  primary={{
-                    text: '확인',
-                    variant: 'primary',
-                    onPress: () => setIdCheckOpen(false),
-                  }}
-                />
+            visible={idCheckOpen}
+            message="아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해주세요."
+            onClose={() => setIdCheckOpen(false)}
+            primary={{
+            text: '확인',
+            variant: 'primary',
+            onPress: () => setIdCheckOpen(false),
+            }}
+          />
           </ImageBackground>
         </SafeAreaView>
     )
