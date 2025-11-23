@@ -72,35 +72,44 @@ export default function DiaryMainScreen() {
     });
   }
 
+  const ls = require('local-storage');
   const useDiaryChatFetch = useMutation({
-    mutationFn: dialog => {
-      return axios.post(
-        'https://sketch-talk.com/',
-        {dialog: dialog},
-        authConfig,
-      );
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
     },
-    onMutate: userDialog => {
-      AddUserMessage(userDialog, false);
+    onMutate: () => {
+      setIsWaitingReply(true);
+      setUserDialog('');
       AddWaitingMessage();
     },
-    onSuccess: (data, variables, onMutateResult, context) => {
-      AddFetchedMessage(data.reply);
+    onSuccess: data => {
+      AddFetchedMessage(data.data.data.reply);
+      setIsWaitingReply(false);
+    },
+    onError: error => {
+      console.warn('useDiaryChatFetch ' + error.message);
+      AddFetchedMessage('오류');
+      setIsWaitingReply(false);
     },
   });
 
   function FetchMessage(userDialog) {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
+    useDiaryChatFetch.mutate({dialog: userDialog});
     AddUserMessage(userDialog, false);
-    setUserDialog('');
-    setIsWaitingReply(true);
-    //useDiaryChatFetch.mutate(userDialog)
     //the rest is handled by useDiaryChatFetch
-    AddWaitingMessage();
+    /*AddWaitingMessage();
     setTimeout(() => {
       setIsWaitingReply(false);
       AddFetchedMessage('답변이야 답변이야 답변이야');
-    }, 10000);
+    }, 10000);*/
 
     //AddMessage(data.data.reply, true);
   }

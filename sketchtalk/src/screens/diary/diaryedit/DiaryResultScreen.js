@@ -74,7 +74,7 @@ export default function DiaryResultScreen({route}) {
   const [isLoading, setIsLoading] = useState(true);
 
   /*const {isPending, isError, data, error} =
-    isCalendar && confirmArt
+    !isCalendar && confirmArt
       ? useDiaryConfirmArtFetch('diaryId', 'image_url')
       : useDiaryViewQueryFetch('diaryId');*/
 

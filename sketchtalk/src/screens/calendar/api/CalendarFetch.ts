@@ -49,23 +49,6 @@ export const useListViewQueryFetch = (date: Date) => {
   });
 };
 
-export const useDiaryPreviewQueryFetch = (diaryId: number) => {
-  const token = ls('token');
-  return useQuery({
-    queryKey: ['useDiaryPreviewQueryFetch'],
-    queryFn: () => {
-      return axios.get(`https://sketch-talk.com/diary/${diaryId}/preview`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    },
-    staleTime: 100000,
-  });
-};
-
 export const useDiaryViewQueryFetch = (diaryId: number) => {
   const token = ls('token');
   return useQuery({

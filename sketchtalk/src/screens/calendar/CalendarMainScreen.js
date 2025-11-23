@@ -165,15 +165,28 @@ export default function CalenderMainScreen({route}) {
     });
   }
 
+  function naviagteToDiary(diaryId) {
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {
+        diaryId: diaryId,
+        isCalendar: true,
+        calendarDate: date,
+        calendarListView: listView,
+      },
+    });
+  }
+
   const calendarViewQuery = useCalendarViewQueryFetch(date);
   if (calendarViewQuery.isSuccess) {
-    console.log(calendarViewQuery.data.data);
+    //console.log(calendarViewQuery.data.data);
   }
   if (calendarViewQuery.isError) {
     console.log(calendarViewQuery.error.message);
   }
   const listViewQuery = useListViewQueryFetch(date);
 
+  //토큰 받기
   const useLoginFetch = useMutation({
     mutationFn: newTodo => {
       return axios.post('https://sketch-talk.com/user/login', newTodo);
@@ -191,6 +204,37 @@ export default function CalenderMainScreen({route}) {
 
   const TempLogin = () => {
     useLoginFetch.mutate({loginId: 'testappleuser3', password: '1234apple'});
+  };
+
+  //일기 미리보기
+  const useDiaryPreviewFetch = useMutation({
+    mutationFn: newTodo => {
+      console.log(newTodo);
+      const token = ls('token');
+
+      return axios.get(
+        `https://sketch-talk.com/user/diary/${newTodo}/preview`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+    },
+    onError: error => {
+      console.warn('preview' + error);
+    },
+
+    onSuccess: data => {
+      console.log(data.data.data);
+      setPreviewVisible(true);
+    },
+  });
+
+  const PreviewDiary = diaryId => {
+    useDiaryPreviewFetch.mutate(diaryId);
   };
 
   return (
@@ -241,7 +285,8 @@ export default function CalenderMainScreen({route}) {
             data={
               listViewQuery.isLoading || listViewQuery.isError
                 ? dummyEmptyData
-                : dummyData
+                : //listViewQuery.data.data.data
+                  dummyData
             }
             renderItem={
               listViewQuery.isLoading || listViewQuery.isError
@@ -300,6 +345,46 @@ export default function CalenderMainScreen({route}) {
               </ImageBackground>
             </View>
           )}
+          {/*{listViewQuery.isSuccess &&
+            listViewQuery.data.data.data.length == 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  marginTop: 10,
+                  width: width,
+                  height: 1080,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <View
+                  style={{
+                    width: 280,
+                    height: 280,
+                    marginBottom: 700,
+                    resizeMode: 'contain',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    style={{
+                      width: 150,
+                      height: 150,
+                      resizeMode: 'contain',
+                    }}
+                    source={require('../../assets/character/bear.png')}
+                  />
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontFamily: 'MangoDdobak-B',
+                      lineHeight: 31,
+                      fontSize: 24,
+                    }}>
+                    작성한 일기가 없어요!
+                  </Text>
+                </View>
+              </View>
+            )}*/}
         </View>
       )}
       {/*       달력        */}
@@ -336,11 +421,25 @@ export default function CalenderMainScreen({route}) {
               },
             }}
             dayComponent={({date, state}) => {
+              /*function hasDiary() {
+                const array = calendarViewQuery.isSuccess
+                  ? calendarViewQuery.data.data.data.some(val =>
+                      val.date.includes(date.dateString),
+                    )
+                  : [];
+                return array;
+              }*/
               function hasDiary() {
                 const array = dummyMarkedDates.some(val =>
                   val.date.includes(date.dateString),
                 );
                 return array;
+              }
+              function getDiaryID() {
+                const id = dummyMarkedDates.find(val =>
+                  val.date.includes(date.dateString),
+                ).diaryId;
+                return id;
               }
               return (
                 <CustomDayComponent
@@ -349,7 +448,7 @@ export default function CalenderMainScreen({route}) {
                   state={state}
                   isWaiting={!calendarViewQuery.isSuccess}
                   onPress={() => {
-                    setPreviewVisible(true);
+                    PreviewDiary(getDiaryID());
                   }}
                 />
               );
@@ -409,11 +508,13 @@ export default function CalenderMainScreen({route}) {
       {!listView && (
         <CalendarPreviewModal
           date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
+          //date={useDiaryPreviewFetch.isSuccess ? moment(useDiaryPreviewFetch.data.data.data.date).format('YYYY[년] M[월] D[일]').toString() : moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
           onSwipeComplete={() => {
             setPreviewVisible(false);
             TempNavigate(new Date());
+            //naviagteToDiary(useDiaryPreviewFetch.data.data.data.diaryId)
           }}
         />
       )}
