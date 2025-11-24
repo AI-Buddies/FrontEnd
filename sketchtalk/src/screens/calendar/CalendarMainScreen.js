@@ -152,18 +152,17 @@ export default function CalenderMainScreen({route}) {
   );
 
   const navigation = useNavigation();
-  function TempNavigate(diaryDate) {
+  /*function TempNavigate(diaryDate) {
     navigation.navigate('DiaryResultStackNavigator', {
       screen: 'DiaryResultScreen',
       params: {
         diaryId: '',
-        diaryDate: new Date(diaryDate),
         isCalendar: true,
         calendarDate: date,
         calendarListView: listView,
       },
     });
-  }
+  }*/
 
   function naviagteToDiary(diaryId) {
     navigation.navigate('DiaryResultStackNavigator', {
@@ -288,7 +287,7 @@ export default function CalenderMainScreen({route}) {
                 : ({item}) => (
                     <CalendarListViewItem
                       {...item}
-                      onPress={() => TempNavigate(item.date)}
+                      onPress={() => naviagteToDiary(item.diaryId)}
                     />
                   )
             }
@@ -505,32 +504,19 @@ export default function CalenderMainScreen({route}) {
         </View>
       )}
       <SwitchViewButton onPress={() => setListView(!listView)} />
-      {!listView && (
+      {!listView && useDiaryPreviewFetch.isSuccess && (
         <CalendarPreviewModal
           //date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
-          date={
-            useDiaryPreviewFetch.isSuccess
-              ? moment(useDiaryPreviewFetch.data.data.data.date)
-                  .format('YYYY[년] M[월] D[일]')
-                  .toString()
-              : moment(new Date()).format('YYYY[년] M[월] D[일]').toString()
-          }
-          title={
-            useDiaryPreviewFetch.isSuccess
-              ? useDiaryPreviewFetch.data.data.data.title
-              : '제목'
-          }
-          imageUrl={
-            useDiaryPreviewFetch.isSuccess
-              ? useDiaryPreviewFetch.data.data.data.imageUrl
-              : '../../assets/soccer_diary.png'
-          }
+          date={moment(useDiaryPreviewFetch.data.data.data.date)
+            .format('YYYY[년] M[월] D[일]')
+            .toString()}
+          title={useDiaryPreviewFetch.data.data.data.title}
+          imageUrl={{uri: useDiaryPreviewFetch.data.data.data.imageUrl}}
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
           onSwipeComplete={() => {
             setPreviewVisible(false);
-            TempNavigate(new Date());
-            //naviagteToDiary(useDiaryPreviewFetch.data.data.data.diaryId)
+            naviagteToDiary(useDiaryPreviewFetch.data.data.data.diaryId);
           }}
         />
       )}

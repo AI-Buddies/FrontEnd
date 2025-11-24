@@ -8,7 +8,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
@@ -60,9 +60,9 @@ export default function DiaryResultScreen({route}) {
       ...route.params,
     });
   }
-  const {diaryDate, isCalendar, diaryId, image_url, confirmArt} = route.params;
-  const [tutorialModalVisible, setTutorialModalVisible] = useState(!isCalendar);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(true);
+  const {isCalendar, diaryId, image_url, confirmArt} = route.params;
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
   const [downloadEventModalVisible, setDownloadEventModalVisible] =
     useState(false);
   //0: not downloading
@@ -71,12 +71,23 @@ export default function DiaryResultScreen({route}) {
   //3: download failed
   const [downloadStatus, setDownloadStatus] = useState(0);
   const [achievementIndex, setAchievementIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
-  /*const {isPending, isError, data, error} =
+  //API 연결
+  const {isPending, isError, data, error} =
     !isCalendar && confirmArt
-      ? useDiaryConfirmArtFetch('diaryId', 'image_url')
-      : useDiaryViewQueryFetch('diaryId');*/
+      ? useDiaryConfirmArtFetch(diaryId, image_url)
+      : useDiaryViewQueryFetch(diaryId);
+
+  if (isError) {
+    console.log(error.message);
+  }
+  if (data !== undefined) {
+    //데이터 받아옴
+    console.log(data.data.data);
+    if (data.data.data.achieved !== undefined && data.data.data.achieved) {
+      setAchievementModalVisible(true);
+    }
+  }
 
   // 다운로드 기능
   const captureRef = useRef();
@@ -112,32 +123,45 @@ export default function DiaryResultScreen({route}) {
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      {isLoading ? (
+      {isPending && (
         <DiaryLoadingScreen
           width={width}
-          onPress={() => setIsLoading(false)}
+          //onPress={() => setIsLoading(false)}
           loadingText={'또리가 일기를 불러오는 중...'}
         />
-      ) : (
+      )}
+      {!isPending && isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러가 발생했어요!'}
+        />
+      )}
+      {!isPending && !isError && (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <DiaryDisplay
-            item={diaryDummyData}
-            date={diaryDate}
-            editOnPress={TempNavigateToEditScreen}
-            downloadOnPress={downloadDiary}
+            item={data.data.data}
+            date={data.data.data.date}
+            imageUrl={data.data.data.imageUrl}
+            editOnPress={() => TempNavigateToEditScreen}
+            downloadOnPress={() => downloadDiary()}
             showTutorial={tutorialModalVisible}
             tutorialOnPress={() => setTutorialModalVisible(false)}
           />
           <CharacterCommentDisplay
-            onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
+            commentText={data.data.data.comment}
+            onPress={isCalendar =>
+              isCalendar ? TempNavigateToCalendar() : TempNavigateToHome()
+            }
             isCalendar={isCalendar}
           />
-          {achievementDummyData !== undefined && (
+          {data.data.data.achievedResult !== undefined && (
             <AchievementModal
               isVisible={achievementModalVisible}
               achievementIndex={achievementIndex}
               onBackdropPress={() => {
-                achievementDummyData[achievementIndex + 1] !== undefined
+                data.data.data.achievedResult[achievementIndex + 1] !==
+                undefined
                   ? setAchievementIndex(achievementIndex + 1)
                   : setAchievementModalVisible(false);
               }}
@@ -146,7 +170,7 @@ export default function DiaryResultScreen({route}) {
           <ViewShot
             ref={captureRef}
             options={{
-              fileName: moment(diaryDate)
+              fileName: moment(data.data.data.date)
                 .format('YYYY[년] M[월] D[일] [그림일기]')
                 .toString(),
               format: 'png',
@@ -162,8 +186,14 @@ export default function DiaryResultScreen({route}) {
                   marginLeft: 25,
                   flex: 1,
                 }}>
-                <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
-                <DownloadCharacterCommentDisplay />
+                <DownloadDiaryDisplay
+                  item={data.data.data}
+                  date={data.data.data.date}
+                  imageUrl={data.data.data.imageUrl}
+                />
+                <DownloadCharacterCommentDisplay
+                  commentText={data.data.data.comment}
+                />
               </View>
             </Background>
           </ViewShot>
@@ -254,7 +284,7 @@ const CharacterCommentDisplay = props => (
         source={require('../../../assets/character/comment_bear.png')}
       />
 
-      <CommentText flex={2} text={commentDummyData} width={width} />
+      <CommentText flex={2} text={props.commentText} width={width} />
     </View>
 
     <ConfirmButton
@@ -311,7 +341,7 @@ const DownloadCharacterCommentDisplay = props => (
       </View>
       <CommentTextDownload
         flex={2}
-        text={commentDummyData}
+        text={props.commentText}
         width={width * 0.75}
         height={120}
       />
@@ -352,6 +382,7 @@ const DiaryDisplay = props => (
         date={props.date}
       />
       <DiaryArtDisplay
+        imageUrl={props.imageUrl}
         tutorialOnPress={props.tutorialOnPress}
         showTutorial={props.showTutorial}
       />
@@ -427,7 +458,8 @@ const DownloadDiaryDisplay = props => (
         }}>
         <Image
           style={{width: 270, height: 180}}
-          source={require('../../../assets/soccer_diary2.png')}
+          resizeMode="contain"
+          source={{uri: props.imageUrl}}
         />
         {props.showTutorial && (
           <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
@@ -546,8 +578,10 @@ const DiaryArtDisplay = props => (
       borderBottomWidth: 1,
     }}>
     <Image
-      style={{width: width * 0.9}}
-      source={require('../../../assets/soccer_diary2.png')}
+      style={{width: width * 0.9, height: 220}}
+      //resizeMode="contain"
+      source={{uri: props.imageUrl}}
+      //source={{uri: 'https://reactnative.dev/img/tiny_logo.png'}}
     />
     {props.showTutorial && (
       <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
