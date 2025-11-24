@@ -34,15 +34,15 @@ LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
   monthNamesShort: ['', '', '', '', '', '', '', '', '', '', '', ''],
   dayNames: [
+    '일요일',
     '월요일',
     '화요일',
     '수요일',
     '목요일',
     '금요일',
     '토요일',
-    '일요일',
   ],
-  dayNamesShort: ['월', '화', '수', '목', '금', '토', '일'],
+  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
   today: "Aujourd'hui",
 };
 LocaleConfig.defaultLocale = 'kr';
@@ -179,7 +179,7 @@ export default function CalenderMainScreen({route}) {
 
   const calendarViewQuery = useCalendarViewQueryFetch(date);
   if (calendarViewQuery.isSuccess) {
-    //console.log(calendarViewQuery.data.data);
+    console.log(calendarViewQuery.data.data);
   }
   if (calendarViewQuery.isError) {
     console.log(calendarViewQuery.error.message);
@@ -212,16 +212,13 @@ export default function CalenderMainScreen({route}) {
       console.log(newTodo);
       const token = ls('token');
 
-      return axios.get(
-        `https://sketch-talk.com/user/diary/${newTodo}/preview`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+      return axios.get(`https://sketch-talk.com/diary/${newTodo}/preview`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
     },
     onError: error => {
       console.warn('preview' + error);
@@ -248,9 +245,6 @@ export default function CalenderMainScreen({route}) {
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
-        {/*{calendarViewQuery.isLoading && '로딩중...'}
-        {calendarViewQuery.isError && calendarViewQuery.error.message}
-        {calendarViewQuery.isSuccess && '성공?'}*/}
         달력
       </Text>
       <CalendarNavigator
@@ -285,8 +279,8 @@ export default function CalenderMainScreen({route}) {
             data={
               listViewQuery.isLoading || listViewQuery.isError
                 ? dummyEmptyData
-                : //listViewQuery.data.data.data
-                  dummyData
+                : listViewQuery.data.data.data
+              //dummyData
             }
             renderItem={
               listViewQuery.isLoading || listViewQuery.isError
@@ -421,15 +415,21 @@ export default function CalenderMainScreen({route}) {
               },
             }}
             dayComponent={({date, state}) => {
-              /*function hasDiary() {
+              function hasDiary() {
                 const array = calendarViewQuery.isSuccess
                   ? calendarViewQuery.data.data.data.some(val =>
                       val.date.includes(date.dateString),
                     )
                   : [];
                 return array;
-              }*/
-              function hasDiary() {
+              }
+              function getDiaryID() {
+                const id = calendarViewQuery.data.data.data.find(val =>
+                  val.date.includes(date.dateString),
+                ).diaryId;
+                return id;
+              }
+              /*function hasDiary() {
                 const array = dummyMarkedDates.some(val =>
                   val.date.includes(date.dateString),
                 );
@@ -440,7 +440,7 @@ export default function CalenderMainScreen({route}) {
                   val.date.includes(date.dateString),
                 ).diaryId;
                 return id;
-              }
+              }*/
               return (
                 <CustomDayComponent
                   hasDiary={hasDiary()}
@@ -507,8 +507,24 @@ export default function CalenderMainScreen({route}) {
       <SwitchViewButton onPress={() => setListView(!listView)} />
       {!listView && (
         <CalendarPreviewModal
-          date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
-          //date={useDiaryPreviewFetch.isSuccess ? moment(useDiaryPreviewFetch.data.data.data.date).format('YYYY[년] M[월] D[일]').toString() : moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
+          //date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
+          date={
+            useDiaryPreviewFetch.isSuccess
+              ? moment(useDiaryPreviewFetch.data.data.data.date)
+                  .format('YYYY[년] M[월] D[일]')
+                  .toString()
+              : moment(new Date()).format('YYYY[년] M[월] D[일]').toString()
+          }
+          title={
+            useDiaryPreviewFetch.isSuccess
+              ? useDiaryPreviewFetch.data.data.data.title
+              : '제목'
+          }
+          imageUrl={
+            useDiaryPreviewFetch.isSuccess
+              ? useDiaryPreviewFetch.data.data.data.imageUrl
+              : '../../assets/soccer_diary.png'
+          }
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
           onSwipeComplete={() => {
@@ -574,7 +590,7 @@ const CalendarPreviewModal = props => (
             alignSelf: 'center',
           }}
           resizeMode="contain"
-          source={require('../../assets/soccer_diary.png')}
+          source={props.imageUrl}
         />
         <View
           style={{
@@ -596,7 +612,7 @@ const CalendarPreviewModal = props => (
             <Text
               style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
               numberOfLines={1}>
-              축구하다가 넘어졌지만 재미있었어!
+              {props.title}
             </Text>
           </View>
           <Image

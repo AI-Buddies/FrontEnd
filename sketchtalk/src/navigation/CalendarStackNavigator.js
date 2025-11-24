@@ -16,7 +16,7 @@ const CalendarStackNavigator = () => (
       options={{title: '달력 홈'}}
       initialParams={{
         calendarListView: false,
-        calendarDate: new Date(2025, 5, 1),
+        calendarDate: new Date(),
       }}
     />
   </Stack.Navigator>

@@ -4,7 +4,7 @@ import axios from 'axios';
 const ls = require('local-storage');
 
 export const useCalendarViewQueryFetch = (date: Date) => {
-  const month = date.getMonth();
+  const month = date.getMonth() + 1;
   const year = date.getFullYear();
   const token = ls('token');
   //console.log(date);
@@ -28,7 +28,7 @@ export const useCalendarViewQueryFetch = (date: Date) => {
 };
 
 export const useListViewQueryFetch = (date: Date) => {
-  const month = date.getMonth();
+  const month = date.getMonth() + 1;
   const year = date.getFullYear();
   const token = ls('token');
   return useQuery({

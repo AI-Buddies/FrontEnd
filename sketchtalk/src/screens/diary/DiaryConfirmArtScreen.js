@@ -33,22 +33,34 @@ export default function DiaryConfirmArtScreen({route}) {
     });
   }
 
-  //const {isPending, isError, data, error} = useDiaryGetArtFetch(userID, content, style_name);
-  const [isLoading, setIsLoading] = useState(true);
+  const {userID, content, style_name} = route.params;
+  const {
+    isPending,
+    isError,
+    data: getArtData,
+    error,
+  } = useDiaryGetArtFetch(userID, content, style_name);
+  if (isPending) {
+    console.log('그림로딩중');
+  }
+  if (isError) {
+    console.log(error.message);
+  }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      {isLoading ? (
+      {isPending ? (
         <DiaryLoadingScreen
           width={width}
-          onPress={() => setIsLoading(false)}
+          //onPress={() => setIsLoading(false)}
           loadingText={'또리가 그림을 그리는 중...'}
         />
       ) : (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <CharacterImage />
-          <DiaryArtDisplay />
+          <DiaryArtDisplay imageUrl={getArtData.data.data.imageUrl} />
           <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
           <View style={{flex: 1.7}}>
             <ConfirmButton
@@ -96,7 +108,11 @@ const DiaryArtDisplay = props => (
         alignItems: 'center',
         width: width * 0.9,
       }}>
-      <Image source={require('../../assets/soccer_diary2.png')} />
+      <Image
+        style={{width: width * 0.9, height: 100}}
+        resizeMode={'contain'}
+        source={props.imageUrl}
+      />
     </View>
   </View>
 );

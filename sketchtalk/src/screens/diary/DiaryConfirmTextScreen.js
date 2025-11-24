@@ -13,7 +13,9 @@ import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
-import {useDiaryGetTextFetch, useDiaryConfirmTextFetch} from './api/DiaryFetch';
+import {useDiaryGetTextFetch} from './api/DiaryFetch';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -25,42 +27,70 @@ const dummyData = {
 
 export default function DiaryConfirmTextScreen() {
   const navigation = useNavigation();
-  function TempNavigate() {
-    /*useDiaryConfirmTextFetch.mutate(
-      userID,
-      useDiaryGetTextFetch.data.title,
-      useDiaryGetTextFetch.data.content,
-    );
-    navigation.navigate('DiaryChooseArtstyleScreen', {
-      diaryID: useDiaryConfirmTextFetch.data.diaryID, content: useDiaryGetTextFetch.data.content,
-    });*/
-    navigation.navigate('DiaryChooseArtstyleScreen', {
-      diaryID: 'diaryID',
-      content: 'content',
-    });
+  const ls = require('local-storage');
+
+  const {
+    isPending,
+    isError,
+    data: diaryTextData,
+    error,
+  } = useDiaryGetTextFetch('userID');
+  if (isError) {
+    console.log(error.message);
+  }
+  if (!isPending && !isError) {
+    console.log(diaryTextData.data.data);
   }
 
-  const [isLoading, setIsLoading] = useState(true);
+  //일기 승인
+  const useDiaryConfirmTextFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/diary/save', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryConfirm ' + error);
+    },
 
-  //const {isPending, isError, data, error} = useDiaryGetTextFetch('userID');
+    onSuccess: data => {
+      navigation.navigate('DiaryChooseArtstyleScreen', {
+        diaryID: data.data.data.diaryID,
+        content: diaryTextData.data.data.content,
+      });
+    },
+  });
+
+  function ConfirmDiary() {
+    useDiaryConfirmTextFetch.mutate({
+      title: diaryTextData.data.data.title,
+      content: diaryTextData.data.data.content,
+      emotion: diaryTextData.data.data.emotion,
+    });
+  }
 
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       {/*{useDiaryGetTextFetch.isPending ? (*/}
-      {isLoading ? (
+      {isPending ? (
         <DiaryLoadingScreen
           width={width}
-          onPress={() => setIsLoading(false)}
+          //onPress={() => setIsLoading(false)}
           loadingText={'또리가 일기를 작성하는 중...'}
         />
       ) : (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <CharacterImage />
           <DiaryDisplay
-            //item={useDiaryGetTextFetch.data}
-            item={dummyData}
+            item={diaryTextData.data.data}
+            //item={dummyData}
           />
           <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />
           <View style={{flex: 1.7}}>
@@ -73,7 +103,8 @@ export default function DiaryConfirmTextScreen() {
               text={'아니야! 마음에 들어.'}
               color={colors.blue}
               marginBottom={22}
-              onPress={TempNavigate}
+              //onPress={TempNavigate}
+              onPress={() => ConfirmDiary()}
             />
           </View>
         </View>
