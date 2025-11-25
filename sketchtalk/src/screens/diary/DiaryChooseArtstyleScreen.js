@@ -50,7 +50,7 @@ export default function DiaryChooseArtstyleScreen({route}) {
           renderItem={({item}) => (
             <MessageItem
               {...item}
-              onPress={item => TempNavigate(item.style_name)}
+              onPress={() => TempNavigate(item.style_name)}
             />
           )}
           numColumns={2}></FlatList>

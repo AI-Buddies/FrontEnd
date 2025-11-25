@@ -68,7 +68,7 @@ export default function DiaryConfirmTextScreen() {
 
     onSuccess: data => {
       navigation.navigate('DiaryChooseArtstyleScreen', {
-        diaryID: data.data.data.diaryID,
+        diaryId: data.data.data.diaryId,
         content: useDiaryGetTextFetch.data.data.data.content,
       });
     },

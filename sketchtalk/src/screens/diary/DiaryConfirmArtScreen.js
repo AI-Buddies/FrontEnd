@@ -21,9 +21,29 @@ const {width, height} = Dimensions.get('window');
 
 export default function DiaryConfirmArtScreen({route}) {
   const navigation = useNavigation();
+  const ls = require('local-storage');
+
+  //그림 받아오기
+  const useDiaryGetArtFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat/image', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryGetArt ' + error);
+    },
+
+    onSuccess: data => {},
+  });
 
   //그림 승인
-  const ls = require('local-storage');
+
   const useDiaryConfirmArtFetch = useMutation({
     mutationFn: newTodo => {
       console.log(newTodo);
@@ -57,40 +77,51 @@ export default function DiaryConfirmArtScreen({route}) {
 
   const confirmArt = () => {
     useDiaryConfirmArtFetch.mutate({
-      diaryId: getArtData.data.data.diaryId,
-      style: getArtData.data.data.style,
-      imageUrl: getArtData.data.data.imageUrl,
+      diaryId: useDiaryGetArtFetch.data.data.data.diaryId,
+      style: useDiaryGetArtFetch.data.data.data.style,
+      imageUrl: useDiaryGetArtFetch.data.data.data.imageUrl,
     });
   };
 
-  const {userID, content, style_name} = route.params;
-  const {
-    isPending,
-    isError,
-    data: getArtData,
-    error,
-  } = useDiaryGetArtFetch(userID, content, style_name);
-  if (isPending) {
-    console.log('그림로딩중');
-  }
-  if (isError) {
-    console.log(error.message);
-  }
+  const {diaryId, content, style_name} = route.params;
+  useEffect(() => {
+    if (typeof diaryId === 'number') {
+      console.log('yes');
+      console.log(diaryId);
+    }
+    console.log(content);
+    console.log(style_name);
+    useDiaryGetArtFetch.mutate({
+      diaryId: diaryId,
+      content: content,
+      style: style_name,
+    });
+  }, []);
 
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      {isPending ? (
+      {useDiaryGetArtFetch.isPending && (
         <DiaryLoadingScreen
           width={width}
           //onPress={() => setIsLoading(false)}
           loadingText={'또리가 그림을 그리는 중...'}
         />
-      ) : (
+      )}
+      {useDiaryGetArtFetch.isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러 발생'}
+        />
+      )}
+      {useDiaryGetArtFetch.isSuccess && (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <CharacterImage />
-          <DiaryArtDisplay imageUrl={getArtData.data.data.imageUrl} />
+          <DiaryArtDisplay
+            imageUrl={useDiaryGetArtFetch.data.data.data.imageUrl}
+          />
           <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
           <View style={{flex: 1.7}}>
             <ConfirmButton

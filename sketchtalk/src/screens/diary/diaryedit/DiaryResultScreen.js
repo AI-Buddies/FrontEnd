@@ -88,7 +88,11 @@ export default function DiaryResultScreen({route}) {
   }
   function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen', {
-      content: 'content',
+      diaryId: data.data.data.diaryId,
+      date: data.data.data.date,
+      title: data.data.data.title,
+      content: data.data.data.content,
+      emotion: data.data.data.emotion,
       ...route.params,
     });
   }

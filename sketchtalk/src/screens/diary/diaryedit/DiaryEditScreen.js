@@ -15,7 +15,8 @@ import {useNavigation} from '@react-navigation/native';
 import ConfirmButton from '../../../components/confirmbutton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import moment from 'moment';
-import {useDiaryEditFetch} from '../api/DiaryFetch';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -26,7 +27,7 @@ const dummyData = {
 };
 
 export default function DiaryEditScreen({route}) {
-  const [value, onChangeText] = useState(dummyData.content);
+  const [value, onChangeContentText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   function TempNavigateToResultScreen() {
@@ -41,17 +42,57 @@ export default function DiaryEditScreen({route}) {
       ...route.params,
     });
   }
-  const {diaryDate} = route.params;
+  const {diaryId, date, title, content, emotion} = route.params;
+  useEffect(() => {
+    onChangeContentText(content);
+  }, []);
+
+  //일기 수정하기
+  const ls = require('local-storage');
+  const useDiaryEditFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.put('https://sketch-talk.com/diary', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryEdit ' + error);
+    },
+
+    onSuccess: () => {
+      TempNavigateToResultScreen();
+    },
+  });
+
+  const editDiary = () => {
+    console.log(diaryId);
+    console.log(date);
+    console.log(title);
+    console.log(emotion);
+    console.log(value);
+    useDiaryEditFetch.mutate({
+      diaryId: diaryId,
+      date: date,
+      title: title,
+      emotion: emotion,
+      content: value,
+    });
+  };
 
   return (
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <DiaryDisplay
-        title={dummyData.title}
+        title={title}
         content={value}
-        onChangeText={text => onChangeText(text)}
-        date={diaryDate}
+        onChangeText={text => onChangeContentText(text)}
+        date={date}
       />
       <ConfirmButton
         text={'저장'}
@@ -63,12 +104,11 @@ export default function DiaryEditScreen({route}) {
         closeOnPress={() => setModalVisible(false)}
         yesOnPress={() => {
           setModalVisible(false);
-          //useDiaryEditFetch.mutate(diaryId, date, title, emotion, content);
-          TempNavigateToRedrawScreen();
+          editDiary();
         }}
         noOnPress={() => {
           setModalVisible(false);
-          TempNavigateToResultScreen();
+          editDiary();
         }}
       />
     </Background>
