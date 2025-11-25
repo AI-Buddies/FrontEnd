@@ -6,15 +6,15 @@ import {
   Image,
   Pressable,
   PermissionsAndroid,
-  Platform,
+  BackHandler,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
 import styled from 'styled-components';
 import {DiaryLoadingScreen} from '../component/DiaryLoadingScreen';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import CommentText from '../../../components/commenttext';
 import ConfirmButton from '../../../components/confirmbutton';
 import Modal from 'react-native-modal';
@@ -23,8 +23,8 @@ import AchievementRow from '../../../components/achievementrow';
 import CommentTextDownload from '../../../components/commenttextdownload';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
-import {useDiaryConfirmArtFetch} from '../api/DiaryFetch';
-import {useDiaryViewQueryFetch} from '../../calendar/api/CalendarFetch';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -64,18 +64,47 @@ export default function DiaryResultScreen({route}) {
       ? useDiaryConfirmArtFetch(diaryId, image_url)
       : useDiaryViewQueryFetch(diaryId);*/
   const {isCalendar, diaryId, image_url, confirmArt} = route.params;
-  const {isPending, isError, data, error} = useDiaryViewQueryFetch(diaryId);
+  //const {isPending, isError, data, error} = useDiaryViewQueryFetch(diaryId);
 
-  if (isError) {
-    console.log(error.message);
-  }
-  /*if (data !== undefined) {
-    //데이터 받아옴
-    console.log(data.data.data);
-    if (data.data.data.achieved !== undefined && data.data.data.achieved) {
-      setAchievementModalVisible(true);
-    }
-  }*/
+  //뒤로가기
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        isCalendar ? TempNavigateToCalendar() : TempNavigateToHome();
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, []),
+  );
+
+  //일기 수정하기
+  const ls = require('local-storage');
+  const useDiaryViewQueryFetch = useMutation({
+    mutationFn: diaryId => {
+      const token = ls('token');
+      return axios.get(`https://sketch-talk.com/diary/${diaryId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+
+    onError: error => {
+      console.warn('diaryView ' + error);
+    },
+  });
+
+  useEffect(() => {
+    useDiaryViewQueryFetch.mutate(diaryId);
+  }, []);
 
   function TempNavigateToHome() {
     navigation.navigate('TabNavigator');
@@ -88,11 +117,11 @@ export default function DiaryResultScreen({route}) {
   }
   function TempNavigateToEditScreen() {
     navigation.navigate('DiaryEditScreen', {
-      diaryId: data.data.data.diaryId,
-      date: data.data.data.date,
-      title: data.data.data.title,
-      content: data.data.data.content,
-      emotion: data.data.data.emotion,
+      diaryId: useDiaryViewQueryFetch.data.data.data.diaryId,
+      date: useDiaryViewQueryFetch.data.data.data.date,
+      title: useDiaryViewQueryFetch.data.data.data.title,
+      content: useDiaryViewQueryFetch.data.data.data.content,
+      emotion: useDiaryViewQueryFetch.data.data.data.emotion,
       ...route.params,
     });
   }
@@ -130,45 +159,47 @@ export default function DiaryResultScreen({route}) {
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      {isPending && (
+      {useDiaryViewQueryFetch.isPending && (
         <DiaryLoadingScreen
           width={width}
           //onPress={() => setIsLoading(false)}
           loadingText={'또리가 일기를 불러오는 중...'}
         />
       )}
-      {!isPending && isError && (
+      {useDiaryViewQueryFetch.isError && (
         <DiaryLoadingScreen
           width={width}
           //onPress={() => setIsLoading(false)}
           loadingText={'에러가 발생했어요!'}
         />
       )}
-      {!isPending && !isError && (
+      {useDiaryViewQueryFetch.isSuccess && (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <DiaryDisplay
-            item={data.data.data}
-            date={data.data.data.date}
-            imageUrl={data.data.data.imageUrl}
+            item={useDiaryViewQueryFetch.data.data.data}
+            date={useDiaryViewQueryFetch.data.data.data.date}
+            imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
             editOnPress={() => TempNavigateToEditScreen()}
             downloadOnPress={() => downloadDiary()}
             showTutorial={tutorialModalVisible}
             tutorialOnPress={() => setTutorialModalVisible(false)}
           />
           <CharacterCommentDisplay
-            commentText={data.data.data.comment}
+            commentText={useDiaryViewQueryFetch.data.data.data.comment}
             onPress={isCalendar =>
               isCalendar ? TempNavigateToCalendar() : TempNavigateToHome()
             }
             isCalendar={isCalendar}
           />
-          {data.data.data.achievedResult !== undefined && (
+          {useDiaryViewQueryFetch.data.data.data.achievedResult !==
+            undefined && (
             <AchievementModal
               isVisible={achievementModalVisible}
               achievementIndex={achievementIndex}
               onBackdropPress={() => {
-                data.data.data.achievedResult[achievementIndex + 1] !==
-                undefined
+                useDiaryViewQueryFetch.data.data.data.achievedResult[
+                  achievementIndex + 1
+                ] !== undefined
                   ? setAchievementIndex(achievementIndex + 1)
                   : setAchievementModalVisible(false);
               }}
@@ -177,7 +208,7 @@ export default function DiaryResultScreen({route}) {
           <ViewShot
             ref={captureRef}
             options={{
-              fileName: moment(data.data.data.date)
+              fileName: moment(useDiaryViewQueryFetch.data.data.data.date)
                 .format('YYYY[년] M[월] D[일] [그림일기]')
                 .toString(),
               format: 'png',
@@ -194,12 +225,12 @@ export default function DiaryResultScreen({route}) {
                   flex: 1,
                 }}>
                 <DownloadDiaryDisplay
-                  item={data.data.data}
-                  date={data.data.data.date}
-                  imageUrl={data.data.data.imageUrl}
+                  item={useDiaryViewQueryFetch.data.data.data}
+                  date={useDiaryViewQueryFetch.data.data.data.date}
+                  imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
                 />
                 <DownloadCharacterCommentDisplay
-                  commentText={data.data.data.comment}
+                  commentText={useDiaryViewQueryFetch.data.data.data.comment}
                 />
               </View>
             </Background>

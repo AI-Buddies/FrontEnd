@@ -52,7 +52,7 @@ export default function DiaryEditScreen({route}) {
   const useDiaryEditFetch = useMutation({
     mutationFn: newTodo => {
       const token = ls('token');
-      return axios.put('https://sketch-talk.com/diary', newTodo, {
+      return axios.put('https://sketch-talk.com/diary/', newTodo, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
@@ -60,6 +60,7 @@ export default function DiaryEditScreen({route}) {
         },
       });
     },
+
     onError: error => {
       console.warn('diaryEdit ' + error);
     },
@@ -70,17 +71,18 @@ export default function DiaryEditScreen({route}) {
   });
 
   const editDiary = () => {
-    console.log(diaryId);
-    console.log(date);
-    console.log(title);
-    console.log(emotion);
-    console.log(value);
+    //console.log(diaryId);
+    console.log(diaryId + ' ' + typeof diaryId);
+    console.log(date + ' ' + typeof date);
+    console.log(title + ' ' + typeof title);
+    console.log(emotion + ' ' + typeof emotion);
+    console.log(value + ' ' + typeof value);
     useDiaryEditFetch.mutate({
       diaryId: diaryId,
-      date: date,
       title: title,
-      emotion: emotion,
       content: value,
+      date: date,
+      emotion: emotion,
     });
   };
 

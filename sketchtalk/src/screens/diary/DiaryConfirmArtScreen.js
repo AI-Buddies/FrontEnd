@@ -38,8 +38,6 @@ export default function DiaryConfirmArtScreen({route}) {
     onError: error => {
       console.warn('diaryGetArt ' + error);
     },
-
-    onSuccess: data => {},
   });
 
   //그림 승인
