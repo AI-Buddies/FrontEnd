@@ -338,7 +338,7 @@ export default function CalenderMainScreen({route}) {
               </ImageBackground>
             </View>
           )}
-          {/*{listViewQuery.isSuccess &&
+          {listViewQuery.isSuccess &&
             listViewQuery.data.data.data.length == 0 && (
               <View
                 style={{
@@ -377,7 +377,7 @@ export default function CalenderMainScreen({route}) {
                   </Text>
                 </View>
               </View>
-            )}*/}
+            )}
         </View>
       )}
       {/*       달력        */}

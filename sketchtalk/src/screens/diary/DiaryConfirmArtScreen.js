@@ -13,25 +13,55 @@ import colors from '../../constants/colors';
 import styled from 'styled-components';
 import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 import {useDiaryGetArtFetch} from './api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
 export default function DiaryConfirmArtScreen({route}) {
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryResultStackNavigator', {
-      screen: 'DiaryResultScreen',
-      params: {
-        date: new Date(2025, 4, 1),
-        isCalendar: false,
-        //image_url: useDiaryGetArtFetch.data.image_url,
-        image_url: 'image_url',
-        confirmArt: true,
-        ...route.params,
-      },
+
+  //그림 승인
+  const ls = require('local-storage');
+  const useDiaryConfirmArtFetch = useMutation({
+    mutationFn: newTodo => {
+      console.log(newTodo);
+      const token = ls('token');
+
+      return axios.post(`https://sketch-talk.com/chat/image/save`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('confirmart' + error);
+    },
+
+    onSuccess: data => {
+      navigation.navigate('DiaryResultStackNavigator', {
+        screen: 'DiaryResultScreen',
+        params: {
+          isCalendar: false,
+          diaryId: data.data.data.diaryId,
+          achieved: data.data.data.achieved,
+          achievedResult: data.data.data.achievedResult,
+          ...route.params,
+        },
+      });
+    },
+  });
+
+  const confirmArt = () => {
+    useDiaryConfirmArtFetch.mutate({
+      diaryId: getArtData.data.data.diaryId,
+      style: getArtData.data.data.style,
+      imageUrl: getArtData.data.data.imageUrl,
     });
-  }
+  };
 
   const {userID, content, style_name} = route.params;
   const {
@@ -72,7 +102,7 @@ export default function DiaryConfirmArtScreen({route}) {
               text={'아니야! 마음에 들어.'}
               color={colors.blue}
               marginBottom={22}
-              onPress={TempNavigate}
+              onPress={() => confirmArt()}
             />
           </View>
         </View>

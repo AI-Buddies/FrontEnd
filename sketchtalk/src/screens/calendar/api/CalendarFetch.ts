@@ -52,7 +52,7 @@ export const useListViewQueryFetch = (date: Date) => {
 export const useDiaryViewQueryFetch = (diaryId: number) => {
   const token = ls('token');
   return useQuery({
-    queryKey: ['useDiaryViewQueryFetch'],
+    queryKey: ['useDiaryViewQueryFetch', diaryId],
     queryFn: () => {
       return axios.get(`https://sketch-talk.com/diary/${diaryId}`, {
         headers: {

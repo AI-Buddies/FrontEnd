@@ -44,7 +44,39 @@ const achievementDummyData = [
 ];
 
 export default function DiaryResultScreen({route}) {
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [downloadEventModalVisible, setDownloadEventModalVisible] =
+    useState(false);
+  //0: not downloading
+  //1: downloading
+  //2: download complete
+  //3: download failed
+  const [downloadStatus, setDownloadStatus] = useState(0);
+  const [achievementIndex, setAchievementIndex] = useState(0);
+  const captureRef = useRef();
   const navigation = useNavigation();
+
+  //API 연결
+
+  /*const {isPending, isError, data, error} =
+    !isCalendar && confirmArt
+      ? useDiaryConfirmArtFetch(diaryId, image_url)
+      : useDiaryViewQueryFetch(diaryId);*/
+  const {isCalendar, diaryId, image_url, confirmArt} = route.params;
+  const {isPending, isError, data, error} = useDiaryViewQueryFetch(diaryId);
+
+  if (isError) {
+    console.log(error.message);
+  }
+  /*if (data !== undefined) {
+    //데이터 받아옴
+    console.log(data.data.data);
+    if (data.data.data.achieved !== undefined && data.data.data.achieved) {
+      setAchievementModalVisible(true);
+    }
+  }*/
+
   function TempNavigateToHome() {
     navigation.navigate('TabNavigator');
   }
@@ -60,37 +92,8 @@ export default function DiaryResultScreen({route}) {
       ...route.params,
     });
   }
-  const {isCalendar, diaryId, image_url, confirmArt} = route.params;
-  const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
-  const [downloadEventModalVisible, setDownloadEventModalVisible] =
-    useState(false);
-  //0: not downloading
-  //1: downloading
-  //2: download complete
-  //3: download failed
-  const [downloadStatus, setDownloadStatus] = useState(0);
-  const [achievementIndex, setAchievementIndex] = useState(0);
-
-  //API 연결
-  const {isPending, isError, data, error} =
-    !isCalendar && confirmArt
-      ? useDiaryConfirmArtFetch(diaryId, image_url)
-      : useDiaryViewQueryFetch(diaryId);
-
-  if (isError) {
-    console.log(error.message);
-  }
-  if (data !== undefined) {
-    //데이터 받아옴
-    console.log(data.data.data);
-    if (data.data.data.achieved !== undefined && data.data.data.achieved) {
-      setAchievementModalVisible(true);
-    }
-  }
 
   // 다운로드 기능
-  const captureRef = useRef();
 
   const getPhotoUri = async () => {
     const uri = await captureRef.current.capture();
@@ -143,7 +146,7 @@ export default function DiaryResultScreen({route}) {
             item={data.data.data}
             date={data.data.data.date}
             imageUrl={data.data.data.imageUrl}
-            editOnPress={() => TempNavigateToEditScreen}
+            editOnPress={() => TempNavigateToEditScreen()}
             downloadOnPress={() => downloadDiary()}
             showTutorial={tutorialModalVisible}
             tutorialOnPress={() => setTutorialModalVisible(false)}

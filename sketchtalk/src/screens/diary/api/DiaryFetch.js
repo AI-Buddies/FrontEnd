@@ -11,47 +11,6 @@ export const useDiaryInitialFetch = useQuery({
   },
 });
 
-export function useDiaryGetTextFetch(userId) {
-  const token = ls('token');
-  return useQuery({
-    queryKey: ['useDiaryGetTextFetch'],
-    queryFn: () => {
-      return axios.post(
-        'https://sketch-talk.com/chat/diary',
-        {userId: userId},
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-    },
-  });
-}
-
-export const useDiaryConfirmTextFetch = useMutation({
-  mutationFn: ({userId, title, content}) => {
-    const token = ls('token');
-    return axios.post(
-      'https://sketch-talk.com/',
-      {
-        userId: userId,
-        title: title,
-        content: content,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-  },
-});
-
 export function useDiaryGetArtFetch(diaryId, content, style) {
   const token = ls('token');
   return useQuery({
