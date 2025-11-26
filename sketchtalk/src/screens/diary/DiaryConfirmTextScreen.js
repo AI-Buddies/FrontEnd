@@ -129,6 +129,7 @@ export default function DiaryConfirmTextScreen() {
               text={'응! 다시 써줘.'}
               color={colors.primary}
               marginBottom={0}
+              onPress={() => useDiaryGetTextFetch.mutate({userId: 'userId'})}
             />
             <ConfirmButton
               text={'아니야! 마음에 들어.'}
