@@ -18,7 +18,6 @@ import {initializeAudio, stopAudio} from './api/DiarySTT';
 import {synthesizeSpeech} from './api/DiaryTTS';
 //api
 import axios from 'axios';
-import {authConfig, useDiaryChatFetch} from './api/DiaryFetch';
 import {useMutation} from '@tanstack/react-query';
 
 const {width, height} = Dimensions.get('window');

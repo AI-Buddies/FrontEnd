@@ -4,13 +4,14 @@ import {
   Dimensions,
   ImageBackground,
   Image,
-  Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
+import Modal from 'react-native-modal';
 import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
 import {useMutation} from '@tanstack/react-query';
@@ -25,6 +26,7 @@ const dummyData = {
 };
 
 export default function DiaryConfirmTextScreen() {
+  const [textConfirmModalVisible, setTextConfirmModalVisible] = useState(false);
   //일기 승인
   const navigation = useNavigation();
   const ls = require('local-storage');
@@ -51,6 +53,7 @@ export default function DiaryConfirmTextScreen() {
     useDiaryGetTextFetch.mutate({userId: 'userId'});
   }, []);
 
+  //글 승인하기
   const useDiaryConfirmTextFetch = useMutation({
     mutationFn: newTodo => {
       const token = ls('token');
@@ -62,11 +65,16 @@ export default function DiaryConfirmTextScreen() {
         },
       });
     },
+    onMutate: () => {
+      setTextConfirmModalVisible(true);
+    },
+
     onError: error => {
       console.warn('diaryConfirm ' + error);
     },
 
     onSuccess: data => {
+      setTextConfirmModalVisible(false);
       navigation.navigate('DiaryChooseArtstyleScreen', {
         diaryId: data.data.data.diaryId,
         content: useDiaryGetTextFetch.data.data.data.content,
@@ -131,6 +139,9 @@ export default function DiaryConfirmTextScreen() {
             />
           </View>
         </View>
+      )}
+      {textConfirmModalVisible && (
+        <ConfirmTextModal isVisible={textConfirmModalVisible} />
       )}
     </Background>
   );
@@ -226,4 +237,63 @@ const NotebookLine = () => (
       borderWidth: 1,
     }}
   />
+);
+
+const ConfirmTextModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );

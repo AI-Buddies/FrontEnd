@@ -4,7 +4,7 @@ import {
   Dimensions,
   ImageBackground,
   Image,
-  Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import ConfirmText from '../../components/confirmtext';
@@ -15,11 +15,11 @@ import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
 import {useMutation} from '@tanstack/react-query';
 import axios from 'axios';
-import {useDiaryGetArtFetch} from './api/DiaryFetch';
 
 const {width, height} = Dimensions.get('window');
 
 export default function DiaryConfirmArtScreen({route}) {
+  const [artConfirmModalVisible, setArtConfirmModalVisible] = useState(false);
   const navigation = useNavigation();
   const ls = require('local-storage');
 
@@ -55,11 +55,15 @@ export default function DiaryConfirmArtScreen({route}) {
         },
       });
     },
+    onMutate: () => {
+      setArtConfirmModalVisible(true);
+    },
     onError: error => {
       console.warn('confirmart' + error);
     },
 
     onSuccess: data => {
+      setArtConfirmModalVisible(false);
       navigation.navigate('DiaryResultStackNavigator', {
         screen: 'DiaryResultScreen',
         params: {
@@ -100,6 +104,9 @@ export default function DiaryConfirmArtScreen({route}) {
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
+      {artConfirmModalVisible && (
+        <ConfirmArtModal isVisible={artConfirmModalVisible} />
+      )}
       {useDiaryGetArtFetch.isPending && (
         <DiaryLoadingScreen
           width={width}
@@ -174,6 +181,65 @@ const DiaryArtDisplay = props => (
       />
     </View>
   </View>
+);
+
+const ConfirmArtModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`

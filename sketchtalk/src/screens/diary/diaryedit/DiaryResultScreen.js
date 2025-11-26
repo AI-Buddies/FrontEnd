@@ -7,6 +7,7 @@ import {
   Pressable,
   PermissionsAndroid,
   BackHandler,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useRef, useEffect} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -793,6 +794,9 @@ const DownloadEventModal = props => (
             {props.downloadStatus === 3 && '저장장치 권한을 허용해 주세요.'}
           </Text>
           <View style={{flex: 1, flexDirection: 'row'}}>
+            {props.downloadStatus === 1 && (
+              <ActivityIndicator size="large" color={colors.primary} />
+            )}
             {props.downloadStatus !== 1 && (
               <ConfirmButton
                 color={colors.primary}

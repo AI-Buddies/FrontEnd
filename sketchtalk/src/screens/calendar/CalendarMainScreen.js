@@ -1,4 +1,4 @@
-import {React, useState, useCallback, useEffect} from 'react';
+import {React, useState, useCallback} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
@@ -15,20 +16,14 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import moment from 'moment';
 import MonthPicker from 'react-native-month-year-picker';
 import Modal from 'react-native-modal';
-import {
-  Calendar,
-  CalendarList,
-  Agenda,
-  LocaleConfig,
-} from 'react-native-calendars';
+import {Calendar, LocaleConfig} from 'react-native-calendars';
 import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {useCalendarViewQueryFetch} from './api/CalendarFetch';
 import {useListViewQueryFetch} from './api/CalendarFetch';
 import {useMutation} from '@tanstack/react-query';
-import {token} from './api/CalendarFetch';
+
 import axios from 'axios';
-import {color} from 'react-native-elements/dist/helpers';
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -137,6 +132,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
+  const [isDiaryLoading, setIsDiaryLoading] = useState(false);
   const ls = require('local-storage');
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
@@ -219,11 +215,16 @@ export default function CalenderMainScreen({route}) {
         },
       });
     },
+
+    onMutate: () => {
+      setIsDiaryLoading(true);
+    },
     onError: error => {
       console.warn('preview' + error);
     },
 
     onSuccess: data => {
+      setIsDiaryLoading(false);
       console.log(data.data.data);
       setPreviewVisible(true);
     },
@@ -237,6 +238,7 @@ export default function CalenderMainScreen({route}) {
     <Background
       source={require('../../assets/background/blue_bg.png')}
       resizeMode="cover">
+      {isDiaryLoading && <LoadDiaryModal isVisible={isDiaryLoading} />}
       <Text
         style={{
           fontSize: 25,
@@ -818,6 +820,65 @@ const CalendarNavigator = props => (
       <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
     </Pressable>
   </View>
+);
+
+const LoadDiaryModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`
