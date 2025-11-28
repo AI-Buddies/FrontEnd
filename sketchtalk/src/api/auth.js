@@ -1,4 +1,3 @@
-// api/auth.js
 import client from './client';
 import { saveTokens, getRefreshToken } from './tokenStorage';
 
@@ -22,7 +21,7 @@ export async function registerUser(payload) {
 // { userId, password }
 export async function loginUser(body) {
   const res = await client.post('/user/login', body);
-  const data = parseResponse(res);
+  const data = parseResponse(res); // { nickname, accessToken, refreshToken }
 
   const accessToken = data?.accessToken || data?.token;
   const refreshToken = data?.refreshToken;
@@ -31,9 +30,8 @@ export async function loginUser(body) {
     throw new Error('서버에서 accessToken을 받지 못했습니다.');
   }
 
-  // 토큰은 tokenStorage를 통해 저장
   await saveTokens({ accessToken, refreshToken });
-  return data;
+  return data; // nickname, accessToken, refreshToken 반환
 }
 
 // 토큰 재발급

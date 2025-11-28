@@ -1,47 +1,61 @@
 import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
+import { useMutation } from '@tanstack/react-query';
+import {loginUser} from '../../api/auth';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import Popup from '../../components/popup';
-import {loginUser} from '../../api/auth';
 
 const { width, height } = Dimensions.get('window');
+
+// 실제 FCM 토큰/디바이스 ID로 교체 예정
+const DUMMY_DEVICE_TOKEN = 'dummy-device-token';
+const DUMMY_DEVICE_ID = 'dummy-device-id';
 
 export default function AuthScreen({navigation}){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [loginCheckOpen, setLoginCheckOpen] = useState(false);
   const [loginErrorOpen, setLoginErrorOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const flatRef = useRef(null);
   const focusScrollTo = (index) => {
     flatRef.current?.scrollToIndex?.({index, animated: true});
   };
 
-  const handleLogin = async () => {
-    if (!id || !password){
+  const loginMutation = useMutation({
+    mutationFn: loginUser, // auth.js에 정의한 함수 사용
+    onSuccess: (data) => {
+      console.log('login success:', data);
+      // data.nickname, data.accessToken, data.refreshToken 사용 가능
+      navigation.replace('TabNavigator');
+    },
+    onError: (error) => {
+      console.log('login error:', error);
+      setLoginErrorOpen(true);
+    },
+  });
+
+    const handleLogin = () => {
+    if (!id || !password) {
       setLoginCheckOpen(true);
       return;
     }
-    try {
-      setLoading(true);
 
-      const data = await loginUser({
-        userId: id.trim(),
-        password,
-      });
-      console.log('login success:', data);
+    // 서버 스펙에 맞는 요청 바디
+    const body = {
+      loginId: id.trim(),
+      password,
+      deviceToken: DUMMY_DEVICE_TOKEN,
+      deviceType: 'ANDROID',
+      deviceIdentifier: DUMMY_DEVICE_ID,
+    };
 
-      navigation.replace('TabNavigator');
-    } catch (e) {
-      console.log('login error:', e);
-      setLoginErrorOpen(true);
-    } finally {
-      setLoading(false);
-    }
+    loginMutation.mutate(body);
   };
+
+  const loading = loginMutation.isPending;
 
     return(
         <SafeAreaView style={{flex: 1}}>
@@ -103,8 +117,8 @@ export default function AuthScreen({navigation}){
                     primary={{
                       text: '확인',
                       variant: 'primary',
-                      onPress: () => {setLoginErrorOpen(false),
-                        navigation.replace('TabNavigator'); // temp
+                      onPress: () => {setLoginErrorOpen(false)
+                        //navigation.replace('TabNavigator'); // temp
                       }
                     }}
                   />

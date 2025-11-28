@@ -12,6 +12,14 @@ const client = axios.create({
 
 client.interceptors.request.use(
   async (config) => {
+    // 토큰 안 붙일 예외 API들
+    const noAuthPaths = ['/user/login', '/user/register', '/refresh', '/user/refresh'];
+    const url = config.url || '';
+
+    if (noAuthPaths.some((path) => url.startsWith(path))) {
+      return config;
+    }
+
     const token = await getAccessToken();
     if (token) {
       config.headers = config.headers || {};
