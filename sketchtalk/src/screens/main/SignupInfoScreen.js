@@ -45,23 +45,24 @@ export default function SignupInfoScreen({ navigation, route }){
 
   const canSubmit = !!userId && !!password && name.trim().length >= 1 && !!bd;
   const onSubmit = async () => {
-    if (!canSubmit) return setPopupOpen(true);
+    if (!canSubmit) {
+      setPopupOpen(true);
+      return;
+    }
     try {
       setLoading(true);
       const birth = formatBirth(pickerDate).api;
-
       const payload = { userId, password, name, birth };
 
-      await registerUser(payload);
+      const data = await registerUser(payload);
 
       if(canSubmit) navigation.navigate('Main')
     } catch (e){
       setPopupOpen(true);
+      console.log('register error:', e);
       return;
     } finally {
       setLoading(false);
-
-      //if(canSubmit) navigation.navigate('Main')
     }
   };
 

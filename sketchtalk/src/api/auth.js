@@ -11,10 +11,29 @@ function parseResponse(res) {
 }
 
 // 회원가입
-// payload : { userId, password, name, birth }
-export async function registerUser(payload) {
-  const res = await client.post('/user/register', payload);
-  return parseResponse(res);
+export async function registerUser({ userId, password, name, birth }) {
+  // 서버 스펙에 맞게 매핑
+  const body = {
+    loginId: userId,
+    password: password,
+    nickname: name,
+    birthdate: birth,
+    //deviceToken: 
+    //deviceType: 'ANDROID',
+    //deviceIdentifier: 
+  };
+
+  const res = await client.post('/user/register', body);
+  const data = parseResponse(res); // { nickname, accessToken, refreshToken }
+
+  const accessToken = data?.accessToken;
+  const refreshToken = data?.refreshToken;
+
+  if (accessToken) {
+    await saveTokens({ accessToken, refreshToken });
+  }
+
+  return data; // 필요하면 닉네임 등 사용 가능
 }
 
 // 로그인

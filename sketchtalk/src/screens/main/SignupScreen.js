@@ -24,7 +24,6 @@ export default function SignupScreen({ navigation }){
   const pwValid = useMemo(() => password.length >= 6, [password]);
   const pwSame  = useMemo(() => password && passwordCheck && password === passwordCheck, [password, passwordCheck]);
 
-
   const checkID = async () => {
     if(!idValid){
       setIDchecker(true);
@@ -33,42 +32,49 @@ export default function SignupScreen({ navigation }){
       setIdCheckMsg('4자 이상 입력해주세요.');
       return;
     }
-    /*
-    else {
-      setIDchecker(true);
-      setIdCheckStatus('success');
-      setIdCheckMsg('ID 사용 가능');
-    }
-    */
+
     try {
       setChecking(true);
-      // post(실제 서버 엔드포인트로 변경)
-      const res = await client.post('/user/id/availability', { userId: id.trim() });
 
-      // 공통 응답 { isSuccess, statusCode, message, data }
+      const res = await client.request({
+        method: 'get',
+        url: '/user/id/availability',
+        data: {
+          loginId: id.trim(),
+        },
+      });
+
+      console.log('ID CHECK RESPONSE:', res?.data); //응답 확인용
+
       const { isSuccess, message, data } = res?.data ?? {};
       if (!isSuccess) throw new Error(message || '중복확인 실패');
 
-      const available = data?.available ?? false;
+      const available = data?.isAvailable ?? false;
 
       setIDchecker(true);
-      if(available){
+
+      if (available) {
         setIdCheckStatus('success');
         setIdCheckMsg('사용 가능한 아이디입니다.');
-      }
-      else {
+      } else {
         setIdCheckStatus('error');
         setIdCheckMsg('이미 사용중인 아이디입니다.');
       }
+
     } catch (e) {
+        console.log(
+      'ID CHECK ERROR:',
+      e?.response?.data || e.message || e,
+    ); // 🔥 에러 내용 로그
+
       setIDchecker(true);
       setIdCheckStatus('error');
       setIdCheckMsg('중복확인 중 오류 발생');
     } finally {
       setChecking(false);
     }
-  
   };
+
 
   const goNext = () => {
     if (!idValid) return setIdCheckOpen(true);
