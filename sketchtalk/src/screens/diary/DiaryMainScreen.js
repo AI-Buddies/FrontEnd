@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -12,62 +12,103 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-
+import Loader from 'react-native-three-dots-loader';
+//stt tts
+import {initializeAudio, stopAudio} from './api/DiarySTT';
+import {synthesizeSpeech} from './api/DiaryTTS';
+//api
+import {useDiaryChatFetch} from './api/DiaryFetch';
+import {useDiaryInitialFetch} from './api/DiaryFetch';
 const {width, height} = Dimensions.get('window');
-
-const dummyData = [
-  {
-    id: 0,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 1,
-    isAI: true,
-    text: '우 와 ~',
-  },
-  {
-    id: 2,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 3,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 4,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 5,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-];
+const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
+
   function TempNavigate() {
-    navigation.navigate('DiaryTextInProgressScreen');
+    navigation.navigate('DiaryConfirmTextScreen');
   }
+
+  //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+  const [userDialog, setUserDialog] = useState('');
+  const [isWaitingReply, setIsWaitingReply] = useState(false);
+  useEffect(() => {
+    //AddMessage(initdata.data.reply, true);
+    dummyData.length = 0; //clear array
+    setIsWaitingReply(false);
+    AddFetchedMessage('첫 메세지야');
+  }, []);
+
+  function AddFetchedMessage(dialog) {
+    dummyData.shift();
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  function AddWaitingMessage() {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: true,
+      text: 'waiting...',
+    });
+  }
+
+  function AddUserMessage(dialog) {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: false,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  function FetchMessage() {
+    if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
+    AddUserMessage(userDialog, false);
+    setUserDialog('');
+    setIsWaitingReply(true);
+    //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+    //if (!isLoading) setIsWaitingReply(false);
+    AddWaitingMessage();
+    setTimeout(() => {
+      setIsWaitingReply(false);
+      AddFetchedMessage('답변이야 답변이야 답변이야');
+    }, 10000);
+
+    //AddMessage(data.data.reply, true);
+  }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
       <MessageList
-        data={dummyData.reverse()}
+        data={dummyData}
         contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton />
-      <TextBar onPress={TempNavigate} />
+      <MicButton
+        //onPressIn={initializeAudio}
+        onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
+      />
+      <TextBar
+        onPress={() => FetchMessage()}
+        value={isWaitingReply ? '' : userDialog}
+        onChangeText={!isWaitingReply && setUserDialog}
+        isWaitingReply={isWaitingReply}
+      />
     </Background>
   );
 }
@@ -88,7 +129,7 @@ const MessageList = styled.FlatList`
   width: ${width};
 `;
 
-const MicButton = () => (
+const MicButton = props => (
   <View
     style={{
       flex: 1.5,
@@ -101,6 +142,9 @@ const MicButton = () => (
       shadowRadius: 1.0,
     }}>
     <Pressable
+      onPress={props.onPress}
+      onPressIn={props.onPressIn}
+      //onPressOut={props.onPressOut}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -144,17 +188,31 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      <TextInput
-        style={{
-          flex: 6,
-          textAlign: 'left',
-          color: colors.black,
-          paddingLeft: 12,
-          fontSize: 16,
-          height: 46,
-          paddingBottom: 12,
-        }}
-      />
+      {!props.isWaitingReply ? (
+        <TextInput
+          value={props.value}
+          onChangeText={props.onChangeText}
+          style={{
+            flex: 6,
+            textAlign: 'left',
+            color: colors.black,
+            paddingLeft: 12,
+            fontSize: 16,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 6,
+            color: colors.black,
+            paddingLeft: 12,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      )}
       <Pressable
         style={{
           flex: 1,
@@ -193,18 +251,33 @@ function MessageItem({item}) {
           borderBottomRightRadius: 18,
           elevation: 1,
         }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'MangoDdobak-R',
-            lineHeight: 25,
-            textAlign: 'left',
-            paddingHorizontal: 10,
-            marginBottom: 2,
-            color: colors.black,
-          }}>
-          {item.text}
-        </Text>
+        {item.isWaitingReply ? (
+          <View
+            style={{
+              height: 25,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}>
+            <Loader
+              style={{
+                justifyContent: 'center',
+              }}
+            />
+          </View>
+        ) : (
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              lineHeight: 25,
+              textAlign: 'left',
+              paddingHorizontal: 10,
+              marginBottom: 2,
+              color: colors.black,
+            }}>
+            {item.text}
+          </Text>
+        )}
       </View>
     </View>
   ) : (

@@ -1,4 +1,4 @@
-import {React, useState, useCallback} from 'react';
+import {React, useState, useCallback, useEffect} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -23,6 +23,8 @@ import {
 } from 'react-native-calendars';
 import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import {useCalendarViewQueryFetch} from './api/CalendarFetch';
+import {useListViewQueryFetch} from './api/CalendarFetch';
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -45,38 +47,84 @@ const {width, height} = Dimensions.get('window');
 
 const dummyData = [
   {
-    id: 1,
+    diaryId: 1,
     date: new Date(2025, 5, 22),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 2,
-    date: new Date(2025, 5, 22),
+    diaryId: 2,
+    date: new Date(2025, 5, 23),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 3,
-    date: new Date(2025, 5, 22),
-    title: '넘어졌지만 괜찮아!',
-  },
-  {
-    id: 4,
-    date: new Date(2025, 6, 22),
+    diaryId: 3,
+    date: new Date(2025, 5, 24),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
   },
   {
-    id: 5,
-    date: new Date(2025, 5, 22),
+    diaryId: 4,
+    date: new Date(2025, 5, 25),
     title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
+  },
+  {
+    diaryId: 5,
+    date: new Date(2025, 5, 26),
+    title: '축구하다가 넘어졌지만 괜찮아!',
+    emotion: 'HAPPY',
+    image_url: '',
+  },
+];
+
+const dummyEmptyData = [
+  {
+    diaryId: 1,
+  },
+  {
+    diaryId: 2,
+  },
+  {
+    diaryId: 3,
+  },
+  {
+    diaryId: 4,
+  },
+  {
+    diaryId: 5,
+  },
+  {
+    diaryId: 6,
   },
 ];
 
 const dummyMarkedDates = [
-  {date: '2025-06-10'},
-  {date: '2025-06-22'},
-  {date: '2025-06-29'},
-  {date: '2025-06-30'},
-  {date: '2025-11-30'},
+  {
+    diaryId: 1,
+    date: '2025-06-10',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 2,
+    date: '2025-06-11',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 3,
+    date: '2025-06-12',
+    emotion: 'HAPPY',
+  },
+  {
+    diaryId: 4,
+    date: '2025-06-13',
+    emotion: 'HAPPY',
+  },
 ];
 
 export default function CalenderMainScreen({route}) {
@@ -85,6 +133,7 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
+  const [testIsWaiting, setTestIsWaiting] = useState(false);
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -111,6 +160,9 @@ export default function CalenderMainScreen({route}) {
     });
   }
 
+  //const listViewQuery = useListViewQueryFetch(date)
+  //const calendarViewQuery = useCalendarViewQueryFetch(date);
+
   return (
     <Background
       source={require('../../assets/background/blue_bg.png')}
@@ -122,6 +174,9 @@ export default function CalenderMainScreen({route}) {
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
+        {/*calendarViewQuery.isLoading
+          ? '로딩중...'
+          : calendarViewQuery.error.message*/}
         달력
       </Text>
       <CalendarNavigator
@@ -139,27 +194,76 @@ export default function CalenderMainScreen({route}) {
           locale="ko"
         />
       )}
-      <View style={{flex: 7}}>
-        {/*       리스트       */}
-        {listView && (
+
+      {/*       리스트       */}
+
+      {listView && (
+        <View style={{flex: 7, width: width}}>
           <FlatList
             contentContainerStyle={{
               alignItems: 'flex-start',
               justifyContent: 'center',
+              marginLeft: Math.floor((width - 172 * 2) / 2),
             }}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
-            data={dummyData}
-            renderItem={({item}) => (
-              <CalendarListViewItem
-                {...item}
-                onPress={() => TempNavigate(item.date)}
-              />
-            )}
+            data={testIsWaiting ? dummyEmptyData : dummyData}
+            renderItem={
+              testIsWaiting
+                ? () => <CalendarListViewEmptyItem />
+                : ({item}) => (
+                    <CalendarListViewItem
+                      {...item}
+                      onPress={() => TempNavigate(item.date)}
+                    />
+                  )
+            }
             numColumns={2}></FlatList>
-        )}
-        {/*       달력        */}
-        {!listView && (
+          {testIsWaiting && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width,
+                height: 1080,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  marginBottom: 700,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={require('../../assets/character/writing_bear.png')}
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+                    fontSize: 24,
+                  }}>
+                  로딩중...
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+        </View>
+      )}
+      {/*       달력        */}
+      {!listView && (
+        <View style={{flex: 7}}>
           <Calendar
             initialDate={date}
             hideArrows={true}
@@ -192,10 +296,10 @@ export default function CalenderMainScreen({route}) {
             }}
             dayComponent={({date, state}) => {
               function hasDiary() {
-                const array = dummyMarkedDates.filter(obj =>
-                  Object.values(obj).some(val => val.includes(date.dateString)),
+                const array = dummyMarkedDates.some(val =>
+                  val.date.includes(date.dateString),
                 );
-                return !array === undefined || !array.length == 0;
+                return array;
               }
               return (
                 <CustomDayComponent
@@ -209,8 +313,50 @@ export default function CalenderMainScreen({route}) {
               );
             }}
           />
-        )}
-      </View>
+          {testIsWaiting && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width * 0.9,
+                height: 380,
+
+                backgroundColor: 'rgba(255, 255,255, 0.6)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={require('../../assets/character/writing_bear.png')}
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+
+                    fontSize: 24,
+                  }}>
+                  로딩중...
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+        </View>
+      )}
       <SwitchViewButton onPress={() => setListView(!listView)} />
       {!listView && (
         <CalendarPreviewModal
@@ -446,6 +592,30 @@ const CalendarListViewItem = item => (
       </Text>
     </View>
   </Pressable>
+);
+
+const CalendarListViewEmptyItem = item => (
+  <View
+    style={{
+      width: 162,
+      height: 182,
+      textAlign: 'center',
+      marginHorizontal: 5,
+      marginVertical: 10,
+      backgroundColor: colors.creamWhite,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+      elevation: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  />
 );
 
 const CalendarNavigator = props => (

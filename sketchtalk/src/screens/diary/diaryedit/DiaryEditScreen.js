@@ -32,7 +32,7 @@ export default function DiaryEditScreen({route}) {
     navigation.navigate('DiaryResultScreen', {...route.params});
   }
   function TempNavigateToRedrawScreen() {
-    navigation.navigate('DiaryArtRedrawScreen', {...route.params});
+    navigation.navigate('DiaryEditChooseArtstyleScreen', {...route.params});
   }
   const {diaryDate, isCalendar} = route.params;
 
