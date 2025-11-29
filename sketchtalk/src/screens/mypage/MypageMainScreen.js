@@ -1,16 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {View, Text, Image, ImageBackground, Dimensions, StyleSheet} from 'react-native';
 import colors from '../../constants/colors';
 import MypageField from '../../components/mypagefield';
 import Popup from '../../components/popup';
+import { useQuery } from '@tanstack/react-query';
+import client from '../../api/client';
+import { logoutUser, deleteUser } from '../../api/auth';
 
 const { width, height } = Dimensions.get('window');
+
+async function fetchSetting(){
+  const res = await client.get('/setting');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) throw new Error(message || '마이페이지 정보를 불러오지 못했습니다.');
+  
+  return data;
+}
 
 export default function MypageMainScreen({ navigation }) {
   const [alarmOn, setAlarmOn] = useState(true);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawDoneOpen, setWithdrawDoneOpen] = useState(false);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['setting'],
+    queryFn: fetchSetting,
+  });
+
+  if (isLoading) {
+  return (
+    <View>
+      <Text>로딩 중...</Text>
+    </View>
+  );
+}
+
+if (error) {
+  return (
+    <View>
+      <Text>오류가 발생했습니다</Text>
+    </View>
+  );
+}
+
+
+  const { nickname, birthdate, canAlarm } = data;
+  const formattedBirth = birthdate
+    ? birthdate.replace(/-/g, '.').replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
+    : '';
 
   return (
     <ImageBackground
@@ -26,8 +65,8 @@ export default function MypageMainScreen({ navigation }) {
       <View style={styles.card}>
         {/* 상단 이름/생일 */}
         <View style={styles.headerRow}>
-          <Text style={styles.headerName}>김이름</Text>
-          <Text style={styles.headerBirth}>2000년 00월 00일</Text>
+          <Text style={styles.headerName}>{nickname}</Text>
+          <Text style={styles.headerBirth}>{formattedBirth}</Text>
         </View>
 
         <View style={styles.headerDivider} />
@@ -77,9 +116,18 @@ export default function MypageMainScreen({ navigation }) {
         primary={{
           text:'확인',
           variant: 'primary',
-          onPress: () => {
-            setLogoutOpen(false);
-            navigation.replace('AuthStackNavigator');
+          onPress: async () => {
+            try {
+              setLogoutOpen(false);
+
+              // 임시 deviceIdentifier (나중에 실제 unique ID 연결 가능)
+              const deviceIdentifier = 'dummy-device-identifier';
+              await logoutUser(deviceIdentifier);
+              navigation.replace('AuthStackNavigator');
+            } catch (e){
+              console.log('Logout error:', e);
+
+            }
           }
         }}
       />
@@ -95,9 +143,14 @@ export default function MypageMainScreen({ navigation }) {
         primary={{
           text:'확인',
           variant: 'primary',
-          onPress: () => {
-            setWithdrawOpen(false);
-            setTimeout(() => setWithdrawDoneOpen(true), 300);
+          onPress: async () => {
+            try {
+              setWithdrawOpen(false);
+              await deleteUser();
+              setWithdrawDoneOpen(true);
+            } catch (e){
+              console.log('Withdraw error:', e);
+            }
           }
         }}
       />

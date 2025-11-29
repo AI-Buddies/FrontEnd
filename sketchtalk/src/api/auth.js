@@ -1,5 +1,5 @@
 import client from './client';
-import { saveTokens, getRefreshToken } from './tokenStorage';
+import { saveTokens, getRefreshToken, clearTokens } from './tokenStorage';
 
 // 공통 응답 파서
 function parseResponse(res) {
@@ -51,6 +51,31 @@ export async function loginUser(body) {
 
   await saveTokens({ accessToken, refreshToken });
   return data; // nickname, accessToken, refreshToken 반환
+}
+
+// 로그아웃
+export async function logoutUser(deviceIdentifier) {
+  const res = await client.post('/user/logout', { deviceIdentifier });
+
+  const { data, isSuccess, message } = res.data;
+  if (!isSuccess) throw new Error(message || '로그아웃 실패');
+
+  // 서버에서는 새 access/refreshToken을 내려주지만
+  // 클라이언트에서는 로그아웃이므로 삭제
+  await clearTokens();
+
+  return data;
+}
+
+export async function deleteUser() {
+  const res = await client.delete('/user');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '회원탈퇴에 실패했습니다.');
+  }
+
+  await clearTokens();
 }
 
 // 토큰 재발급

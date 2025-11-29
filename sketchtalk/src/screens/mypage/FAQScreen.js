@@ -3,14 +3,14 @@ import { ImageBackground, Dimensions, StyleSheet, View, Text, Pressable, StatusB
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MypageField from '../../components/mypagefield';
+import { useQuery } from '@tanstack/react-query';
+import { getQuestionList } from '../../api/setting';
 
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
 const FAQList = [
-    { id: '1', q: '자주 묻는 질문', a: '첫번째 답변' },
-    { id: '2', q: '엄청 긴 답변과 엄청 더 기이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이이인 질문', a: '자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 자주 묻는 질문 ' },
-    { id: '3', q: '이건 세번째 질문', a: '자주 묻는 질문 답변' },
+    { id: '1', q: '문의가 없거나 불러올 수 없습니다.', a: '다시 시도해주세요:)' },
 ]
 
 export default function FAQScreen({ navigation }) {
@@ -43,6 +43,28 @@ export default function FAQScreen({ navigation }) {
         </View>
         );
     };
+
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ['questionList'],
+        queryFn: getQuestionList,
+
+        onError: (err) => {
+    console.log('FAQ API ERROR ======');
+    console.log('status:', err.response?.status);
+    console.log('data:', err.response?.data);
+  },
+  onSuccess: (d) => {
+    console.log('FAQ 서버에서 받은 데이터:', d); // <- 여기!
+  },
+    });
+
+    const serverList = data?.map((item, index) => ({
+        id: String(index + 1),
+        q: item.question,
+        a: item.answer,
+    })) || [];
+
+    const listToRender = serverList.length > 0 ? serverList : FAQList;
     
     return (
     <ImageBackground
@@ -62,8 +84,17 @@ export default function FAQScreen({ navigation }) {
         </View>
 
         <View style={styles.card}>
+            {isLoading && (
+                <Text style={styles.alramText}>문의 목록을 불러오는 중</Text>
+            )}
+            {isError && (
+                <Text style={styles.alramText}>
+                    문의 목록을 불러오지 못했어요:{'('}
+                    {error?.message}
+                </Text>
+            )}
             <FlatList
-                data = {FAQList}
+                data = {listToRender}
                 keyExtractor={(i) => i.id}
                 renderItem={renderItem}
                 showsVerticalScrollIndicator={true}
@@ -147,4 +178,11 @@ answerLabel: {
     widith: '100%',
     marginTop: 4,
   },
+  alramText: {
+    fontFamily: 'MangoDdobak-R',
+    fontSize: 14,
+    color: colors.redBrown,
+    textAlign: 'center',
+    marginVertical: 8,
+  }
 });
