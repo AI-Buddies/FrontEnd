@@ -13,6 +13,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Loader from 'react-native-three-dots-loader';
+import ConfirmButton from '../../components/confirmbutton';
 //stt tts
 import {initializeAudio, stopAudio} from './api/DiarySTT';
 import {synthesizeSpeech} from './api/DiaryTTS';
@@ -33,6 +34,7 @@ export default function DiaryMainScreen() {
   //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
   const [userDialog, setUserDialog] = useState('');
   const [isWaitingReply, setIsWaitingReply] = useState(false);
+  const [isSufficient, setIsSufficient] = useState(false);
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
     dummyData.length = 0; //clear array
@@ -90,6 +92,9 @@ export default function DiaryMainScreen() {
     },
     onSuccess: data => {
       AddFetchedMessage(data.data.data.reply);
+      if (data.data.data.isSufficient) {
+        setIsSufficient(true);
+      }
       setIsWaitingReply(false);
     },
     onError: error => {
@@ -126,19 +131,26 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton
-        //onPressIn={() => initializeAudio(FetchMessage)}
-        onPress={TempNavigate}
-        isWaitingReply={isWaitingReply}
-        useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
-        //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
-      />
+      {!isSufficient ? (
+        <MicButton
+          //onPressIn={() => initializeAudio(FetchMessage)}
+          onPress={TempNavigate}
+          isWaitingReply={isWaitingReply}
+          isSufficient={isSufficient}
+          useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
+          //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
+        />
+      ) : (
+        <View style={{flex: 1.5}}>
+          <ConfirmButton color={colors.primary} text="일기 생성" width={200} />
+        </View>
+      )}
       <TextBar
         onPress={() => FetchMessage(userDialog)}
-        value={isWaitingReply ? '' : userDialog}
-        onChangeText={!isWaitingReply && setUserDialog}
+        value={isWaitingReply || isSufficient ? '' : userDialog}
+        onChangeText={!isWaitingReply && !isSufficient && setUserDialog}
         isWaitingReply={isWaitingReply}
-        useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
+        isSufficient={isSufficient}
       />
     </Background>
   );
@@ -175,7 +187,7 @@ const MicButton = props => (
     <Pressable
       onPress={props.onPress}
       onPressIn={props.onPressIn}
-      disabled={props.isWaitingReply}
+      disabled={props.isWaitingReply || props.isSufficient}
       //disabled={props.useDiaryChatFetch_isPending}
       style={{
         borderRadius: Math.round(158) / 2,
@@ -221,7 +233,7 @@ const TextBar = props => (
         elevation: 1,
       }}>
       {/*{!props.useDiaryChatFetch_isPending ? (*/}
-      {!props.isWaitingReply ? (
+      {!props.isWaitingReply && !props.isSufficient ? (
         <TextInput
           value={props.value}
           onChangeText={props.onChangeText}
@@ -252,7 +264,7 @@ const TextBar = props => (
           alignItems: 'center',
           justifyContent: 'center',
         }}
-        disabled={props.useDiaryChatFetch_isPending}
+        disabled={props.isWaitingReply || props.isSufficient}
         onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>

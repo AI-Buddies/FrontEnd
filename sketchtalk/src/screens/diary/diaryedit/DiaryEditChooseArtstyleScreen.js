@@ -16,7 +16,7 @@ const {width, height} = Dimensions.get('window');
 
 const style_list = [
   {style_name: 'pastel', display_name: '파스텔'},
-  {style_name: 'child book', display_name: '동화책'},
+  {style_name: 'childbook', display_name: '동화책'},
   {style_name: 'coolkids', display_name: '쿨키즈'},
 ];
 
@@ -50,7 +50,7 @@ export default function DiaryEditChooseArtstyleScreen({route}) {
           renderItem={({item}) => (
             <MessageItem
               {...item}
-              onPress={item => TempNavigate(item.style_name)}
+              onPress={() => TempNavigate(item.style_name)}
             />
           )}
           numColumns={2}></FlatList>
