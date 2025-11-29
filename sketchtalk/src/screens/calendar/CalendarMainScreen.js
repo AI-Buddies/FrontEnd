@@ -25,6 +25,24 @@ import {useMutation} from '@tanstack/react-query';
 
 import axios from 'axios';
 
+function getEmoticon(emotion) {
+  if (emotion.localeCompare('happy')) {
+    return require('../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion.localeCompare('amazed')) {
+    return require('../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion.localeCompare('sad')) {
+    return require('../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion.localeCompare('angry')) {
+    return require('../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion.localeCompare('anxiety')) {
+    return require('../../assets/emotions/emotion_anxiety.png');
+  }
+}
+
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
   monthNamesShort: ['', '', '', '', '', '', '', '', '', '', '', ''],
@@ -44,44 +62,6 @@ LocaleConfig.defaultLocale = 'kr';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = [
-  {
-    diaryId: 1,
-    date: new Date(2025, 5, 22),
-    title: '축구하다가 넘어졌지만 괜찮아!',
-    emotion: 'HAPPY',
-    image_url: '',
-  },
-  {
-    diaryId: 2,
-    date: new Date(2025, 5, 23),
-    title: '축구하다가 넘어졌지만 괜찮아!',
-    emotion: 'HAPPY',
-    image_url: '',
-  },
-  {
-    diaryId: 3,
-    date: new Date(2025, 5, 24),
-    title: '축구하다가 넘어졌지만 괜찮아!',
-    emotion: 'HAPPY',
-    image_url: '',
-  },
-  {
-    diaryId: 4,
-    date: new Date(2025, 5, 25),
-    title: '축구하다가 넘어졌지만 괜찮아!',
-    emotion: 'HAPPY',
-    image_url: '',
-  },
-  {
-    diaryId: 5,
-    date: new Date(2025, 5, 26),
-    title: '축구하다가 넘어졌지만 괜찮아!',
-    emotion: 'HAPPY',
-    image_url: '',
-  },
-];
-
 const dummyEmptyData = [
   {
     diaryId: 1,
@@ -100,29 +80,6 @@ const dummyEmptyData = [
   },
   {
     diaryId: 6,
-  },
-];
-
-const dummyMarkedDates = [
-  {
-    diaryId: 1,
-    date: '2025-06-10',
-    emotion: 'HAPPY',
-  },
-  {
-    diaryId: 2,
-    date: '2025-06-11',
-    emotion: 'HAPPY',
-  },
-  {
-    diaryId: 3,
-    date: '2025-06-12',
-    emotion: 'HAPPY',
-  },
-  {
-    diaryId: 4,
-    date: '2025-06-13',
-    emotion: 'HAPPY',
   },
 ];
 
@@ -430,6 +387,13 @@ export default function CalenderMainScreen({route}) {
                 ).diaryId;
                 return id;
               }
+              function getDiaryEmoticon() {
+                const diary = calendarViewQuery.data.data.data.find(val =>
+                  val.date.includes(date.dateString),
+                );
+                if (diary === undefined) return;
+                return getEmoticon(diary.emotion);
+              }
               /*function hasDiary() {
                 const array = dummyMarkedDates.some(val =>
                   val.date.includes(date.dateString),
@@ -447,6 +411,7 @@ export default function CalenderMainScreen({route}) {
                   hasDiary={hasDiary()}
                   date={date}
                   state={state}
+                  emoticon={calendarViewQuery.isSuccess && getDiaryEmoticon()}
                   isWaiting={!calendarViewQuery.isSuccess}
                   onPress={() => {
                     PreviewDiary(getDiaryID());
@@ -513,6 +478,7 @@ export default function CalenderMainScreen({route}) {
             .format('YYYY[년] M[월] D[일]')
             .toString()}
           title={useDiaryPreviewFetch.data.data.data.title}
+          emoticon={getEmoticon(useDiaryPreviewFetch.data.data.data.emotion)}
           imageUrl={{uri: useDiaryPreviewFetch.data.data.data.imageUrl}}
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
@@ -612,7 +578,11 @@ const CalendarPreviewModal = props => (
               alignSelf: 'center',
             }}
             resizeMode="contain"
-            source={require('../../assets/emotions/emotion_happy.png')}
+            source={
+              props.emoticon !== undefined
+                ? props.emoticon
+                : require('../../assets/emotions/emotion_happy.png')
+            }
           />
         </View>
       </View>
@@ -633,7 +603,11 @@ const CustomDayComponent = props => (
             marginTop: 5,
           }}
           resizeMode="contain"
-          source={require('../../assets/emotions/emotion_happy.png')}></Image>
+          source={
+            props.emoticon !== undefined
+              ? props.emoticon
+              : require('../../assets/emotions/emotion_happy.png')
+          }></Image>
       </Pressable>
     )}
     {!props.hasDiary && !props.isWaiting && (
@@ -728,7 +702,7 @@ const CalendarListViewItem = item => (
           alignSelf: 'flex-end',
         }}
         resizeMode="contain"
-        source={require('../../assets/emotions/emotion_happy.png')}
+        source={getEmoticon(item.emotion)}
       />
     </ImageBackground>
     <View style={{width: 162, height: 60}}>

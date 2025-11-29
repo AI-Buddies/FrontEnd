@@ -29,14 +29,41 @@ import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
-const diaryDummyData = {
-  title: '축구하다가 넘어졌지만 재밌었어!',
-  content:
-    '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
-};
+function getEmoticon(emotion) {
+  if (emotion.localeCompare('happy')) {
+    return require('../../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion.localeCompare('amazed')) {
+    return require('../../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion.localeCompare('sad')) {
+    return require('../../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion.localeCompare('angry')) {
+    return require('../../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion.localeCompare('anxiety')) {
+    return require('../../../assets/emotions/emotion_anxiety.png');
+  }
+}
 
-const commentDummyData =
-  '와~ 다쳐도 즐겁게 놀다니, 너 정말 멋지구나! 내일은 꼭 골도 넣어보자! ⚽😊';
+function getEmotionDownloadBackground(emotion) {
+  if (emotion.localeCompare('happy')) {
+    return require('../../../assets/background/diary_bg_happy.png');
+  }
+  if (emotion.localeCompare('amazed')) {
+    return require('../../../assets/background/diary_bg_amazed.png');
+  }
+  if (emotion.localeCompare('sad')) {
+    return require('../../../assets/background/diary_bg_sad.png');
+  }
+  if (emotion.localeCompare('angry')) {
+    return require('../../../assets/background/diary_bg_angry.png');
+  }
+  if (emotion.localeCompare('anxiety')) {
+    return require('../../../assets/background/diary_bg_anxiety.png');
+  }
+}
 
 const achievementDummyData = [
   {title: '축구', description: '축구가 언급되는 일기 작성'},
@@ -84,7 +111,7 @@ export default function DiaryResultScreen({route}) {
     }, []),
   );
 
-  //일기 수정하기
+  //일기 보기
   const ls = require('local-storage');
   const useDiaryViewQueryFetch = useMutation({
     mutationFn: diaryId => {
@@ -97,9 +124,11 @@ export default function DiaryResultScreen({route}) {
         },
       });
     },
-
     onError: error => {
       console.warn('diaryView ' + error);
+    },
+    onSuccess: data => {
+      console.log(data.data.data);
     },
   });
 
@@ -179,6 +208,9 @@ export default function DiaryResultScreen({route}) {
           <DiaryDisplay
             item={useDiaryViewQueryFetch.data.data.data}
             date={useDiaryViewQueryFetch.data.data.data.date}
+            emoticon={getEmoticon(
+              useDiaryViewQueryFetch.data.data.data.emotion,
+            )}
             imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
             editOnPress={() => TempNavigateToEditScreen()}
             downloadOnPress={() => downloadDiary()}
@@ -217,7 +249,9 @@ export default function DiaryResultScreen({route}) {
             }}
             style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
             <Background
-              source={require('../../../assets/background/diary_bg_happy.png')}
+              source={getEmotionDownloadBackground(
+                useDiaryViewQueryFetch.data.data.data.emotion,
+              )}
               resizeMode="contain">
               <View
                 style={{
@@ -228,6 +262,9 @@ export default function DiaryResultScreen({route}) {
                 <DownloadDiaryDisplay
                   item={useDiaryViewQueryFetch.data.data.data}
                   date={useDiaryViewQueryFetch.data.data.data.date}
+                  emoticon={getEmoticon(
+                    useDiaryViewQueryFetch.data.data.data.emotion,
+                  )}
                   imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
                 />
                 <DownloadCharacterCommentDisplay
@@ -322,7 +359,6 @@ const CharacterCommentDisplay = props => (
         }}
         source={require('../../../assets/character/comment_bear.png')}
       />
-
       <CommentText flex={2} text={props.commentText} width={width} />
     </View>
 
@@ -418,6 +454,7 @@ const DiaryDisplay = props => (
       <DiaryDisplayHeader
         editOnPress={props.editOnPress}
         downloadOnPress={props.downloadOnPress}
+        emoticon={props.emoticon}
         date={props.date}
       />
       <DiaryArtDisplay
@@ -482,7 +519,7 @@ const DownloadDiaryDisplay = props => (
                 height: 35,
               }}
               resizeMode="contain"
-              source={require('../../../assets/emotions/emotion_happy.png')}
+              source={props.emoticon}
             />
           </View>
         </View>
@@ -584,7 +621,7 @@ const DiaryDisplayHeader = props => (
             height: 50,
           }}
           resizeMode="contain"
-          source={require('../../../assets/emotions/emotion_happy.png')}
+          source={props.emoticon}
         />
       </View>
     </View>
