@@ -4,7 +4,7 @@ import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import Popup from '../../components/popup';
-import client from '../../api/client';
+import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,11 +36,13 @@ export default function SignupScreen({ navigation }){
     try {
       setChecking(true);
 
-      const res = await client.request({
-        method: 'get',
-        url: '/user/id/availability',
-        data: {
+      const res = await axios.get('https://sketch-talk.com/user/id/availability', {
+        params: {
           loginId: id.trim(),
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
 
@@ -62,10 +64,7 @@ export default function SignupScreen({ navigation }){
       }
 
     } catch (e) {
-        console.log(
-      'ID CHECK ERROR:',
-      e?.response?.data || e.message || e,
-    ); // 🔥 에러 내용 로그
+      console.log('ID CHECK ERROR:', e?.response?.data || e.message || e);
 
       setIDchecker(true);
       setIdCheckStatus('error');

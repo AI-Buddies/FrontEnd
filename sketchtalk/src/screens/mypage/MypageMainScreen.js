@@ -3,7 +3,7 @@ import {View, Text, Image, ImageBackground, Dimensions, StyleSheet} from 'react-
 import colors from '../../constants/colors';
 import MypageField from '../../components/mypagefield';
 import Popup from '../../components/popup';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import client from '../../api/client';
 import { logoutUser, deleteUser } from '../../api/auth';
 
@@ -18,15 +18,72 @@ async function fetchSetting(){
   return data;
 }
 
+async function fetchPastNotification(){
+  const res = await client.get('/setting/notification/past');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess){
+    throw new Error(message || '알림 설정을 불러오지 못했습니다.');
+  }
+
+  return data;
+}
+
+async function updatePastNotification(body){
+  const res = await client.put('/setting/notification/past', body);
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess){
+    throw new Error(message || '알림 설정을 변경하지 못했습니다.');
+  }
+
+  return data;
+}
+
 export default function MypageMainScreen({ navigation }) {
   const [alarmOn, setAlarmOn] = useState(true);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawDoneOpen, setWithdrawDoneOpen] = useState(false);
 
+  const [alarmTime, setAlarmTime] = useState(null);
+  const [alarmValue, setAlarmValue] = useState(null);
+  const [alarmUnit, setAlarmUnit] = useState(null);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['setting'],
     queryFn: fetchSetting,
+  });
+
+  const {
+    data: pastNotification,
+    isLoading: isNotificationLoading,
+    error: notificationError,
+  } = useQuery({
+    queryKey: ['notificationPast'],
+    queryFn: fetchPastNotification,
+  });
+
+  useEffect(() => {
+    if (pastNotification){
+      setAlarmOn(!!pastNotification.canNotify);
+      setAlarmTime(pastNotification.notificationTime);
+      setAlarmValue(pastNotification.notificationValue);
+      setAlarmUnit(pastNotification.notificationUnit);
+    }
+  }, [pastNotification]);
+
+  const notificationMutation = useMutation({
+    mutationFn: updatePastNotification,
+    onSuccess: (updated) => {
+      setAlarmOn(!!updated.canNotify);
+      setAlarmTime(updated.notificationTime);
+      setAlarmValue(updated.notificationValue);
+      setAlarmUnit(updated.notificationUnit);
+    },
+    onError: (err) => {
+      console.log('알림 설정 변경 에러:', err);
+    },
   });
 
   if (isLoading) {
@@ -45,11 +102,10 @@ if (error) {
   );
 }
 
-
-  const { nickname, birthdate, canAlarm } = data;
-  const formattedBirth = birthdate
-    ? birthdate.replace(/-/g, '.').replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
-    : '';
+const { nickname, birthdate, canAlarm } = data;
+const formattedBirth = birthdate
+  ? birthdate.replace(/-/g, '.').replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
+  : '';
 
   return (
     <ImageBackground
@@ -80,7 +136,17 @@ if (error) {
           text="알림 설정"
           rightType="switch"
           switchValue={alarmOn}
-          onPress={() => setAlarmOn(v => !v)}
+          disabled={isNotificationLoading || notificationMutation.isPending}
+          onPress={() =>{
+            const nextCanNotify = !alarmOn;
+
+            notificationMutation.mutate({
+              canNotify: nextCanNotify,
+              notificationTime: alarmTime || '20:00',
+              notificationValue: alarmValue ?? 1,
+              notificationUnit: alarmUnit || 'DAY',
+            });
+          }}
         />
         <MypageField
           text="자주 묻는 질문"

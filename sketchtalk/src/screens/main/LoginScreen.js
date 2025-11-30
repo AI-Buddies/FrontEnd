@@ -117,9 +117,7 @@ export default function AuthScreen({navigation}){
                     primary={{
                       text: '확인',
                       variant: 'primary',
-                      onPress: () => {setLoginErrorOpen(false)
-                        //navigation.replace('TabNavigator'); // temp
-                      }
+                      onPress: () => setLoginErrorOpen(false)
                     }}
                   />
               </ImageBackground>
