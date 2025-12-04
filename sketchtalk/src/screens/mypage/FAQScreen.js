@@ -54,7 +54,7 @@ export default function FAQScreen({ navigation }) {
     console.log('data:', err.response?.data);
   },
   onSuccess: (d) => {
-    console.log('FAQ 서버에서 받은 데이터:', d); // <- 여기!
+    console.log('FAQ 서버에서 받은 데이터:', d); 
   },
     });
 

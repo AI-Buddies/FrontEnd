@@ -115,17 +115,32 @@ export async function updateUser(body) {
 
 // 토큰 재발급
 export async function refreshAccessToken() {
-  const refreshToken = await getRefreshToken();
-  if (!refreshToken) throw new Error('리프레시 토큰이 없습니다.');
+  const storedRefreshToken = await getRefreshToken();
+  if (!storedRefreshToken) throw new Error('리프레시 토큰이 없습니다.');
 
-  const res = await client.post('/refresh', { refreshToken });
-  const data = parseResponse(res);
+  try {
+    const res = await client.post('/refresh', {
+      refreshToken: storedRefreshToken,
+    });
 
-  const accessToken = data?.accessToken || data?.token;
-  if (!accessToken) {
-    throw new Error('서버에서 새 accessToken을 받지 못했습니다.');
+    const data = parseResponse(res); // { accessToken, refreshToken }
+
+    const accessToken = data?.accessToken || data?.token;
+    const newRefreshToken = data?.refreshToken;
+
+    if (!accessToken) {
+      throw new Error('서버에서 새 accessToken을 받지 못했습니다.');
+    }
+
+    await saveTokens({
+      accessToken,
+      refreshToken: newRefreshToken || storedRefreshToken,
+    });
+
+    return accessToken;
+  } catch (err) {
+    console.log('refreshAccessToken 에러:', err?.response?.data || err.message || err);
+
+    throw err;
   }
-
-  await saveTokens({ accessToken, refreshToken });
-  return accessToken;
 }

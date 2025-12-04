@@ -23,3 +23,47 @@ export async function getQuestionList() {
   return data.list || [];    
 
 }
+
+export async function getPastNotificationSetting() {
+  const res = await client.get('/setting/notification/past');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '과거 알림 설정을 불러오지 못했습니다.');
+  }
+
+  return data;
+}
+
+export async function updatePastNotificationSetting(body) {
+  const res = await client.put('/setting/notification/past', body);
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '과거 알림 설정 변경에 실패했습니다.');
+  }
+
+  return data;
+}
+
+export async function getWriteNotificationSetting() {
+  const res = await client.get('/setting/notification/write');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '작성 알림 설정을 불러오지 못했습니다.');
+  }
+
+  return data;
+}
+
+export async function updateWriteNotificationSetting(body) {
+  const res = await client.put('/setting/notification/write', body);
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '작성 알림 설정 변경에 실패했습니다.');
+  }
+
+  return data;
+}
