@@ -348,6 +348,7 @@ export default function CalenderMainScreen({route}) {
             disableMonthChange={true}
             customHeaderTitle={<></>} /* 월 숨기기 */
             disableAllTouchEventsForInactiveDays
+            hideExtraDays
             style={{
               marginTop: 10,
               width: width * 0.9,
