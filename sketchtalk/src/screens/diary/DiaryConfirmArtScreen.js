@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
+import Modal from 'react-native-modal';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
@@ -177,7 +178,7 @@ const DiaryArtDisplay = props => (
       <Image
         style={{width: width * 0.9, height: 100}}
         resizeMode={'contain'}
-        source={props.imageUrl}
+        source={{uri: props.imageUrl}}
       />
     </View>
   </View>

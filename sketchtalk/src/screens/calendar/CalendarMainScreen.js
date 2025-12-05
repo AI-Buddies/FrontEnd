@@ -25,20 +25,39 @@ import {useMutation} from '@tanstack/react-query';
 
 import axios from 'axios';
 
-function getEmoticon(emotion) {
-  if (emotion.localeCompare('happy')) {
+/*function getEmoticon(emotion) {
+  if (emotion.localeCompare('happy') === 1) {
+    console.log('got ' + emotion);
     return require('../../assets/emotions/emotion_happy.png');
   }
-  if (emotion.localeCompare('amazed')) {
+  if (emotion.localeCompare('amazed') === 1) {
     return require('../../assets/emotions/emotion_amazed.png');
   }
-  if (emotion.localeCompare('sad')) {
+  if (emotion.localeCompare('sad') === 1) {
     return require('../../assets/emotions/emotion_sad.png');
   }
-  if (emotion.localeCompare('angry')) {
+  if (emotion.localeCompare('angry') === 1) {
     return require('../../assets/emotions/emotion_angry.png');
   }
-  if (emotion.localeCompare('anxiety')) {
+  if (emotion.localeCompare('anxiety') === 1) {
+    return require('../../assets/emotions/emotion_anxiety.png');
+  }
+}*/
+
+function getEmoticon(emotion) {
+  if (emotion === 'HAPPY') {
+    return require('../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion === 'AMAZED') {
+    return require('../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion === 'SAD') {
+    return require('../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion === 'ANGRY') {
+    return require('../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion === 'ANXIETY') {
     return require('../../assets/emotions/emotion_anxiety.png');
   }
 }
@@ -392,7 +411,9 @@ export default function CalenderMainScreen({route}) {
                 const diary = calendarViewQuery.data.data.data.find(val =>
                   val.date.includes(date.dateString),
                 );
+
                 if (diary === undefined) return;
+                console.log(diary.emotion);
                 return getEmoticon(diary.emotion);
               }
               /*function hasDiary() {

@@ -142,7 +142,12 @@ export default function DiaryMainScreen() {
         />
       ) : (
         <View style={{flex: 1.5}}>
-          <ConfirmButton color={colors.primary} text="일기 생성" width={200} />
+          <ConfirmButton
+            color={colors.primary}
+            text="일기 생성"
+            width={200}
+            onPress={TempNavigate}
+          />
         </View>
       )}
       <TextBar
