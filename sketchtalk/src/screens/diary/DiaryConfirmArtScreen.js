@@ -45,10 +45,8 @@ export default function DiaryConfirmArtScreen({route}) {
 
   const useDiaryConfirmArtFetch = useMutation({
     mutationFn: newTodo => {
-      console.log(newTodo);
       const token = ls('token');
-
-      return axios.post(`https://sketch-talk.com/chat/image/save`, {
+      return axios.post(`https://sketch-talk.com/chat/image/save`, newTodo, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
