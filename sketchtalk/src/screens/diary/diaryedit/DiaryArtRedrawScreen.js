@@ -11,70 +11,122 @@ import ConfirmText from '../../../components/confirmtext';
 import ConfirmButton from '../../../components/confirmbutton';
 import colors from '../../../constants/colors';
 import styled from 'styled-components';
+import {DiaryLoadingScreen} from '../component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
+import {useDiaryRedrawImageFetch} from '../api/DiaryFetch';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
 export default function DiaryArtRedrawScreen({route}) {
+  const [artConfirmModalVisible, setArtConfirmModalVisible] = useState(false);
+
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryResultScreen', {...route.params});
+  function TempNavigate(image_url) {
+    navigation.navigate('DiaryResultScreen', {
+      image_url: 'image_url', //new image
+      ...route.params,
+    });
   }
-  //const {data, error, isFetching, isLoading} = useDiaryGetArtFetch(userID);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const {diaryId, content, style_name, image_url} = route.params;
+  useEffect(() => {
+    useDiaryGetArtFetch.mutate({
+      diaryId: diaryId,
+      content: content,
+      style: style_name,
+      prevImageUrl: image_url,
+    });
+  }, []);
+
+  //그림 재생성
+  const useDiaryRedrawImageFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat/image/retry', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryGetArt ' + error);
+    },
+  });
+
+  //그림 승인
+
+  const useDiaryConfirmArtFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post(`https://sketch-talk.com/chat/image/save`, newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onMutate: () => {
+      setArtConfirmModalVisible(true);
+    },
+    onError: error => {
+      console.warn('confirmart' + error);
+    },
+
+    onSuccess: () => {
+      setArtConfirmModalVisible(false);
+      navigation.navigate('DiaryResultStackNavigator', {
+        screen: 'DiaryResultScreen',
+        params: {
+          ...route.params,
+        },
+      });
+    },
+  });
+
+  const confirmOldArt = () => {
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {
+        ...route.params,
+      },
+    });
+  };
+
+  const confirmNewArt = () => {
+    useDiaryConfirmArtFetch.mutate({
+      diaryId: useDiaryGetArtFetch.data.data.data.diaryId,
+      style: useDiaryGetArtFetch.data.data.data.style,
+      imageUrl: useDiaryGetArtFetch.data.data.data.imageUrl,
+    });
+  };
+
   return (
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      {isLoading ? (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <Text
-            style={{
-              flex: 1,
-              marginTop: 100,
-              fontFamily: 'MangoDdobak-B',
-              fontSize: 30,
-              color: colors.primary,
-            }}>
-            또리가 그림을 그리는 중...
-          </Text>
-          <LoadingCharacterImage />
-          <View
-            style={{
-              flex: 3,
-              justifyContent: 'flex-start',
-              width: width * 0.9,
-              marginBottom: 50,
-            }}>
-            <Pressable
-              style={{alignSelf: 'flex-start', fontSize: 25, marginTop: 20}}
-              onPress={() => setIsLoading(false)}>
-              <Text
-                style={{
-                  alignSelf: 'flex-start',
-                  fontSize: 25,
-                  fontFamily: 'MangoDdobak-B',
-                  marginTop: 0,
-                }}>
-                오늘의 추천💡
-              </Text>
-            </Pressable>
-            <Text
-              style={{
-                alignSelf: 'flex-start',
-                fontSize: 20,
-                fontFamily: 'MangoDdobak-R',
-                lineHeight: 29,
-                marginTop: 20,
-              }}>
-              일기를 쓸 때 너무 많은 걸 쓰려고 하지 말고, 가장 기억에 남는 한
-              가지를 고르면 좋아! 오늘 친구랑 축구한 것처럼 말이야 :) 일기를 쓸
-              때 너무 많은 걸 쓰려고 하지 말고, 가장 기억에 남는 한 가지를
-              고르면 좋아! 오늘 친구랑 축구한 것처럼 말이야 :)
-            </Text>
-          </View>
-        </View>
-      ) : (
+      {artConfirmModalVisible && (
+        <ConfirmArtModal isVisible={artConfirmModalVisible} />
+      )}
+      {useDiaryGetArtFetch.isPending && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'또리가 그림을 그리는 중...'}
+        />
+      )}
+      {useDiaryGetArtFetch.isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러 발생'}
+        />
+      )}
+      {useDiaryRedrawImageFetch.isSuccess && (
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <Text
             style={{
@@ -91,11 +143,11 @@ export default function DiaryArtRedrawScreen({route}) {
           </Text>
           <DiaryRedrawArtDisplay
             text={'이전 그림'}
-            onPress={() => TempNavigate()}
+            onPress={() => confirmOldArt()}
           />
           <DiaryRedrawArtDisplay
             text={'새로 그린 그림'}
-            onPress={() => TempNavigate()}
+            onPress={() => confirmNewArt()}
           />
         </View>
       )}
@@ -136,30 +188,63 @@ const DiaryRedrawArtDisplay = props => (
   </View>
 );
 
-const LoadingCharacterImage = () => (
-  <View
-    style={{
-      flex: 3,
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-    <ImageBackground
-      source={require('../../../assets/character/ellipse.png')}
+const ConfirmArtModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
       style={{
-        width: 360,
-        height: 360,
-        justifyContent: 'center',
+        height: height,
         alignItems: 'center',
+        justifyContent: 'center',
       }}>
-      <Image
+      <View
         style={{
-          shadowColor: colors.primary,
-          borderRadius: 120,
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
         }}
-        source={require('../../../assets/character/writing_bear.png')}
       />
-    </ImageBackground>
-  </View>
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`

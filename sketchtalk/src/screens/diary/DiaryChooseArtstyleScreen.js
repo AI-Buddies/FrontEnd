@@ -7,7 +7,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
@@ -16,14 +16,17 @@ const {width, height} = Dimensions.get('window');
 
 const style_list = [
   {style_name: 'pastel', display_name: '파스텔'},
-  {style_name: 'child book', display_name: '동화책'},
+  {style_name: 'childbook', display_name: '동화책'},
   {style_name: 'coolkids', display_name: '쿨키즈'},
 ];
 
-export default function DiaryChooseArtstyleScreen() {
+export default function DiaryChooseArtstyleScreen({route}) {
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryConfirmArtScreen');
+  function TempNavigate(style_name) {
+    navigation.navigate('DiaryConfirmArtScreen', {
+      style_name: style_name,
+      ...route.params,
+    });
   }
   return (
     <Background
@@ -45,7 +48,10 @@ export default function DiaryChooseArtstyleScreen() {
           fadingEdgeLength={100}
           data={style_list}
           renderItem={({item}) => (
-            <MessageItem {...item} onPress={TempNavigate} />
+            <MessageItem
+              {...item}
+              onPress={() => TempNavigate(item.style_name)}
+            />
           )}
           numColumns={2}></FlatList>
       </View>

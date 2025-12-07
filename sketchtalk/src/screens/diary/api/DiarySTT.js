@@ -10,14 +10,10 @@ import {
 } from 'microsoft-cognitiveservices-speech-sdk';
 import {LogBox} from 'react-native';
 import LiveAudioStream from 'react-native-live-audio-stream';
+import {key, region, language} from './DiaryAzure';
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
 
 // 녹음 기능
-//CHANGE THESE VALUES
-// todo: find a way to securely keep these values
-const key = '';
-const region = '';
-const language = 'ko-KR';
 
 //Settings for the audio stream
 //tuned to documentation at https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/how-to-use-audio-input-streams
@@ -70,7 +66,7 @@ const checkPermissions = async () => {
 };
 
 //sets up speechrecognizer and audio stream
-export const initializeAudio = async () => {
+export const initializeAudio = async callback => {
   await checkPermissions();
   if (!initializedCorrectly) {
     //creates a push stream system which allows new data to be pushed to the recognizer
@@ -117,6 +113,7 @@ export const initializeAudio = async () => {
         //The final result of the recognition with punctuation
         console.log(`RECOGNIZED: Text=${e.result.text}`);
         console.log(e.result);
+        callback(e.result.text);
       };
       recognizer.startContinuousRecognitionAsync(
         () => {

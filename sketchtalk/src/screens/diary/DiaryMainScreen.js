@@ -13,12 +13,14 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Loader from 'react-native-three-dots-loader';
+import ConfirmButton from '../../components/confirmbutton';
 //stt tts
 import {initializeAudio, stopAudio} from './api/DiarySTT';
 import {synthesizeSpeech} from './api/DiaryTTS';
 //api
-import {useDiaryChatFetch} from './api/DiaryFetch';
-import {useDiaryInitialFetch} from './api/DiaryFetch';
+import axios from 'axios';
+import {useMutation} from '@tanstack/react-query';
+
 const {width, height} = Dimensions.get('window');
 const dummyData = [];
 
@@ -32,6 +34,7 @@ export default function DiaryMainScreen() {
   //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
   const [userDialog, setUserDialog] = useState('');
   const [isWaitingReply, setIsWaitingReply] = useState(false);
+  const [isSufficient, setIsSufficient] = useState(false);
   useEffect(() => {
     //AddMessage(initdata.data.reply, true);
     dummyData.length = 0; //clear array
@@ -70,18 +73,47 @@ export default function DiaryMainScreen() {
     });
   }
 
-  function FetchMessage() {
+  const ls = require('local-storage');
+  const useDiaryChatFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onMutate: () => {
+      setIsWaitingReply(true);
+      setUserDialog('');
+      AddWaitingMessage();
+    },
+    onSuccess: data => {
+      AddFetchedMessage(data.data.data.reply);
+      if (data.data.data.isSufficient) {
+        setIsSufficient(true);
+      }
+      setIsWaitingReply(false);
+    },
+    onError: error => {
+      console.warn('useDiaryChatFetch ' + error.message);
+      AddFetchedMessage('오류');
+      setIsWaitingReply(false);
+    },
+  });
+
+  function FetchMessage(userDialog) {
     if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
+    useDiaryChatFetch.mutate({dialog: userDialog});
     AddUserMessage(userDialog, false);
-    setUserDialog('');
-    setIsWaitingReply(true);
-    //const {data, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
-    //if (!isLoading) setIsWaitingReply(false);
-    AddWaitingMessage();
+    //the rest is handled by useDiaryChatFetch
+    /*AddWaitingMessage();
     setTimeout(() => {
       setIsWaitingReply(false);
       AddFetchedMessage('답변이야 답변이야 답변이야');
-    }, 10000);
+    }, 10000);*/
 
     //AddMessage(data.data.reply, true);
   }
@@ -99,15 +131,31 @@ export default function DiaryMainScreen() {
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton
-        //onPressIn={initializeAudio}
-        onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
-      />
+      {!isSufficient ? (
+        <MicButton
+          //onPressIn={() => initializeAudio(FetchMessage)}
+          onPress={TempNavigate}
+          isWaitingReply={isWaitingReply}
+          isSufficient={isSufficient}
+          useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
+          //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
+        />
+      ) : (
+        <View style={{flex: 1.5}}>
+          <ConfirmButton
+            color={colors.primary}
+            text="일기 생성"
+            width={200}
+            onPress={TempNavigate}
+          />
+        </View>
+      )}
       <TextBar
-        onPress={() => FetchMessage()}
-        value={isWaitingReply ? '' : userDialog}
-        onChangeText={!isWaitingReply && setUserDialog}
+        onPress={() => FetchMessage(userDialog)}
+        value={isWaitingReply || isSufficient ? '' : userDialog}
+        onChangeText={!isWaitingReply && !isSufficient && setUserDialog}
         isWaitingReply={isWaitingReply}
+        isSufficient={isSufficient}
       />
     </Background>
   );
@@ -144,7 +192,8 @@ const MicButton = props => (
     <Pressable
       onPress={props.onPress}
       onPressIn={props.onPressIn}
-      //onPressOut={props.onPressOut}
+      disabled={props.isWaitingReply || props.isSufficient}
+      //disabled={props.useDiaryChatFetch_isPending}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -188,7 +237,8 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      {!props.isWaitingReply ? (
+      {/*{!props.useDiaryChatFetch_isPending ? (*/}
+      {!props.isWaitingReply && !props.isSufficient ? (
         <TextInput
           value={props.value}
           onChangeText={props.onChangeText}
@@ -219,6 +269,7 @@ const TextBar = props => (
           alignItems: 'center',
           justifyContent: 'center',
         }}
+        disabled={props.isWaitingReply || props.isSufficient}
         onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>

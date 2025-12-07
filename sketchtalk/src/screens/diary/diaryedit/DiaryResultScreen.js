@@ -6,14 +6,16 @@ import {
   Image,
   Pressable,
   PermissionsAndroid,
-  Platform,
+  BackHandler,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import colors from '../../../constants/colors';
 import styled from 'styled-components';
-import {useNavigation} from '@react-navigation/native';
+import {DiaryLoadingScreen} from '../component/DiaryLoadingScreen';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import CommentText from '../../../components/commenttext';
 import ConfirmButton from '../../../components/confirmbutton';
 import Modal from 'react-native-modal';
@@ -22,17 +24,46 @@ import AchievementRow from '../../../components/achievementrow';
 import CommentTextDownload from '../../../components/commenttextdownload';
 import ViewShot from 'react-native-view-shot';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
-const diaryDummyData = {
-  title: '축구하다가 넘어졌지만 재밌었어!',
-  content:
-    '오늘 학교에서 친구들이랑 운동장에서 축구를 했다. 나는 열심히 뛰다가 그만 넘어져서 무릎이 좀 아팠다. 그래도 친구들이 걱정해줘서 기분이 좋았고, 계속 같이 놀았다. 골은 못 넣었지만 친구들이랑 뛰어다니는 게 너무 재미있었다. 내일도 또 축구하고 싶다!',
-};
+function getEmoticon(emotion) {
+  if (emotion.localeCompare('happy')) {
+    return require('../../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion.localeCompare('amazed')) {
+    return require('../../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion.localeCompare('sad')) {
+    return require('../../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion.localeCompare('angry')) {
+    return require('../../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion.localeCompare('anxiety')) {
+    return require('../../../assets/emotions/emotion_anxiety.png');
+  }
+}
 
-const commentDummyData =
-  '와~ 다쳐도 즐겁게 놀다니, 너 정말 멋지구나! 내일은 꼭 골도 넣어보자! ⚽😊';
+function getEmotionDownloadBackground(emotion) {
+  if (emotion.localeCompare('happy')) {
+    return require('../../../assets/background/diary_bg_happy.png');
+  }
+  if (emotion.localeCompare('amazed')) {
+    return require('../../../assets/background/diary_bg_amazed.png');
+  }
+  if (emotion.localeCompare('sad')) {
+    return require('../../../assets/background/diary_bg_sad.png');
+  }
+  if (emotion.localeCompare('angry')) {
+    return require('../../../assets/background/diary_bg_angry.png');
+  }
+  if (emotion.localeCompare('anxiety')) {
+    return require('../../../assets/background/diary_bg_anxiety.png');
+  }
+}
 
 const achievementDummyData = [
   {title: '축구', description: '축구가 언급되는 일기 작성'},
@@ -41,7 +72,70 @@ const achievementDummyData = [
 ];
 
 export default function DiaryResultScreen({route}) {
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
+  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
+  const [downloadEventModalVisible, setDownloadEventModalVisible] =
+    useState(false);
+  //0: not downloading
+  //1: downloading
+  //2: download complete
+  //3: download failed
+  const [downloadStatus, setDownloadStatus] = useState(0);
+  const [achievementIndex, setAchievementIndex] = useState(0);
+  const captureRef = useRef();
   const navigation = useNavigation();
+
+  //API 연결
+
+  /*const {isPending, isError, data, error} =
+    !isCalendar && confirmArt
+      ? useDiaryConfirmArtFetch(diaryId, image_url)
+      : useDiaryViewQueryFetch(diaryId);*/
+  const {isCalendar, diaryId, image_url, confirmArt} = route.params;
+  //const {isPending, isError, data, error} = useDiaryViewQueryFetch(diaryId);
+
+  //뒤로가기
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        isCalendar ? TempNavigateToCalendar() : TempNavigateToHome();
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, []),
+  );
+
+  //일기 보기
+  const ls = require('local-storage');
+  const useDiaryViewQueryFetch = useMutation({
+    mutationFn: diaryId => {
+      const token = ls('token');
+      return axios.get(`https://sketch-talk.com/diary/${diaryId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryView ' + error);
+    },
+    onSuccess: data => {
+      console.log(data.data.data);
+    },
+  });
+
+  useEffect(() => {
+    useDiaryViewQueryFetch.mutate(diaryId);
+  }, []);
+
   function TempNavigateToHome() {
     navigation.navigate('TabNavigator');
   }
@@ -52,23 +146,17 @@ export default function DiaryResultScreen({route}) {
     });
   }
   function TempNavigateToEditScreen() {
-    navigation.navigate('DiaryEditScreen', {...route.params});
+    navigation.navigate('DiaryEditScreen', {
+      diaryId: useDiaryViewQueryFetch.data.data.data.diaryId,
+      date: useDiaryViewQueryFetch.data.data.data.date,
+      title: useDiaryViewQueryFetch.data.data.data.title,
+      content: useDiaryViewQueryFetch.data.data.data.content,
+      emotion: useDiaryViewQueryFetch.data.data.data.emotion,
+      ...route.params,
+    });
   }
-  const [tutorialModalVisible, setTutorialModalVisible] = useState(true);
-  const [achievementModalVisible, setAchievementModalVisible] = useState(false);
-  const [downloadEventModalVisible, setDownloadEventModalVisible] =
-    useState(false);
-  //0: not downloading
-  //1: downloading
-  //2: download complete
-  //3: download failed
-  const [downloadStatus, setDownloadStatus] = useState(0);
-  const [achievementIndex, setAchievementIndex] = useState(0);
-  const {diaryDate, isCalendar} = route.params;
 
   // 다운로드 기능
-
-  const captureRef = useRef();
 
   const getPhotoUri = async () => {
     const uri = await captureRef.current.capture();
@@ -101,62 +189,101 @@ export default function DiaryResultScreen({route}) {
     <Background
       source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <DiaryDisplay
-        item={diaryDummyData}
-        date={diaryDate}
-        editOnPress={TempNavigateToEditScreen}
-        downloadOnPress={downloadDiary}
-        showTutorial={tutorialModalVisible}
-        tutorialOnPress={() => setTutorialModalVisible(false)}
-      />
-      <CharacterCommentDisplay
-        onPress={isCalendar ? TempNavigateToCalendar : TempNavigateToHome}
-        isCalendar={isCalendar}
-      />
-      {achievementDummyData !== undefined && (
-        <AchievementModal
-          isVisible={achievementModalVisible}
-          achievementIndex={achievementIndex}
-          onBackdropPress={() => {
-            achievementDummyData[achievementIndex + 1] !== undefined
-              ? setAchievementIndex(achievementIndex + 1)
-              : setAchievementModalVisible(false);
-          }}
+      {useDiaryViewQueryFetch.isPending && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'또리가 일기를 불러오는 중...'}
         />
       )}
-      <ViewShot
-        ref={captureRef}
-        options={{
-          fileName: moment(diaryDate)
-            .format('YYYY[년] M[월] D[일] [그림일기]')
-            .toString(),
-          format: 'png',
-          quality: 0.9,
-        }}
-        style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
-        <Background
-          source={require('../../../assets/background/diary_bg_happy.png')}
-          resizeMode="contain">
-          <View
-            style={{
-              width: width * 0.8,
-              marginLeft: 25,
-              flex: 1,
-            }}>
-            <DownloadDiaryDisplay item={diaryDummyData} date={diaryDate} />
-            <DownloadCharacterCommentDisplay />
-          </View>
-        </Background>
-      </ViewShot>
-      {downloadEventModalVisible && (
-        <DownloadEventModal
-          isVisible={downloadEventModalVisible}
-          downloadStatus={downloadStatus}
-          confirmOnPress={() => {
-            setDownloadEventModalVisible(false);
-            setDownloadStatus(0);
-          }}
+      {useDiaryViewQueryFetch.isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러가 발생했어요!'}
         />
+      )}
+      {useDiaryViewQueryFetch.isSuccess && (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <DiaryDisplay
+            item={useDiaryViewQueryFetch.data.data.data}
+            date={useDiaryViewQueryFetch.data.data.data.date}
+            emoticon={getEmoticon(
+              useDiaryViewQueryFetch.data.data.data.emotion,
+            )}
+            imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
+            editOnPress={() => TempNavigateToEditScreen()}
+            downloadOnPress={() => downloadDiary()}
+            showTutorial={tutorialModalVisible}
+            tutorialOnPress={() => setTutorialModalVisible(false)}
+          />
+          <CharacterCommentDisplay
+            commentText={useDiaryViewQueryFetch.data.data.data.comment}
+            onPress={isCalendar =>
+              isCalendar ? TempNavigateToCalendar() : TempNavigateToHome()
+            }
+            isCalendar={isCalendar}
+          />
+          {useDiaryViewQueryFetch.data.data.data.achievedResult !==
+            undefined && (
+            <AchievementModal
+              isVisible={achievementModalVisible}
+              achievementIndex={achievementIndex}
+              onBackdropPress={() => {
+                useDiaryViewQueryFetch.data.data.data.achievedResult[
+                  achievementIndex + 1
+                ] !== undefined
+                  ? setAchievementIndex(achievementIndex + 1)
+                  : setAchievementModalVisible(false);
+              }}
+            />
+          )}
+          <ViewShot
+            ref={captureRef}
+            options={{
+              fileName: moment(useDiaryViewQueryFetch.data.data.data.date)
+                .format('YYYY[년] M[월] D[일] [그림일기]')
+                .toString(),
+              format: 'png',
+              quality: 0.9,
+            }}
+            style={{position: 'absolute', marginTop: 2000, marginRight: 0}}>
+            <Background
+              source={getEmotionDownloadBackground(
+                useDiaryViewQueryFetch.data.data.data.emotion,
+              )}
+              resizeMode="contain">
+              <View
+                style={{
+                  width: width * 0.8,
+                  marginLeft: 25,
+                  flex: 1,
+                }}>
+                <DownloadDiaryDisplay
+                  item={useDiaryViewQueryFetch.data.data.data}
+                  date={useDiaryViewQueryFetch.data.data.data.date}
+                  emoticon={getEmoticon(
+                    useDiaryViewQueryFetch.data.data.data.emotion,
+                  )}
+                  imageUrl={useDiaryViewQueryFetch.data.data.data.imageUrl}
+                />
+                <DownloadCharacterCommentDisplay
+                  commentText={useDiaryViewQueryFetch.data.data.data.comment}
+                />
+              </View>
+            </Background>
+          </ViewShot>
+          {downloadEventModalVisible && (
+            <DownloadEventModal
+              isVisible={downloadEventModalVisible}
+              downloadStatus={downloadStatus}
+              confirmOnPress={() => {
+                setDownloadEventModalVisible(false);
+                setDownloadStatus(0);
+              }}
+            />
+          )}
+        </View>
       )}
     </Background>
   );
@@ -165,7 +292,7 @@ export default function DiaryResultScreen({route}) {
 const AchievementModal = props => (
   <Modal
     isVisible={props.isVisible}
-    statusBarTranslucent={true}
+    statusBarTranslucent={false}
     backdropOpacity={0.9}
     animationInTiming={600}
     animationOutTiming={1}
@@ -232,8 +359,7 @@ const CharacterCommentDisplay = props => (
         }}
         source={require('../../../assets/character/comment_bear.png')}
       />
-
-      <CommentText flex={2} text={commentDummyData} width={width} />
+      <CommentText flex={2} text={props.commentText} width={width} />
     </View>
 
     <ConfirmButton
@@ -290,7 +416,7 @@ const DownloadCharacterCommentDisplay = props => (
       </View>
       <CommentTextDownload
         flex={2}
-        text={commentDummyData}
+        text={props.commentText}
         width={width * 0.75}
         height={120}
       />
@@ -328,9 +454,11 @@ const DiaryDisplay = props => (
       <DiaryDisplayHeader
         editOnPress={props.editOnPress}
         downloadOnPress={props.downloadOnPress}
+        emoticon={props.emoticon}
         date={props.date}
       />
       <DiaryArtDisplay
+        imageUrl={props.imageUrl}
         tutorialOnPress={props.tutorialOnPress}
         showTutorial={props.showTutorial}
       />
@@ -391,7 +519,7 @@ const DownloadDiaryDisplay = props => (
                 height: 35,
               }}
               resizeMode="contain"
-              source={require('../../../assets/emotions/emotion_happy.png')}
+              source={props.emoticon}
             />
           </View>
         </View>
@@ -406,7 +534,8 @@ const DownloadDiaryDisplay = props => (
         }}>
         <Image
           style={{width: 270, height: 180}}
-          source={require('../../../assets/soccer_diary2.png')}
+          resizeMode="contain"
+          source={{uri: props.imageUrl}}
         />
         {props.showTutorial && (
           <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
@@ -492,7 +621,7 @@ const DiaryDisplayHeader = props => (
             height: 50,
           }}
           resizeMode="contain"
-          source={require('../../../assets/emotions/emotion_happy.png')}
+          source={props.emoticon}
         />
       </View>
     </View>
@@ -525,8 +654,10 @@ const DiaryArtDisplay = props => (
       borderBottomWidth: 1,
     }}>
     <Image
-      style={{width: width * 0.9}}
-      source={require('../../../assets/soccer_diary2.png')}
+      style={{width: width * 0.9, height: 220}}
+      //resizeMode="contain"
+      source={{uri: props.imageUrl}}
+      //source={{uri: 'https://reactnative.dev/img/tiny_logo.png'}}
     />
     {props.showTutorial && (
       <ButtonTutorialPopup tutorialOnPress={props.tutorialOnPress} />
@@ -700,6 +831,9 @@ const DownloadEventModal = props => (
             {props.downloadStatus === 3 && '저장장치 권한을 허용해 주세요.'}
           </Text>
           <View style={{flex: 1, flexDirection: 'row'}}>
+            {props.downloadStatus === 1 && (
+              <ActivityIndicator size="large" color={colors.primary} />
+            )}
             {props.downloadStatus !== 1 && (
               <ConfirmButton
                 color={colors.primary}
