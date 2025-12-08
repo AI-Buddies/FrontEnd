@@ -78,20 +78,6 @@ export async function deleteUser() {
   await clearTokens();
 }
 
-/*
-// 회원정보 수정
-export async function updateUser(body) {
-  // body = { loginId, password, nickname, birthdate }
-  const res = await client.put('/user', body);
-  const { data, isSuccess, message } = res.data;
-
-  if (!isSuccess) {
-    throw new Error(message || '회원 정보를 수정하지 못했습니다.');
-  }
-
-  return data;
-}
-*/
 export async function updateUser(body) {
   try {
     console.log('🔵 updateUser 요청 body:', body);

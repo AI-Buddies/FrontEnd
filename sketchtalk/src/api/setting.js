@@ -1,5 +1,16 @@
 import client from './client';
 
+export async function getUserInfo(){
+  const res = await client.get('/setting');
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '유저 정보를 불러오지 못했습니다.');
+  }
+
+  return data;
+}
+
 export async function getAppInfo() {
   const res = await client.get('/setting/appinfo');
   const { data, isSuccess, message } = res.data;
@@ -19,9 +30,19 @@ export async function getQuestionList() {
     throw new Error(message || '문의 목록을 불러오지 못했습니다.');
   }
 
-  // data.list = [{ question, answer }, ...]
   return data.list || [];    
 
+}
+
+export async function updateBaseNotificationSetting(body) {
+  const res = await client.put('/setting', body);
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '기본 알림 설정 변경에 실패했습니다.');
+  }
+
+  return data;
 }
 
 export async function getPastNotificationSetting() {
@@ -47,7 +68,7 @@ export async function updatePastNotificationSetting(body) {
 }
 
 export async function getWriteNotificationSetting() {
-  const res = await client.get('/setting/notification/write');
+  const res = await client.get('/setting/notification/post');
   const { data, isSuccess, message } = res.data;
 
   if (!isSuccess) {
@@ -58,7 +79,7 @@ export async function getWriteNotificationSetting() {
 }
 
 export async function updateWriteNotificationSetting(body) {
-  const res = await client.put('/setting/notification/write', body);
+  const res = await client.put('/setting/notification/post', body);
   const { data, isSuccess, message } = res.data;
 
   if (!isSuccess) {

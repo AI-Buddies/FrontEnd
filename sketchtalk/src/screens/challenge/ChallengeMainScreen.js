@@ -5,30 +5,12 @@ import colors from '../../constants/colors';
 import ChallengeTask from '../../components/challengeTask';
 import { useQuery } from '@tanstack/react-query';
 import { getAchievementList } from '../../api/challenge';
+import { getCategoryImage } from '../../constants/challengeIcon';
 
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 const GAP = 20;
 const CARD_W = (width - GAP * 3) / 2;
-
-function getCategoryImage(categoryName) {
-  switch (categoryName) {
-    case '가족':
-      return require('../../assets/challenge/family.png');
-    case '놀이터':
-      return require('../../assets/challenge/playground.png');
-    case '운동':
-      return require('../../assets/challenge/ball.png');
-    case '유치원':
-      return require('../../assets/challenge/kindergarten.png');
-    case '여가생활':
-      return require('../../assets/challenge/leisure.png');
-    case '명절':
-      return require('../../assets/challenge/holiday.png');
-    default:
-      return require('../../assets/challenge/etc.png');
-  }
-}
 
 export default function ChallengeMainScreen({navigation}) {
   const [filter, setFilter] = useState('all');
@@ -46,7 +28,7 @@ export default function ChallengeMainScreen({navigation}) {
   const renderItem = ({item}) => (
     <ChallengeTask
       title={item.categoryName}
-      image={getCategoryImage(item.categoryName)}
+      image={getCategoryImage(item.categoryName || detail?.item.categoryName)}
       done={item.completed}
       total={item.total}
       completed={item.isCompleted}

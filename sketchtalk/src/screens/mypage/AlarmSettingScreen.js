@@ -1,27 +1,38 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { ImageBackground, Dimensions, StyleSheet, View, Text, Pressable, StatusBar, Platform, FlatList, LayoutAnimation } from 'react-native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MypageField from '../../components/mypagefield';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  getPastNotificationSetting,
-  updatePastNotificationSetting,
-  getWriteNotificationSetting,
-  updateWriteNotificationSetting,
+    getUserInfo,
+    updateBaseNotificationSetting,
+    getPastNotificationSetting,
+    updatePastNotificationSetting,
+    getWriteNotificationSetting,
+    updateWriteNotificationSetting,
 } from '../../api/setting';
 
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
 const ALARM_ITEMS = [
-    {id: 'all', text : '전체 알람'},
+    {id: 'all', text : '전체 알림'},
     {id: 'past', text : '과거 알림'},
     {id: 'write', text : '작성 알림'},
 ]
 
 export default function AlarmSettingScreen({ navigation }) {
     const queryClient = useQueryClient();
+
+    const {
+        data: baseData,
+        isLoading : baseLoading,
+        isError : baseError,
+    } = useQuery({
+        queryKey: ['notification', 'base'],
+        queryFn: getUserInfo,
+    });
 
     const {
         data: pastData,
@@ -41,8 +52,15 @@ export default function AlarmSettingScreen({ navigation }) {
         queryFn: getWriteNotificationSetting,
     });
 
-    const loading = pastLoading || writeLoading;
-    const error = pastError || writeError;
+    const loading = baseLoading || pastLoading || writeLoading;
+    const error = baseError || pastError || writeError;
+
+    const baseMutation = useMutation({
+        mutationFn: updateBaseNotificationSetting,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['notification', 'base'] });
+        },
+    });
 
     const pastMutation = useMutation({
         mutationFn: updatePastNotificationSetting,
@@ -58,45 +76,62 @@ export default function AlarmSettingScreen({ navigation }) {
         },
     });
 
-    const isMutating = pastMutation.isPending || writeMutation.isPending;
+    const isMutating = baseMutation.isPending ||pastMutation.isPending || writeMutation.isPending;
 
+    const allOn = baseData?.canAlarm ?? false;
     const pastOn = pastData?.canNotify ?? false;
     const writeOn = writeData?.canNotify ?? false;
-    const allOn = pastOn && writeOn;
 
     const handleToggle = (id, value) => {
-        if (loading || isMutating || !pastData || !writeData) return;
+        if (loading || isMutating) return;
 
-        if(id ==='all'){
-            pastMutation.mutate({
-                canNotify: value,
-                notificationTime: pastData.notificationTime,
-                notificationValue: pastData.notificationValue,
-                notificationUnit: pastData.notificationUnit,
-            });
-            writeMutation.mutate({
-                canNotify: value,
-                notificationTime: writeData.notificationTime,
-                notificationUnit: writeData.notificationUnit,
-            });
+        if (id === 'all') {
+        if (!pastData || !writeData){
+            baseMutation.mutate({ canAlarm: value });
             return;
         }
-        if(id ==='past'){
-            pastMutation.mutate({
-                canNotify: value,
-                notificationTime: pastData.notificationTime,
-                notificationValue: pastData.notificationValue,
-                notificationUnit: pastData.notificationUnit,
-            });
-            return;
+        baseMutation.mutate(
+            { canAlarm: value },
+            {
+                onSuccess: () => {
+                    pastMutation.mutate({
+                        canNotify: value,
+                        notificationTime: "23:00",
+                        notificationValue: 1,
+                        notificationUnit: "DAY",
+                    });
+                    writeMutation.mutate({
+                            canNotify: value,
+                            notificationTime: "20:00",
+                            notificationUnit: "DAY",
+                    });
+                },
+            },
+        );
+        return;
         }
-        if(id ==='write'){
-            writeMutation.mutate({
-                canNotify: value,
-                notificationTime: writeData.notificationTime,
-                notificationUnit: writeData.notificationUnit,
-            });
-            return;
+
+        if (id === 'past') {
+        if (!pastData) return;
+
+        pastMutation.mutate({
+            canNotify: value,
+            notificationTime: "23:00",
+            notificationValue: 1,
+            notificationUnit:  "DAY",
+        });
+        return;
+        }
+
+        if (id === 'write') {
+        if (!writeData) return;
+
+        writeMutation.mutate({
+            canNotify: value,
+            notificationTime: "20:00",
+            notificationUnit: "DAY",
+        });
+        return;
         }
     };
    
@@ -125,7 +160,7 @@ export default function AlarmSettingScreen({ navigation }) {
             )}      
             {error && !loading && (
                 <View>
-                    <Text>알람 설정 못 불러옴</Text>
+                    <Text>알람 설정을 불러오지 못했습니다.</Text>
                 </View>
             )}
             {!loading && !error && (
@@ -139,14 +174,15 @@ export default function AlarmSettingScreen({ navigation }) {
                     if(item.id === 'past') value = pastOn;
                     if(item.id === 'write') value = writeOn;
 
-                    <MypageField
-                        text={item.text}
-                        pressable={false}
-                        rightType="switch"
-                        switchValue={value}
-                        onPress={(v) => handleToggle(item.id, v)}
-                        disabled={isMutating}
-                    />
+                    return(
+                        <MypageField
+                            text={item.text}
+                            pressable={false}
+                            rightType="switch"
+                            switchValue={value}
+                            onPress={(v) => handleToggle(item.id, v)}
+                            disabled={isMutating}
+                        />)
                 }} 
             />)}
         </View>

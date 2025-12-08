@@ -14,6 +14,7 @@ export default function SignupScreen({ navigation }){
   const [passwordCheck, setPasswordCheck] = useState('');
 
   const [idCheckOpen, setIdCheckOpen] = useState(false);
+  const [idOpen, setIdOpen] = useState(false);
   const [idChecker, setIDchecker] = useState(false);
   const [idCheckStatus, setIdCheckStatus] = useState(''); // 'error' | 'success'
   const [idCheckMsg, setIdCheckMsg] = useState('');
@@ -81,12 +82,9 @@ export default function SignupScreen({ navigation }){
     if (!pwSame)  return setIdCheckOpen(true);
 
     if (idCheckStatus !== 'success'){
-      /* 중복확인 안했거나 실패한 상태
       setIdCheckStatus('error');
-      setIdChecker(true);
-      setIdCheckOpen(true);
+      setIdOpen(true);
       return;
-      */
     }
 
     navigation.navigate('SignupInfo', {
@@ -100,67 +98,76 @@ export default function SignupScreen({ navigation }){
     flatRef.current?.scrollToIndex?.({index, animated: true});
   };
 
+  const listData = [{ key: 'content' }];
+
+  const renderContent = () => (
+    <View style={styles.container}>
+      <Image
+        source={require('../../assets/main_logo.png')}
+        style={styles.logo}
+      />
+
+      <View style={styles.signupCard}>
+        <Text style={styles.title}>회원가입</Text>
+
+        <InputField
+          label="아이디"
+          placeholder="아이디"
+          value={id}
+          onChangeText={(t) => {
+            setId(t);
+            setIDchecker(false);
+            setIdCheckStatus('');
+            setIdCheckMsg('');
+          }}
+          keyboardType="ascii-capable"
+          rightButtonText="중복확인"
+          onRightPress={checking ? undefined : checkID}
+          helperVisible={idChecker}
+          helperStatus={idCheckStatus || 'default'}
+          helperText={idCheckMsg}
+        />
+
+        <InputField
+          label="비밀번호"
+          placeholder="비밀번호"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          helperVisible={!!password && !pwValid}
+          helperStatus="error"
+          helperText="6자 이상 입력해주세요."
+        />
+
+        <InputField
+          label="비밀번호 확인"
+          placeholder="비밀번호"
+          value={passwordCheck}
+          onChangeText={setPasswordCheck}
+          secureTextEntry
+          helperVisible={!!passwordCheck && !pwSame}
+          helperStatus="error"
+          helperText="비밀번호가 일치하지 않습니다."
+        />
+      </View>
+    </View>
+  );
+
     return(
         <SafeAreaView style={{flex: 1}}>
           <ImageBackground source={require('../../assets/background/yellow_bg.png')}
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
-
-            <View style={styles.container}>
-              <Image
-                source={require('../../assets/main_logo.png')}
-                style={styles.logo}/>
-
-            <View style={styles.signupCard}>
-            <Text style={styles.title}>회원가입</Text>
-
-            {/* 아이디 중복확인 */}
-            <InputField
-              label="아이디"
-              placeholder="아이디"
-              value={id}
-              onChangeText={(t) => {
-                setId(t);
-                setIDchecker(false);
-                setIdCheckStatus('');
-                setIdCheckMsg('');
-              }}
-              keyboardType="ascii-capable"
-              rightButtonText="중복확인"
-              onRightPress={checking? undefined : checkID}
-              helperVisible={idChecker}
-              helperStatus={idCheckStatus || 'default'} // 'error' | 'success' | 'default'
-              helperText= {idCheckMsg}
-              onFocus={() => focusScrollTo(0)}
+            
+            <FlatList
+              data={listData}
+              keyExtractor={(item) => item.key}
+              renderItem={renderContent}
+              contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
             />
-
-            <InputField
-              label="비밀번호"
-              placeholder="비밀번호"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              helperVisible={!!password && !pwValid}
-              helperStatus="error"
-              helperText="6자 이상 입력해주세요."              
-              onFocus={() => focusScrollTo(1)}
-            />
-            <InputField
-              label="비밀번호 확인"
-              placeholder="비밀번호"
-              value={passwordCheck}
-              onChangeText={setPasswordCheck}
-              secureTextEntry
-              helperVisible={!!passwordCheck && !pwSame}
-              helperStatus="error"
-              helperText="비밀번호가 일치하지 않습니다."
-              onFocus={() => focusScrollTo(2)}
-            />
-
-              </View>
-            </View>
-
-          <View style={styles.button}>
+            
+            <View style={styles.button}>
               <ConfirmButton
                 text = "다음"
                 color = {colors.primary}
@@ -179,6 +186,16 @@ export default function SignupScreen({ navigation }){
             text: '확인',
             variant: 'primary',
             onPress: () => setIdCheckOpen(false),
+            }}
+          />
+          <Popup
+            visible={idOpen}
+            message="아이디를 확인해주세요."
+            onClose={() => setIdOpen(false)}
+            primary={{
+            text: '확인',
+            variant: 'primary',
+            onPress: () => setIdOpen(false),
             }}
           />
           </ImageBackground>
@@ -227,5 +244,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 20,
     elevation: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    allignItems: 'center',
+    paddingBottom: 200,
   },
 });

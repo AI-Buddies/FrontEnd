@@ -3,20 +3,12 @@ import {View, Text, Image, ImageBackground, Dimensions, StyleSheet, FlatList, Pr
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ChallengeList from '../../components/challengelist';
+import { getCategoryImage } from '../../constants/challengeIcon';
 import { useQuery } from '@tanstack/react-query';
 import { getAchievementDetail } from '../../api/challenge';
 
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
-
-function getCategoryImage(categoryName) {
-  switch (categoryName) {
-    case '축구':
-      return require('../../assets/challenge/ball.png');
-    default:
-      return require('../../assets/challenge/etc.png');
-  }
-}
 
 export default function ChallengeInfo({navigation, route}) {
     const { categoryId, categoryName } = route.params || {};
@@ -35,13 +27,11 @@ export default function ChallengeInfo({navigation, route}) {
         queryFn: () => getAchievementDetail(safeCategoryId, filter),
     });
 
-    const categoryImage = getCategoryImage(categoryName || detail?.categoryName);
-
     const renderItem = ({item}) => (
         <ChallengeList
             title={item.subName}
             subtitle={`'${item.subName}' 언급되는 일기 생성`}
-            image={categoryImage}
+            image={getCategoryImage(item.subName || detail?.item.subName)}
             completed={item.completed}
         />
     );

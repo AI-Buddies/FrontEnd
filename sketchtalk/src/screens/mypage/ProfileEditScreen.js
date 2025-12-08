@@ -5,28 +5,15 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import InputField from '../../components/inputfield';
 import ConfirmButton from '../../components/confirmbutton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import client from '../../api/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateUser } from '../../api/auth';
+import { getUserInfo } from '../../api/setting';
 import Popup from '../../components/popup';
-import axios from 'axios';
-
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
 const ITEM_HEIGHT = 100;    // 각 아이템(라벨+인풋)의 고정 높이 추정치
 const GAP = 15;
-
-async function fetchProfile() {
-    const res = await client.get('/setting');
-    const { data, isSuccess, message } = res.data;
-
-    if(!isSuccess){
-        throw new Error(message || '회원 정보를 불러오지 못했습니다.');
-    }
-
-    return data;
-}
 
 export default function ProfileEditScreen({ navigation }) {
     const queryClient = useQueryClient();
@@ -36,21 +23,14 @@ export default function ProfileEditScreen({ navigation }) {
     const [birthRaw, setBirthRaw] = useState('');
     const [pickerDate, setPickerDate] = useState(new Date(2000,1,1));
     const [showPicker, setShowPicker] = useState(false);
-    const [id, setId] = useState('');
     const [password, setPassword] = useState('');
     const [pwCheck, setPwCheck] = useState('');
-
-    const [idChecker, setIDchecker] = useState(false);
-    const [idCheckStatus, setIdCheckStatus] = useState(''); // 'error' | 'success'
-    const [idCheckMsg, setIdCheckMsg] = useState('');
-    const [checking, setChecking] = useState(false);  
 
     const [errorOpen, setErrorOpen] = useState(false);
     const [cautionOpen, setCautionOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [confirmOpen, setConfirmOpen] = useState(false);
 
-    const idValid = useMemo(() => id.trim().length >= 4, [id]);
     const pwSame  = useMemo(() => (
         password && pwCheck && password === pwCheck
     ), [password, pwCheck]);
@@ -61,14 +41,13 @@ export default function ProfileEditScreen({ navigation }) {
         error,
     } = useQuery({
         queryKey: ['setting'],
-        queryFn: fetchProfile,
+        queryFn: getUserInfo,
     });
 
     useEffect(() => {
         if (!profile) return;
 
         setName(profile.nickname || '');
-        setId(profile.loginId || '');
 
         if (profile.birthdate) {
             setBirthRaw(profile.birthdate);
@@ -94,53 +73,7 @@ export default function ProfileEditScreen({ navigation }) {
     
         if (Platform.OS === 'android') setShowPicker(false);
     }
-    const checkID = async () => {
-        if(!idValid){
-        setIDchecker(true);
-        setIdCheckOpen(true);
-        setIdCheckStatus('error');
-        setIdCheckMsg('4자 이상 입력해주세요.');
-        return;
-        }
 
-        try {
-        setChecking(true);
-
-        const res = await axios.get('https://sketch-talk.com/user/id/availability', {
-            params: {
-            loginId: id.trim(),
-            },
-            headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            },
-        });
-
-        const { isSuccess, message, data } = res?.data ?? {};
-        if (!isSuccess) throw new Error(message || '중복확인 실패');
-
-        const available = data?.isAvailable ?? false;
-
-        setIDchecker(true);
-
-        if (available) {
-            setIdCheckStatus('success');
-            setIdCheckMsg('사용 가능한 아이디입니다.');
-        } else {
-            setIdCheckStatus('error');
-            setIdCheckMsg('이미 사용중인 아이디입니다.');
-        }
-
-        } catch (e) {
-        console.log('ID CHECK ERROR:', e?.response?.data || e.message || e);
-
-        setIDchecker(true);
-        setIdCheckStatus('error');
-        setIdCheckMsg('중복확인 중 오류 발생');
-        } finally {
-        setChecking(false);
-        }
-    };
 
     const updateMutation = useMutation({
         mutationFn: updateUser,
@@ -155,17 +88,16 @@ export default function ProfileEditScreen({ navigation }) {
     });
 
     const onSave = () => {
-        if (!name || !id || !birthRaw || !password || !pwCheck) {
+        if (!name || !birthRaw || !password || !pwCheck) {
             setCautionOpen(true);
             return;
         }
-        if (!idValid || !pwSame || idCheckStatus !== 'success') {
+        if (!pwSame) {
             setCautionOpen(true);
             return;
         }
 
         const body = {
-            loginId: id,
             password: password,
             nickname: name,
             birthdate: birthRaw,
@@ -236,29 +168,6 @@ export default function ProfileEditScreen({ navigation }) {
             ),
         },
         {
-            key: 'id',
-            render: () => (
-                <InputField
-                    label="아이디"
-                    placeholder="아이디"
-                    value={id}
-                    onChangeText={(t) => {
-                        setId(t);
-                        setIDchecker(false);
-                        setIdCheckStatus('');
-                        setIdCheckMsg('');
-                    }}
-                    keyboardType="ascii-capable"
-                    rightButtonText="중복확인"
-                    onRightPress={checking? undefined : checkID}
-                    helperVisible={idChecker}
-                    helperStatus={idCheckStatus || 'default'} // 'error' | 'success' | 'default'
-                    helperText= {idCheckMsg}
-                    onFocus={() => focusScrollTo(2)}
-                />
-            ),
-        },
-        {
             key: 'pw',
             render: () => (
                 <InputField
@@ -267,7 +176,7 @@ export default function ProfileEditScreen({ navigation }) {
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
-                    onFocus={() => focusScrollTo(3)}
+                    onFocus={() => focusScrollTo(2)}
                 />
             ),
         },
@@ -280,7 +189,7 @@ export default function ProfileEditScreen({ navigation }) {
                     value={pwCheck}
                     onChangeText={setPwCheck}
                     secureTextEntry
-                    onFocus={() => focusScrollTo(4)}
+                    onFocus={() => focusScrollTo(3)}
                 />
             ),
         },
