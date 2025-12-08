@@ -101,7 +101,7 @@ right: {
 },
 title: {
     fontSize: 25,
-    fontWeight: '800',
+    fontFamily: 'MangoDdobak-B',
     color: colors.black,
     textAlign: 'center',
 },
@@ -111,6 +111,7 @@ textDisabled: {
 subtitle: {
     marginTop: 4,
     fontSize: 14,
+    fontFamily: 'MangoDdobak-R',
     color: colors.black,
     textAlign: 'center',
 },

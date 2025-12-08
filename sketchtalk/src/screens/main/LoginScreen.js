@@ -1,15 +1,61 @@
-import React, {useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet} from 'react-native';
+import { useMutation } from '@tanstack/react-query';
+import {loginUser} from '../../api/auth';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
-import FormScrollContainer from '../../components/layout/formScrollContainer';
+import Popup from '../../components/popup';
 
 const { width, height } = Dimensions.get('window');
+
+// 실제 FCM 토큰/디바이스 ID로 교체 예정
+const DUMMY_DEVICE_TOKEN = 'dummy-device-token';
+const DUMMY_DEVICE_ID = 'dummy-device-id';
 
 export default function AuthScreen({navigation}){
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [loginCheckOpen, setLoginCheckOpen] = useState(false);
+  const [loginErrorOpen, setLoginErrorOpen] = useState(false);
+
+  const flatRef = useRef(null);
+  const focusScrollTo = (index) => {
+    flatRef.current?.scrollToIndex?.({index, animated: true});
+  };
+
+  const loginMutation = useMutation({
+    mutationFn: loginUser, // auth.js에 정의한 함수 사용
+    onSuccess: (data) => {
+      console.log('login success:', data);
+      // data.nickname, data.accessToken, data.refreshToken 사용 가능
+      navigation.replace('TabNavigator');
+    },
+    onError: (error) => {
+      console.log('login error:', error);
+      setLoginErrorOpen(true);
+    },
+  });
+
+    const handleLogin = () => {
+    if (!id || !password) {
+      setLoginCheckOpen(true);
+      return;
+    }
+
+    // 서버 스펙에 맞는 요청 바디
+    const body = {
+      loginId: id.trim(),
+      password,
+      deviceToken: DUMMY_DEVICE_TOKEN,
+      deviceType: 'ANDROID',
+      deviceIdentifier: DUMMY_DEVICE_ID,
+    };
+
+    loginMutation.mutate(body);
+  };
+
+  const loading = loginMutation.isPending;
 
     return(
         <SafeAreaView style={{flex: 1}}>
@@ -17,8 +63,6 @@ export default function AuthScreen({navigation}){
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-            <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
-              {({scrollToEnd}) => (
             <View style={styles.container}>
               <Image
                 source={require('../../assets/main_logo.png')}
@@ -33,7 +77,7 @@ export default function AuthScreen({navigation}){
               placeholder="아이디"
               value={id}
               onChangeText={setId}
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(0)}
             />
 
             <InputField
@@ -42,20 +86,40 @@ export default function AuthScreen({navigation}){
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              onFocus={scrollToEnd}
+              onFocus={() => focusScrollTo(1)}
             />
           </View>
                 </View>
-                )}</FormScrollContainer> 
                 <View style={styles.button}>
             <ConfirmButton
-            text = "로그인"
+            text = {loading ? "로그인 중" : "로그인"}
             color = {colors.primary}
-            width = {width}
+            width = {width * 0.8}
 
-            onPress={() => navigation.replace('TabNavigator')} // 누르면 TabNavigator로 이동
+            onPress={loading ? undefined : handleLogin}
+            disabled={loading}
                     />
                   </View>
+                  <Popup
+                    visible={loginCheckOpen}
+                    message="아이디와 비밀번호를 입력해주세요."
+                    onClose={() => setLoginCheckOpen(false)}
+                    primary={{
+                      text: '확인',
+                      variant: 'primary',
+                      onPress: () => setLoginCheckOpen(false),
+                    }}
+                  />
+                  <Popup
+                    visible={loginErrorOpen}
+                    message="로그인 중 오류가 발생했습니다. 다시 시도하여주세요."
+                    onClose={() => setLoginErrorOpen(false)}
+                    primary={{
+                      text: '확인',
+                      variant: 'primary',
+                      onPress: () => setLoginErrorOpen(false)
+                    }}
+                  />
               </ImageBackground>
         </SafeAreaView>
     )
@@ -90,7 +154,7 @@ const styles = StyleSheet.create({
   },
   loginTitle: {
   fontSize: 30,
-  fontWeight: 'bold',
+  fontFamily: 'MangoDdobak-B',
   textAlign: 'center',
   marginBottom: 20,
   color: colors.redBrown,
