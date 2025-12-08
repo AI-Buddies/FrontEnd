@@ -20,6 +20,7 @@ const CommentText = ({height = 100, ...props}) => (
         borderBottomLeftRadius: 18,
         borderColor: colors.black,
         borderWidth: 1,
+        width: props.width * 0.63,
         height: height,
       }}>
       <View style={{position: 'absolute', marginLeft: 5, marginTop: 7}}>

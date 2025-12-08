@@ -1,10 +1,21 @@
-import {Text, View, Dimensions, ImageBackground, Image} from 'react-native';
-import React from 'react';
+import {
+  Text,
+  View,
+  Dimensions,
+  ImageBackground,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
+import Modal from 'react-native-modal';
+import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
@@ -15,30 +26,124 @@ const dummyData = {
 };
 
 export default function DiaryConfirmTextScreen() {
+  const [textConfirmModalVisible, setTextConfirmModalVisible] = useState(false);
+  //일기 승인
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryChooseArtstyleScreen');
+  const ls = require('local-storage');
+  //글 받아오기
+  const useDiaryGetTextFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat/diary', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryGetText ' + error);
+    },
+
+    onSuccess: data => {},
+  });
+
+  useEffect(() => {
+    useDiaryGetTextFetch.mutate({userId: 'userId'});
+  }, []);
+
+  //글 승인하기
+  const useDiaryConfirmTextFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/diary/save', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onMutate: () => {
+      setTextConfirmModalVisible(true);
+    },
+
+    onError: error => {
+      console.warn('diaryConfirm ' + error);
+    },
+
+    onSuccess: data => {
+      setTextConfirmModalVisible(false);
+      navigation.navigate('DiaryChooseArtstyleScreen', {
+        diaryId: data.data.data.diaryId,
+        content: useDiaryGetTextFetch.data.data.data.content,
+      });
+    },
+  });
+
+  function ConfirmDiary() {
+    useDiaryConfirmTextFetch.mutate({
+      title: useDiaryGetTextFetch.data.data.data.title,
+      content: useDiaryGetTextFetch.data.data.data.content,
+      emotion: useDiaryGetTextFetch.data.data.data.emotion,
+    });
   }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <CharacterImage />
-      <DiaryDisplay item={dummyData} />
-      <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />
-      <View style={{flex: 1.7}}>
-        <ConfirmButton
-          text={'응! 다시 써줘.'}
-          color={colors.primary}
-          marginBottom={0}
+      {/*{useDiaryGetTextFetch.isPending ? (*/}
+      {useDiaryGetTextFetch.isIdle && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'또리가 일기를 작성하는 중...'}
         />
-        <ConfirmButton
-          text={'아니야! 마음에 들어.'}
-          color={colors.blue}
-          marginBottom={22}
-          onPress={TempNavigate}
+      )}
+      {useDiaryGetTextFetch.isPending && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'또리가 일기를 작성하는 중...'}
         />
-      </View>
+      )}
+      {useDiaryGetTextFetch.isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러 발생'}
+        />
+      )}
+      {useDiaryGetTextFetch.isSuccess && (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <CharacterImage />
+          <DiaryDisplay
+            item={useDiaryGetTextFetch.data.data.data}
+            //item={dummyData}
+          />
+          <ConfirmText text={'다시 써볼까?'} width={width} flex={0.5} />
+          <View style={{flex: 1.7}}>
+            <ConfirmButton
+              text={'응! 다시 써줘.'}
+              color={colors.primary}
+              marginBottom={0}
+              onPress={() => useDiaryGetTextFetch.mutate({userId: 'userId'})}
+            />
+            <ConfirmButton
+              text={'아니야! 마음에 들어.'}
+              color={colors.blue}
+              marginBottom={22}
+              //onPress={TempNavigate}
+              onPress={() => ConfirmDiary()}
+            />
+          </View>
+        </View>
+      )}
+      {textConfirmModalVisible && (
+        <ConfirmTextModal isVisible={textConfirmModalVisible} />
+      )}
     </Background>
   );
 }
@@ -133,4 +238,63 @@ const NotebookLine = () => (
       borderWidth: 1,
     }}
   />
+);
+
+const ConfirmTextModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );

@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import React, {useState} from 'react';
-import ConfirmText from '../../components/confirmtext';
+import ConfirmText from '../../../components/confirmtext';
 import styled from 'styled-components';
 import {useNavigation} from '@react-navigation/native';
 
@@ -20,17 +20,17 @@ const style_list = [
   {style_name: 'coolkids', display_name: '쿨키즈'},
 ];
 
-export default function DiaryChooseArtstyleScreen({route}) {
+export default function DiaryEditChooseArtstyleScreen({route}) {
   const navigation = useNavigation();
   function TempNavigate(style_name) {
-    navigation.navigate('DiaryConfirmArtScreen', {
+    navigation.navigate('DiaryArtRedrawScreen', {
       style_name: style_name,
       ...route.params,
     });
   }
   return (
     <Background
-      source={require('../../assets/background/yellow_bg.png')}
+      source={require('../../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <View
         style={{
@@ -73,7 +73,7 @@ const MessageItem = item => (
     <Image
       style={{width: 150, height: 125}}
       resizeMode="contain"
-      source={require('../../assets/soccer_diary.png')}
+      source={require('../../../assets/soccer_diary.png')}
     />
     <Text style={{alignSelf: 'flex-end'}}>{item.display_name}</Text>
   </Pressable>

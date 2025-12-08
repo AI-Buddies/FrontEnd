@@ -1,41 +1,147 @@
-import {Text, View, Dimensions, ImageBackground, Image} from 'react-native';
-import React from 'react';
+import {
+  Text,
+  View,
+  Dimensions,
+  ImageBackground,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import Modal from 'react-native-modal';
 import ConfirmText from '../../components/confirmtext';
 import ConfirmButton from '../../components/confirmbutton';
 import colors from '../../constants/colors';
 import styled from 'styled-components';
+import {DiaryLoadingScreen} from './component/DiaryLoadingScreen';
 import {useNavigation} from '@react-navigation/native';
+import {useMutation} from '@tanstack/react-query';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('window');
 
-export default function DiaryConfirmArtScreen() {
+export default function DiaryConfirmArtScreen({route}) {
+  const [artConfirmModalVisible, setArtConfirmModalVisible] = useState(false);
   const navigation = useNavigation();
-  function TempNavigate() {
-    navigation.navigate('DiaryResultStackNavigator', {
-      screen: 'DiaryResultScreen',
-      params: {date: new Date(2025, 4, 1), isCalendar: false},
+  const ls = require('local-storage');
+
+  //그림 받아오기
+  const useDiaryGetArtFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat/image', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onError: error => {
+      console.warn('diaryGetArt ' + error);
+    },
+  });
+
+  //그림 승인
+
+  const useDiaryConfirmArtFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post(`https://sketch-talk.com/chat/image/save`, newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onMutate: () => {
+      setArtConfirmModalVisible(true);
+    },
+    onError: error => {
+      console.warn('confirmart' + error);
+    },
+
+    onSuccess: data => {
+      setArtConfirmModalVisible(false);
+      navigation.navigate('DiaryResultStackNavigator', {
+        screen: 'DiaryResultScreen',
+        params: {
+          isCalendar: false,
+          diaryId: data.data.data.diaryId,
+          achieved: data.data.data.achieved,
+          achievedResult: data.data.data.achievedResult,
+          ...route.params,
+        },
+      });
+    },
+  });
+
+  const confirmArt = () => {
+    useDiaryConfirmArtFetch.mutate({
+      diaryId: useDiaryGetArtFetch.data.data.data.diaryId,
+      style: useDiaryGetArtFetch.data.data.data.style,
+      imageUrl: useDiaryGetArtFetch.data.data.data.imageUrl,
     });
-  }
+  };
+
+  const {diaryId, content, style_name} = route.params;
+  useEffect(() => {
+    if (typeof diaryId === 'number') {
+      console.log('yes');
+      console.log(diaryId);
+    }
+    console.log(content);
+    console.log(style_name);
+    useDiaryGetArtFetch.mutate({
+      diaryId: diaryId,
+      content: content,
+      style: style_name,
+    });
+  }, []);
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
-      <CharacterImage />
-      <DiaryArtDisplay />
-      <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
-      <View style={{flex: 1.7}}>
-        <ConfirmButton
-          text={'응! 다시 그려줘.'}
-          color={colors.primary}
-          marginBottom={0}
+      {artConfirmModalVisible && (
+        <ConfirmArtModal isVisible={artConfirmModalVisible} />
+      )}
+      {useDiaryGetArtFetch.isPending && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'또리가 그림을 그리는 중...'}
         />
-        <ConfirmButton
-          text={'아니야! 마음에 들어.'}
-          color={colors.blue}
-          marginBottom={22}
-          onPress={TempNavigate}
+      )}
+      {useDiaryGetArtFetch.isError && (
+        <DiaryLoadingScreen
+          width={width}
+          //onPress={() => setIsLoading(false)}
+          loadingText={'에러 발생'}
         />
-      </View>
+      )}
+      {useDiaryGetArtFetch.isSuccess && (
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+          <CharacterImage />
+          <DiaryArtDisplay
+            imageUrl={useDiaryGetArtFetch.data.data.data.imageUrl}
+          />
+          <ConfirmText text={'다시 그려줄까?'} width={width} flex={0.5} />
+          <View style={{flex: 1.7}}>
+            <ConfirmButton
+              text={'응! 다시 그려줘.'}
+              color={colors.primary}
+              marginBottom={0}
+            />
+            <ConfirmButton
+              text={'아니야! 마음에 들어.'}
+              color={colors.blue}
+              marginBottom={22}
+              onPress={() => confirmArt()}
+            />
+          </View>
+        </View>
+      )}
     </Background>
   );
 }
@@ -67,9 +173,72 @@ const DiaryArtDisplay = props => (
         alignItems: 'center',
         width: width * 0.9,
       }}>
-      <Image source={require('../../assets/soccer_diary2.png')} />
+      <Image
+        style={{width: width * 0.9, height: 100}}
+        resizeMode={'contain'}
+        source={{uri: props.imageUrl}}
+      />
     </View>
   </View>
+);
+
+const ConfirmArtModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`

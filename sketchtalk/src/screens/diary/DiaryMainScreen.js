@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ImageBackground,
   Dimensions,
@@ -12,62 +12,151 @@ import colors from '../../constants/colors';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import Loader from 'react-native-three-dots-loader';
+import ConfirmButton from '../../components/confirmbutton';
+//stt tts
+import {initializeAudio, stopAudio} from './api/DiarySTT';
+import {synthesizeSpeech} from './api/DiaryTTS';
+//api
+import axios from 'axios';
+import {useMutation} from '@tanstack/react-query';
 
 const {width, height} = Dimensions.get('window');
-
-const dummyData = [
-  {
-    id: 0,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 1,
-    isAI: true,
-    text: '우 와 ~',
-  },
-  {
-    id: 2,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 3,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 4,
-    isAI: true,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어! 오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-  {
-    id: 5,
-    isAI: false,
-    text: '오늘 친구들이랑 같이 축구를 했는데 너무 재밌었어!',
-  },
-];
+const dummyData = [];
 
 export default function DiaryMainScreen() {
   const navigation = useNavigation();
+
   function TempNavigate() {
-    navigation.navigate('DiaryTextInProgressScreen');
+    navigation.navigate('DiaryConfirmTextScreen');
   }
+
+  //const {initdata, error, isFetching, isLoading} = useDiaryChatFetch(dialog);
+  const [userDialog, setUserDialog] = useState('');
+  const [isWaitingReply, setIsWaitingReply] = useState(false);
+  const [isSufficient, setIsSufficient] = useState(false);
+  useEffect(() => {
+    //AddMessage(initdata.data.reply, true);
+    dummyData.length = 0; //clear array
+    setIsWaitingReply(false);
+    AddFetchedMessage('첫 메세지야');
+  }, []);
+
+  function AddFetchedMessage(dialog) {
+    dummyData.shift();
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  function AddWaitingMessage() {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: true,
+      isWaitingReply: true,
+      text: 'waiting...',
+    });
+  }
+
+  function AddUserMessage(dialog) {
+    const messageArraySize = dummyData.length;
+    dummyData.unshift({
+      id: messageArraySize,
+      isAI: false,
+      isWaitingReply: false,
+      text: dialog,
+    });
+  }
+
+  const ls = require('local-storage');
+  const useDiaryChatFetch = useMutation({
+    mutationFn: newTodo => {
+      const token = ls('token');
+      return axios.post('https://sketch-talk.com/chat', newTodo, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onMutate: () => {
+      setIsWaitingReply(true);
+      setUserDialog('');
+      AddWaitingMessage();
+    },
+    onSuccess: data => {
+      AddFetchedMessage(data.data.data.reply);
+      if (data.data.data.isSufficient) {
+        setIsSufficient(true);
+      }
+      setIsWaitingReply(false);
+    },
+    onError: error => {
+      console.warn('useDiaryChatFetch ' + error.message);
+      AddFetchedMessage('오류');
+      setIsWaitingReply(false);
+    },
+  });
+
+  function FetchMessage(userDialog) {
+    if (userDialog === undefined || userDialog === '' || isWaitingReply) return;
+    useDiaryChatFetch.mutate({dialog: userDialog});
+    AddUserMessage(userDialog, false);
+    //the rest is handled by useDiaryChatFetch
+    /*AddWaitingMessage();
+    setTimeout(() => {
+      setIsWaitingReply(false);
+      AddFetchedMessage('답변이야 답변이야 답변이야');
+    }, 10000);*/
+
+    //AddMessage(data.data.reply, true);
+  }
+
   return (
     <Background
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover">
       <CharacterImage />
       <MessageList
-        data={dummyData.reverse()}
+        data={dummyData}
         contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}
         renderItem={({item}) => MessageItem({item})}
         keyExtractor={item => item.id}
         inverted={true}
         fadingEdgeLength={100}
       />
-      <MicButton />
-      <TextBar onPress={TempNavigate} />
+      {!isSufficient ? (
+        <MicButton
+          //onPressIn={() => initializeAudio(FetchMessage)}
+          onPress={TempNavigate}
+          isWaitingReply={isWaitingReply}
+          isSufficient={isSufficient}
+          useDiaryChatFetch_isPending={useDiaryChatFetch.isPending}
+          //onPress={() => synthesizeSpeech('안녕?', 'ko-KR-SeoHyeonNeural')}
+        />
+      ) : (
+        <View style={{flex: 1.5}}>
+          <ConfirmButton
+            color={colors.primary}
+            text="일기 생성"
+            width={200}
+            onPress={TempNavigate}
+          />
+        </View>
+      )}
+      <TextBar
+        onPress={() => FetchMessage(userDialog)}
+        value={isWaitingReply || isSufficient ? '' : userDialog}
+        onChangeText={!isWaitingReply && !isSufficient && setUserDialog}
+        isWaitingReply={isWaitingReply}
+        isSufficient={isSufficient}
+      />
     </Background>
   );
 }
@@ -88,7 +177,7 @@ const MessageList = styled.FlatList`
   width: ${width};
 `;
 
-const MicButton = () => (
+const MicButton = props => (
   <View
     style={{
       flex: 1.5,
@@ -101,6 +190,10 @@ const MicButton = () => (
       shadowRadius: 1.0,
     }}>
     <Pressable
+      onPress={props.onPress}
+      onPressIn={props.onPressIn}
+      disabled={props.isWaitingReply || props.isSufficient}
+      //disabled={props.useDiaryChatFetch_isPending}
       style={{
         borderRadius: Math.round(158) / 2,
         width: 79,
@@ -144,23 +237,39 @@ const TextBar = props => (
         height: 46,
         elevation: 1,
       }}>
-      <TextInput
-        style={{
-          flex: 6,
-          textAlign: 'left',
-          color: colors.black,
-          paddingLeft: 12,
-          fontSize: 16,
-          height: 46,
-          paddingBottom: 12,
-        }}
-      />
+      {/*{!props.useDiaryChatFetch_isPending ? (*/}
+      {!props.isWaitingReply && !props.isSufficient ? (
+        <TextInput
+          value={props.value}
+          onChangeText={props.onChangeText}
+          style={{
+            flex: 6,
+            textAlign: 'left',
+            color: colors.black,
+            paddingLeft: 12,
+            fontSize: 16,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      ) : (
+        <View
+          style={{
+            flex: 6,
+            color: colors.black,
+            paddingLeft: 12,
+            height: 46,
+            paddingBottom: 12,
+          }}
+        />
+      )}
       <Pressable
         style={{
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
         }}
+        disabled={props.isWaitingReply || props.isSufficient}
         onPress={props.onPress}>
         <SimpleLineIcons name="arrow-up-circle" size={25} color="red" />
       </Pressable>
@@ -193,18 +302,33 @@ function MessageItem({item}) {
           borderBottomRightRadius: 18,
           elevation: 1,
         }}>
-        <Text
-          style={{
-            fontSize: 16,
-            fontFamily: 'MangoDdobak-R',
-            lineHeight: 25,
-            textAlign: 'left',
-            paddingHorizontal: 10,
-            marginBottom: 2,
-            color: colors.black,
-          }}>
-          {item.text}
-        </Text>
+        {item.isWaitingReply ? (
+          <View
+            style={{
+              height: 25,
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+            }}>
+            <Loader
+              style={{
+                justifyContent: 'center',
+              }}
+            />
+          </View>
+        ) : (
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              lineHeight: 25,
+              textAlign: 'left',
+              paddingHorizontal: 10,
+              marginBottom: 2,
+              color: colors.black,
+            }}>
+            {item.text}
+          </Text>
+        )}
       </View>
     </View>
   ) : (

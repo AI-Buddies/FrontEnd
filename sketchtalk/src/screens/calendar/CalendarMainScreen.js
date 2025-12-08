@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styled from 'styled-components/native';
@@ -15,68 +16,90 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import moment from 'moment';
 import MonthPicker from 'react-native-month-year-picker';
 import Modal from 'react-native-modal';
-import {
-  Calendar,
-  CalendarList,
-  Agenda,
-  LocaleConfig,
-} from 'react-native-calendars';
+import {Calendar, LocaleConfig} from 'react-native-calendars';
 import 'moment/locale/ko';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import {useCalendarViewQueryFetch} from './api/CalendarFetch';
+import {useListViewQueryFetch} from './api/CalendarFetch';
+import {useMutation} from '@tanstack/react-query';
+
+import axios from 'axios';
+
+/*function getEmoticon(emotion) {
+  if (emotion.localeCompare('happy') === 1) {
+    console.log('got ' + emotion);
+    return require('../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion.localeCompare('amazed') === 1) {
+    return require('../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion.localeCompare('sad') === 1) {
+    return require('../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion.localeCompare('angry') === 1) {
+    return require('../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion.localeCompare('anxiety') === 1) {
+    return require('../../assets/emotions/emotion_anxiety.png');
+  }
+}*/
+
+function getEmoticon(emotion) {
+  if (emotion === 'HAPPY') {
+    return require('../../assets/emotions/emotion_happy.png');
+  }
+  if (emotion === 'AMAZED') {
+    return require('../../assets/emotions/emotion_amazed.png');
+  }
+  if (emotion === 'SAD') {
+    return require('../../assets/emotions/emotion_sad.png');
+  }
+  if (emotion === 'ANGRY') {
+    return require('../../assets/emotions/emotion_angry.png');
+  }
+  if (emotion === 'ANXIETY') {
+    return require('../../assets/emotions/emotion_anxiety.png');
+  }
+}
 
 LocaleConfig.locales['kr'] = {
   monthNames: ['', '', '', '', '', '', '', '', '', '', '', ''],
   monthNamesShort: ['', '', '', '', '', '', '', '', '', '', '', ''],
   dayNames: [
+    '일요일',
     '월요일',
     '화요일',
     '수요일',
     '목요일',
     '금요일',
     '토요일',
-    '일요일',
   ],
-  dayNamesShort: ['월', '화', '수', '목', '금', '토', '일'],
+  dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
   today: "Aujourd'hui",
 };
 LocaleConfig.defaultLocale = 'kr';
 
 const {width, height} = Dimensions.get('window');
 
-const dummyData = [
+const dummyEmptyData = [
   {
-    id: 1,
-    date: new Date(2025, 5, 22),
-    title: '축구하다가 넘어졌지만 괜찮아!',
+    diaryId: 1,
   },
   {
-    id: 2,
-    date: new Date(2025, 5, 22),
-    title: '축구하다가 넘어졌지만 괜찮아!',
+    diaryId: 2,
   },
   {
-    id: 3,
-    date: new Date(2025, 5, 22),
-    title: '넘어졌지만 괜찮아!',
+    diaryId: 3,
   },
   {
-    id: 4,
-    date: new Date(2025, 6, 22),
-    title: '축구하다가 넘어졌지만 괜찮아!',
+    diaryId: 4,
   },
   {
-    id: 5,
-    date: new Date(2025, 5, 22),
-    title: '축구하다가 넘어졌지만 괜찮아!',
+    diaryId: 5,
   },
-];
-
-const dummyMarkedDates = [
-  {date: '2025-06-10'},
-  {date: '2025-06-22'},
-  {date: '2025-06-29'},
-  {date: '2025-06-30'},
-  {date: '2025-11-30'},
+  {
+    diaryId: 6,
+  },
 ];
 
 export default function CalenderMainScreen({route}) {
@@ -85,6 +108,8 @@ export default function CalenderMainScreen({route}) {
   const [showYearMonthPicker, setShowYearMonthPicker] = useState(false);
   const [listView, setListView] = useState(calendarListView);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
+  const [isDiaryLoading, setIsDiaryLoading] = useState(false);
+  const ls = require('local-storage');
 
   const showPicker = useCallback(value => setShowYearMonthPicker(value), []);
 
@@ -99,11 +124,23 @@ export default function CalenderMainScreen({route}) {
   );
 
   const navigation = useNavigation();
-  function TempNavigate(diaryDate) {
+  /*function TempNavigate(diaryDate) {
     navigation.navigate('DiaryResultStackNavigator', {
       screen: 'DiaryResultScreen',
       params: {
-        diaryDate: new Date(diaryDate),
+        diaryId: '',
+        isCalendar: true,
+        calendarDate: date,
+        calendarListView: listView,
+      },
+    });
+  }*/
+
+  function naviagteToDiary(diaryId) {
+    navigation.navigate('DiaryResultStackNavigator', {
+      screen: 'DiaryResultScreen',
+      params: {
+        diaryId: diaryId,
         isCalendar: true,
         calendarDate: date,
         calendarListView: listView,
@@ -111,10 +148,73 @@ export default function CalenderMainScreen({route}) {
     });
   }
 
+  const calendarViewQuery = useCalendarViewQueryFetch(date);
+  if (calendarViewQuery.isSuccess) {
+    console.log(calendarViewQuery.data.data);
+  }
+  if (calendarViewQuery.isError) {
+    console.log(calendarViewQuery.error.message);
+  }
+  const listViewQuery = useListViewQueryFetch(date);
+
+  //토큰 받기
+  const useLoginFetch = useMutation({
+    mutationFn: newTodo => {
+      return axios.post('https://sketch-talk.com/user/login', newTodo);
+    },
+
+    onError: error => {
+      console.warn('login' + error);
+    },
+
+    onSuccess: data => {
+      console.log(data.data.data.accessToken);
+      ls('token', data.data.data.accessToken);
+    },
+  });
+
+  const TempLogin = () => {
+    useLoginFetch.mutate({loginId: 'testappleuser3', password: '1234apple'});
+  };
+
+  //일기 미리보기
+  const useDiaryPreviewFetch = useMutation({
+    mutationFn: newTodo => {
+      console.log(newTodo);
+      const token = ls('token');
+
+      return axios.get(`https://sketch-talk.com/diary/${newTodo}/preview`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+
+    onMutate: () => {
+      setIsDiaryLoading(true);
+    },
+    onError: error => {
+      console.warn('preview' + error);
+    },
+
+    onSuccess: data => {
+      setIsDiaryLoading(false);
+      console.log(data.data.data);
+      setPreviewVisible(true);
+    },
+  });
+
+  const PreviewDiary = diaryId => {
+    useDiaryPreviewFetch.mutate(diaryId);
+  };
+
   return (
     <Background
       source={require('../../assets/background/blue_bg.png')}
       resizeMode="cover">
+      {isDiaryLoading && <LoadDiaryModal isVisible={isDiaryLoading} />}
       <Text
         style={{
           fontSize: 25,
@@ -126,7 +226,8 @@ export default function CalenderMainScreen({route}) {
       </Text>
       <CalendarNavigator
         date={date}
-        onDatePress={() => showPicker(true)}
+        //onDatePress={() => showPicker(true)}
+        onDatePress={() => TempLogin()}
         onLeftPress={() =>
           setDate(new Date(moment(date).subtract(1, 'months')))
         }
@@ -139,33 +240,134 @@ export default function CalenderMainScreen({route}) {
           locale="ko"
         />
       )}
-      <View style={{flex: 7}}>
-        {/*       리스트       */}
-        {listView && (
+
+      {/*       리스트       */}
+
+      {listView && (
+        <View style={{flex: 7, width: width}}>
           <FlatList
             contentContainerStyle={{
               alignItems: 'flex-start',
               justifyContent: 'center',
+              marginLeft: Math.floor((width - 172 * 2) / 2),
             }}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.diaryId}
             fadingEdgeLength={100}
-            data={dummyData}
-            renderItem={({item}) => (
-              <CalendarListViewItem
-                {...item}
-                onPress={() => TempNavigate(item.date)}
-              />
-            )}
+            data={
+              listViewQuery.isLoading || listViewQuery.isError
+                ? dummyEmptyData
+                : listViewQuery.data.data.data
+              //dummyData
+            }
+            renderItem={
+              listViewQuery.isLoading || listViewQuery.isError
+                ? () => <CalendarListViewEmptyItem />
+                : ({item}) => (
+                    <CalendarListViewItem
+                      {...item}
+                      onPress={() => naviagteToDiary(item.diaryId)}
+                    />
+                  )
+            }
             numColumns={2}></FlatList>
-        )}
-        {/*       달력        */}
-        {!listView && (
+          {!listViewQuery.isSuccess && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width,
+                height: 1080,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  marginBottom: 700,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={
+                    listViewQuery.isError
+                      ? require('../../assets/character/question_bear.png')
+                      : require('../../assets/character/writing_bear.png')
+                  }
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+                    fontSize: 24,
+                  }}>
+                  {listViewQuery.isError
+                    ? '불러오는 데 실패했어요!'
+                    : '로딩중...'}
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+          {listViewQuery.isSuccess &&
+            listViewQuery.data.data.data.length == 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  marginTop: 10,
+                  width: width,
+                  height: 1080,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <View
+                  style={{
+                    width: 280,
+                    height: 280,
+                    marginBottom: 700,
+                    resizeMode: 'contain',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    style={{
+                      width: 150,
+                      height: 150,
+                      resizeMode: 'contain',
+                    }}
+                    source={require('../../assets/character/bear.png')}
+                  />
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontFamily: 'MangoDdobak-B',
+                      lineHeight: 31,
+                      fontSize: 24,
+                    }}>
+                    작성한 일기가 없어요!
+                  </Text>
+                </View>
+              </View>
+            )}
+        </View>
+      )}
+      {/*       달력        */}
+      {!listView && (
+        <View style={{flex: 7}}>
           <Calendar
             initialDate={date}
             hideArrows={true}
             disableMonthChange={true}
             customHeaderTitle={<></>} /* 월 숨기기 */
             disableAllTouchEventsForInactiveDays
+            hideExtraDays
             style={{
               marginTop: 10,
               width: width * 0.9,
@@ -192,34 +394,119 @@ export default function CalenderMainScreen({route}) {
             }}
             dayComponent={({date, state}) => {
               function hasDiary() {
-                const array = dummyMarkedDates.filter(obj =>
-                  Object.values(obj).some(val => val.includes(date.dateString)),
-                );
-                return !array === undefined || !array.length == 0;
+                const array = calendarViewQuery.isSuccess
+                  ? calendarViewQuery.data.data.data.some(val =>
+                      val.date.includes(date.dateString),
+                    )
+                  : [];
+                return array;
               }
+              function getDiaryID() {
+                const id = calendarViewQuery.data.data.data.find(val =>
+                  val.date.includes(date.dateString),
+                ).diaryId;
+                return id;
+              }
+              function getDiaryEmoticon() {
+                const diary = calendarViewQuery.data.data.data.find(val =>
+                  val.date.includes(date.dateString),
+                );
+
+                if (diary === undefined) return;
+                console.log(diary.emotion);
+                return getEmoticon(diary.emotion);
+              }
+              /*function hasDiary() {
+                const array = dummyMarkedDates.some(val =>
+                  val.date.includes(date.dateString),
+                );
+                return array;
+              }
+              function getDiaryID() {
+                const id = dummyMarkedDates.find(val =>
+                  val.date.includes(date.dateString),
+                ).diaryId;
+                return id;
+              }*/
               return (
                 <CustomDayComponent
                   hasDiary={hasDiary()}
                   date={date}
                   state={state}
+                  emoticon={calendarViewQuery.isSuccess && getDiaryEmoticon()}
+                  isWaiting={!calendarViewQuery.isSuccess}
                   onPress={() => {
-                    setPreviewVisible(true);
+                    PreviewDiary(getDiaryID());
                   }}
                 />
               );
             }}
           />
-        )}
-      </View>
+          {!calendarViewQuery.isSuccess && (
+            <View
+              style={{
+                position: 'absolute',
+                marginTop: 10,
+                width: width * 0.9,
+                height: 380,
+
+                backgroundColor: 'rgba(255, 255,255, 0.6)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <ImageBackground
+                source={require('../../assets/character/ellipse.png')}
+                style={{
+                  width: 280,
+                  height: 280,
+                  resizeMode: 'contain',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  style={{
+                    width: 150,
+                    height: 150,
+                    resizeMode: 'contain',
+                  }}
+                  source={
+                    listViewQuery.isError
+                      ? require('../../assets/character/question_bear.png')
+                      : require('../../assets/character/writing_bear.png')
+                  }
+                />
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'MangoDdobak-B',
+                    lineHeight: 31,
+
+                    fontSize: 24,
+                  }}>
+                  {listViewQuery.isError
+                    ? '불러오는 데 실패했어요!'
+                    : '로딩중...'}
+                </Text>
+              </ImageBackground>
+            </View>
+          )}
+        </View>
+      )}
       <SwitchViewButton onPress={() => setListView(!listView)} />
-      {!listView && (
+      {!listView && useDiaryPreviewFetch.isSuccess && (
         <CalendarPreviewModal
-          date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
+          //date={moment(new Date()).format('YYYY[년] M[월] D[일]').toString()}
+          date={moment(useDiaryPreviewFetch.data.data.data.date)
+            .format('YYYY[년] M[월] D[일]')
+            .toString()}
+          title={useDiaryPreviewFetch.data.data.data.title}
+          emoticon={getEmoticon(useDiaryPreviewFetch.data.data.data.emotion)}
+          imageUrl={{uri: useDiaryPreviewFetch.data.data.data.imageUrl}}
           isVisible={isPreviewVisible}
           onBackdropPress={() => setPreviewVisible(false)}
           onSwipeComplete={() => {
             setPreviewVisible(false);
-            TempNavigate(new Date());
+            naviagteToDiary(useDiaryPreviewFetch.data.data.data.diaryId);
           }}
         />
       )}
@@ -279,7 +566,7 @@ const CalendarPreviewModal = props => (
             alignSelf: 'center',
           }}
           resizeMode="contain"
-          source={require('../../assets/soccer_diary.png')}
+          source={props.imageUrl}
         />
         <View
           style={{
@@ -301,7 +588,7 @@ const CalendarPreviewModal = props => (
             <Text
               style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
               numberOfLines={1}>
-              축구하다가 넘어졌지만 재미있었어!
+              {props.title}
             </Text>
           </View>
           <Image
@@ -313,7 +600,11 @@ const CalendarPreviewModal = props => (
               alignSelf: 'center',
             }}
             resizeMode="contain"
-            source={require('../../assets/emotions/emotion_happy.png')}
+            source={
+              props.emoticon !== undefined
+                ? props.emoticon
+                : require('../../assets/emotions/emotion_happy.png')
+            }
           />
         </View>
       </View>
@@ -323,7 +614,7 @@ const CalendarPreviewModal = props => (
 
 const CustomDayComponent = props => (
   <View style={{alignItems: 'center', justifyContent: 'center', height: 40}}>
-    {props.hasDiary && props.state !== 'disabled' ? (
+    {props.hasDiary && props.state !== 'disabled' && !props.isWaiting && (
       <Pressable onPress={props.onPress}>
         <Image
           style={{
@@ -334,15 +625,32 @@ const CustomDayComponent = props => (
             marginTop: 5,
           }}
           resizeMode="contain"
-          source={require('../../assets/emotions/emotion_happy.png')}></Image>
+          source={
+            props.emoticon !== undefined
+              ? props.emoticon
+              : require('../../assets/emotions/emotion_happy.png')
+          }></Image>
       </Pressable>
-    ) : (
+    )}
+    {!props.hasDiary && !props.isWaiting && (
       <Text
         style={{
           textAlign: 'center',
           fontFamily: 'MangoDdobak-R',
           lineHeight: 31,
-          color: props.state === 'disabled' ? colors.white : colors.black,
+          color: props.state === 'disabled' ? '#FFFFFF00' : colors.black,
+          fontSize: 16,
+        }}>
+        {props.date.day}
+      </Text>
+    )}
+    {props.isWaiting && (
+      <Text
+        style={{
+          textAlign: 'center',
+          fontFamily: 'MangoDdobak-R',
+          lineHeight: 31,
+          color: props.state === 'disabled' ? '#FFFFFF00' : colors.gray300,
           fontSize: 16,
         }}>
         {props.date.day}
@@ -416,7 +724,7 @@ const CalendarListViewItem = item => (
           alignSelf: 'flex-end',
         }}
         resizeMode="contain"
-        source={require('../../assets/emotions/emotion_happy.png')}
+        source={getEmoticon(item.emotion)}
       />
     </ImageBackground>
     <View style={{width: 162, height: 60}}>
@@ -446,6 +754,30 @@ const CalendarListViewItem = item => (
       </Text>
     </View>
   </Pressable>
+);
+
+const CalendarListViewEmptyItem = item => (
+  <View
+    style={{
+      width: 162,
+      height: 182,
+      textAlign: 'center',
+      marginHorizontal: 5,
+      marginVertical: 10,
+      backgroundColor: colors.creamWhite,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+      elevation: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  />
 );
 
 const CalendarNavigator = props => (
@@ -484,6 +816,65 @@ const CalendarNavigator = props => (
       <Entypo name="triangle-right" size={40} color={'#8B8FDE'} />
     </Pressable>
   </View>
+);
+
+const LoadDiaryModal = props => (
+  <Modal
+    isVisible={props.isVisible}
+    animationIn="none"
+    animationInTiming={1}
+    animationOutTiming={1}
+    onBackdropPress={props.onBackdropPress}>
+    <View
+      style={{
+        height: height,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: width,
+          height: height,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          position: 'absolute',
+        }}
+      />
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: 327,
+          height: 223,
+          mixBlendMode: 'normal',
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          style={{
+            width: 300,
+            height: 203,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View style={{flex: 1}} />
+          <Text
+            style={{
+              fontSize: 16,
+              fontFamily: 'MangoDdobak-R',
+              includeFontPadding: false,
+              flex: 1,
+              marginTop: 15,
+            }}>
+            잠시만 기다려 주세요...
+          </Text>
+          <View style={{flex: 1, flexDirection: 'row'}}>
+            {/*put circle loading screen here*/}
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        </View>
+      </View>
+    </View>
+  </Modal>
 );
 
 const Background = styled(ImageBackground)`
