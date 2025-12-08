@@ -90,12 +90,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 25,
-    fontWeight: '600',
+    fontFamily: 'MangoDdobak-B',
     color: colors.black,
     textAlign: 'center',
   },
   countText: {
     marginTop: 4,
+    fontFamily: 'MangoDdobak-R',
     fontSize: 14,
     color: colors.black,
     textAlign: 'center',

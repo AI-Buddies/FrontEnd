@@ -2,11 +2,18 @@ import React from 'react';
 import { ImageBackground, Dimensions, StyleSheet, View, Text, Pressable, StatusBar, Platform } from 'react-native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
+import { useQuery } from '@tanstack/react-query';
+import { getAppInfo } from '../../api/setting';
 
 const { width, height } = Dimensions.get('window');
 const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 
 export default function AppInfoScreen({ navigation }) {
+
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ['appInfo'],
+        queryFn: getAppInfo,
+    });
 
   return (
     <ImageBackground
@@ -26,9 +33,23 @@ export default function AppInfoScreen({ navigation }) {
         </View>
 
         <View style={styles.card}>
-            <Text style={styles.infoText}>
-                개발중
-            </Text>
+            {isLoading && (
+                <Text style={styles.infoText}> 앱 정보를 불러오는 중...</Text>
+            )}
+            {isError && (
+                <Text style={styles.infoText}>
+                     앱 정보를 불러오지 못했어요.{'\n '}
+                     {error?.message}
+                </Text>
+            )}
+            {data && !isLoading && !isError && (
+                <Text style={styles.infoText}>
+                    {'\n '}
+                    플랫폼 : {data.platform}{'\n '}
+                    현재 버전 : {data.currentVersion}{'\n '}
+                    업데이트 날짜 : {data.date}
+                </Text>
+            )}
         </View>
     </ImageBackground>
   );
@@ -62,7 +83,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
-        fontWeight: '700',
+        fontFamily: 'MangoDdobak-B',
         color: colors.redBrown,
         letterSpacing: 0.3,
     },
@@ -81,6 +102,7 @@ const styles = StyleSheet.create({
       },
       infoText:{
         fontSize: 16,
+        fontFamily: 'MangoDdobak-R',
         color: colors.redBrown,
       },
 });

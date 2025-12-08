@@ -27,12 +27,13 @@ export default function MypageField({
                         onValueChange={onPress}
                         trackColor={{false: colors.gray300, true: colors.primary}}
                         thumbColor={colors.white}
+                        disabled={disabled}
                     />
                 );
             case 'down':
-                return <Entypo name="chevron-down" size={24} color={colors.redBrown} /> //
+                return <Entypo name="chevron-down" size={24} color={colors.redBrown} />
             case 'right':
-                return <Entypo name="chevron-right" size={24} color={colors.redBrown} />; //
+                return <Entypo name="chevron-right" size={24} color={colors.redBrown} />;
             default: return null;
         }
     };
@@ -105,6 +106,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 16,
+        fontFamily: 'MangoDdobak-R',
         color: colors.brown,
     },
     dividerBase: { width: '100%' },

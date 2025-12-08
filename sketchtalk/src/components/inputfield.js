@@ -76,13 +76,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
     marginBottom: 5,
   },
 
   input: {
     fontSize: 16,
+    fontFamily: 'MangoDdobak-R',
     padding: 0,
   },
   // btn
@@ -94,6 +95,7 @@ const styles = StyleSheet.create({
   },
   helper: {
     fontSize: 12,
+    fontFamily: 'MangoDdobak-R',
     color: colors.gray300,
   },
   rightBtn: {
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
   },
   rightBtnText: {
     color: colors.white,
+    fontFamily: 'MangoDdobak-R',
     fontSize: 14,
     textAlign: 'center',
   },

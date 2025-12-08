@@ -5,6 +5,7 @@ import MypageMainScreen from '../screens/mypage/MypageMainScreen';
 import FAQScreen from '../screens/mypage/FAQScreen';
 import AppInfoScreen from '../screens/mypage/AppInfoScreen';
 import ProfileEditScreen from '../screens/mypage/ProfileEditScreen';
+import AlarmSettingScreen from '../screens/mypage/AlarmSettingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ const MypageStackNavigator = () => (
         <Stack.Screen name="FAQ" component={FAQScreen}/>
         <Stack.Screen name="AppInfo" component={AppInfoScreen}/>
         <Stack.Screen name="ProfileEdit" component={ProfileEditScreen}/>
+        <Stack.Screen name="AlarmSetting" component={AlarmSettingScreen}/>
     </Stack.Navigator>
 );
 
