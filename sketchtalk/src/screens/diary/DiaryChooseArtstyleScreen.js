@@ -7,6 +7,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
+import colors from '../../constants/colors';
 import React, {useState} from 'react';
 import ConfirmText from '../../components/confirmtext';
 import styled from 'styled-components';
@@ -15,9 +16,21 @@ import {useNavigation} from '@react-navigation/native';
 const {width, height} = Dimensions.get('window');
 
 const style_list = [
-  {style_name: 'pastel', display_name: '파스텔'},
-  {style_name: 'childbook', display_name: '동화책'},
-  {style_name: 'coolkids', display_name: '쿨키즈'},
+  {
+    style_name: 'pastel',
+    display_name: '파스텔',
+    art_style_preview: require('../../assets/artstyles/pastel.png'),
+  },
+  {
+    style_name: 'childbook',
+    display_name: '동화책',
+    art_style_preview: require('../../assets/artstyles/childbook.png'),
+  },
+  {
+    style_name: 'coolkids',
+    display_name: '쿨키즈',
+    art_style_preview: require('../../assets/artstyles/coolkids.png'),
+  },
 ];
 
 export default function DiaryChooseArtstyleScreen({route}) {
@@ -34,7 +47,7 @@ export default function DiaryChooseArtstyleScreen({route}) {
       resizeMode="cover">
       <View
         style={{
-          flex: 1,
+          flex: 1.5,
           width: width * 0.9,
           marginTop: 150,
           marginBottom: 10,
@@ -64,18 +77,40 @@ const MessageItem = item => (
   <Pressable
     style={{
       width: 150,
-      height: 125,
+      height: 150,
       textAlign: 'center',
-      marginHorizontal: 5,
-      marginVertical: 10,
+      marginHorizontal: 10,
+      marginVertical: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
     }}
     onPress={item.onPress}>
     <Image
-      style={{width: 150, height: 125}}
+      style={{
+        width: 150,
+        height: 150,
+        elevation: 1,
+        borderWidth: 1,
+        borderColor: colors.gray400,
+      }}
       resizeMode="contain"
-      source={require('../../assets/soccer_diary.png')}
+      //source={require('../../assets/soccer_diary.png')}
+      source={item.art_style_preview}
     />
-    <Text style={{alignSelf: 'flex-end'}}>{item.display_name}</Text>
+    <Text
+      style={{
+        alignSelf: 'flex-end',
+        fontSize: 14,
+        lineHeight: 30,
+        fontFamily: 'MangoDdobak-R',
+      }}>
+      {item.display_name}
+    </Text>
   </Pressable>
 );
 
