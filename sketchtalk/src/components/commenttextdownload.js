@@ -37,7 +37,7 @@ const CommentTextDownload = ({height = 100, ...props}) => (
           includeFontPadding: false,
           paddingHorizontal: 10,
           marginBottom: 3,
-          color: colors.black,
+          color: colors.redBrown,
           lineHeight: 26,
         }}>
         {props.text}

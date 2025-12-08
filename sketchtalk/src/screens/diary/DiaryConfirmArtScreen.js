@@ -226,6 +226,7 @@ const ConfirmArtModal = props => (
               fontSize: 16,
               fontFamily: 'MangoDdobak-R',
               includeFontPadding: false,
+              color: colors.redBrown,
               flex: 1,
               marginTop: 15,
             }}>

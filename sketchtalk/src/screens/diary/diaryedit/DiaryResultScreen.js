@@ -310,6 +310,7 @@ const AchievementModal = props => (
         style={{
           flex: 1,
           color: colors.creamWhite,
+
           fontFamily: 'MangoDdobak-B',
           fontSize: 24,
           textAlignVertical: 'center',
@@ -408,6 +409,7 @@ const DownloadCharacterCommentDisplay = props => (
           style={{
             flex: 1,
             fontSize: 14,
+            color: colors.redBrown,
             fontFamily: 'MangoDdobak-B',
             includeFontPadding: false,
           }}>
@@ -506,6 +508,7 @@ const DownloadDiaryDisplay = props => (
             style={{
               flex: 1.5,
               fontSize: 15,
+              color: colors.redBrown,
               fontFamily: 'MangoDdobak-B',
               includeFontPadding: false,
               marginBottom: -1,
@@ -562,6 +565,7 @@ const DownloadDiaryDisplay = props => (
           style={{
             fontSize: 12,
             fontFamily: 'MangoDdobak-B',
+            color: colors.redBrown,
             includeFontPadding: false,
             justifyContent: 'flex-start',
             width: width * 0.8 - 2,
@@ -574,6 +578,7 @@ const DownloadDiaryDisplay = props => (
           style={{
             fontSize: 12,
             fontFamily: 'MangoDdobak-R',
+            color: colors.redBrown,
             includeFontPadding: false,
             justifyContent: 'flex-start',
             paddingHorizontal: 10,
@@ -609,6 +614,7 @@ const DiaryDisplayHeader = props => (
           flex: 2.5,
           fontSize: 20,
           fontFamily: 'MangoDdobak-B',
+          color: colors.redBrown,
           includeFontPadding: false,
           marginBottom: -1,
         }}>
@@ -697,6 +703,7 @@ const ButtonTutorialPopup = props => (
         style={{
           fontSize: 16,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           includeFontPadding: false,
           marginTop: 0,
         }}>
@@ -716,6 +723,7 @@ const ButtonTutorialPopup = props => (
         style={{
           fontSize: 16,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           includeFontPadding: false,
           marginTop: 0,
         }}>
@@ -756,6 +764,7 @@ const DiaryTextDisplay = props => (
       style={{
         fontSize: 14,
         fontFamily: 'MangoDdobak-B',
+        color: colors.redBrown,
         includeFontPadding: false,
         justifyContent: 'flex-start',
         width: width * 0.9 - 2,
@@ -768,6 +777,7 @@ const DiaryTextDisplay = props => (
       style={{
         fontSize: 14,
         fontFamily: 'MangoDdobak-R',
+        color: colors.redBrown,
         includeFontPadding: false,
         justifyContent: 'flex-start',
         paddingHorizontal: 10,
@@ -822,6 +832,7 @@ const DownloadEventModal = props => (
             style={{
               fontSize: 16,
               fontFamily: 'MangoDdobak-R',
+              color: colors.redBrown,
               includeFontPadding: false,
               flex: 1,
               marginTop: 15,

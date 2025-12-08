@@ -195,6 +195,7 @@ const DiaryDisplay = props => (
         style={{
           fontSize: 14,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           justifyContent: 'flex-start',
           width: width * 0.9 - 2,
           paddingHorizontal: 10,
@@ -206,6 +207,7 @@ const DiaryDisplay = props => (
         style={{
           fontSize: 14,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           includeFontPadding: false,
           justifyContent: 'flex-start',
           paddingHorizontal: 10,
@@ -244,6 +246,7 @@ const ConfirmTextModal = props => (
   <Modal
     isVisible={props.isVisible}
     animationIn="none"
+    statusBarTranslucent={true}
     animationInTiming={1}
     animationOutTiming={1}
     onBackdropPress={props.onBackdropPress}>
@@ -283,6 +286,7 @@ const ConfirmTextModal = props => (
             style={{
               fontSize: 16,
               fontFamily: 'MangoDdobak-R',
+              color: colors.redBrown,
               includeFontPadding: false,
               flex: 1,
               marginTop: 15,

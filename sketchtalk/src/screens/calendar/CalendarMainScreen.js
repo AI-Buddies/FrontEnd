@@ -219,6 +219,7 @@ export default function CalenderMainScreen({route}) {
         style={{
           fontSize: 25,
           fontFamily: 'MangoDdobak-B',
+          color: colors.redBrown,
           flex: 1,
           textAlignVertical: 'bottom',
         }}>
@@ -306,6 +307,7 @@ export default function CalenderMainScreen({route}) {
                   style={{
                     textAlign: 'center',
                     fontFamily: 'MangoDdobak-B',
+                    color: colors.redBrown,
                     lineHeight: 31,
                     fontSize: 24,
                   }}>
@@ -348,6 +350,7 @@ export default function CalenderMainScreen({route}) {
                     style={{
                       textAlign: 'center',
                       fontFamily: 'MangoDdobak-B',
+                      color: colors.redBrown,
                       lineHeight: 31,
                       fontSize: 24,
                     }}>
@@ -480,7 +483,7 @@ export default function CalenderMainScreen({route}) {
                     textAlign: 'center',
                     fontFamily: 'MangoDdobak-B',
                     lineHeight: 31,
-
+                    color: colors.redBrown,
                     fontSize: 24,
                   }}>
                   {listViewQuery.isError
@@ -586,7 +589,12 @@ const CalendarPreviewModal = props => (
               {props.date}
             </Text>
             <Text
-              style={{flex: 1.5, fontFamily: 'MangoDdobak-B', fontSize: 20}}
+              style={{
+                flex: 1.5,
+                fontFamily: 'MangoDdobak-B',
+                color: colors.redBrown,
+                fontSize: 20,
+              }}
               numberOfLines={1}>
               {props.title}
             </Text>
@@ -745,6 +753,7 @@ const CalendarListViewItem = item => (
           height: 20,
           marginHorizontal: 10,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           includeFontPadding: false,
           alignSelf: 'flex-start',
           fontSize: 15,
@@ -803,6 +812,7 @@ const CalendarNavigator = props => (
         style={{
           fontSize: 25,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           includeFontPadding: false,
           textAlign: 'center',
           textAlignVertical: 'top',
@@ -861,6 +871,7 @@ const LoadDiaryModal = props => (
             style={{
               fontSize: 16,
               fontFamily: 'MangoDdobak-R',
+              color: colors.redBrown,
               includeFontPadding: false,
               flex: 1,
               marginTop: 15,

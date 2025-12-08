@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import colors from '../constants/colors';
 
 import HomeScreen from '../screens/home_screen';
@@ -73,22 +73,22 @@ const TabNavigator = () => (
     <Tab.Screen
       name="MypageStackNavigator"
       component={MypageStackNavigator}
-      options={({ route }) => {
+      options={({route}) => {
         const rn = getFocusedRouteNameFromRoute(route) ?? 'MypageMainScreen';
         const hideOn = ['FAQ', 'AppInfo', 'ProfileEdit', 'AlarmSetting'];
         const hide = hideOn.includes(rn);
         return {
-          tabBarStyle: hide ? { display: 'none' } : undefined,
+          tabBarStyle: hide ? {display: 'none'} : {height: 69},
           tabBarShowLabel: false,
-        headerShown: false,
-        tabBarIcon: ({focused}) => (
-          <CustomIcon
-            focused={focused}
-            Icontype={Feather}
-            iconName="user"
-            labelName="마이페이지"
-          />
-        )
+          headerShown: false,
+          tabBarIcon: ({focused}) => (
+            <CustomIcon
+              focused={focused}
+              Icontype={Feather}
+              iconName="user"
+              labelName="마이페이지"
+            />
+          ),
         };
       }}
     />

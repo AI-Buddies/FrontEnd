@@ -162,6 +162,7 @@ const ConfirmRedrawPopup = props => (
           <Text
             style={{
               fontSize: 16,
+              color: colors.redBrown,
               fontFamily: 'MangoDdobak-R',
               includeFontPadding: false,
               flex: 1,
@@ -247,6 +248,7 @@ const DiaryDisplayHeader = props => (
         flex: 8,
         marginLeft: 10,
         fontSize: 20,
+        color: colors.redBrown,
         fontFamily: 'MangoDdobak-B',
         includeFontPadding: false,
       }}>
@@ -286,6 +288,7 @@ const DiaryTextDisplay = props => (
         style={{
           fontSize: 14,
           fontFamily: 'MangoDdobak-B',
+          color: colors.redBrown,
           includeFontPadding: false,
           justifyContent: 'flex-end',
           paddingLeft: 9,
@@ -302,6 +305,7 @@ const DiaryTextDisplay = props => (
         style={{
           fontSize: 14,
           fontFamily: 'MangoDdobak-B',
+          color: colors.redBrown,
           includeFontPadding: false,
           justifyContent: 'flex-start',
           paddingRight: 9,
@@ -321,6 +325,7 @@ const DiaryTextDisplay = props => (
       style={{
         fontSize: 14,
         fontFamily: 'MangoDdobak-R',
+        color: colors.redBrown,
         includeFontPadding: false,
         justifyContent: 'flex-start',
         paddingHorizontal: 10,

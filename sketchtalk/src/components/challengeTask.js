@@ -1,60 +1,75 @@
-import React, { memo } from 'react';
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import React, {memo} from 'react';
+import {View, Text, Image, Pressable, StyleSheet} from 'react-native';
 import colors from '../constants/colors';
 
 function ChallengeTask({
-    title,
-    image,
-    done = 0,
-    total = 0,
-    onPress,
-    style,
+  title,
+  image,
+  done = 0,
+  total = 0,
+  onPress,
+  style,
 
-    disabled = false,
-    completed,  // 완료여부
-    })  {
-        const safeTotal = Math.max(total, 0);
-        const safeDone = Math.min(done, safeTotal);
-        const ratio = safeTotal === 0 ? 0 : Math.min(1, Math.max(0, safeDone / safeTotal));
-        const isCompleted = typeof completed === 'boolean' ? completed : (safeTotal > 0 && safeDone >= safeTotal);
+  disabled = false,
+  completed, // 완료여부
+}) {
+  const safeTotal = Math.max(total, 0);
+  const safeDone = Math.min(done, safeTotal);
+  const ratio =
+    safeTotal === 0 ? 0 : Math.min(1, Math.max(0, safeDone / safeTotal));
+  const isCompleted =
+    typeof completed === 'boolean'
+      ? completed
+      : safeTotal > 0 && safeDone >= safeTotal;
 
-    return(
-        <Pressable
-            onPress={onPress}
-            disabled={disabled}
-            style={({ pressed }) => [
-                styles.card,
-                pressed && styles.cardPressed,
-                disabled && styles.cardDisabled,
-                style,
-            ]}
-            android_ripple={{ color: '#00000014', borderless: false }}
-        >
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={({pressed}) => [
+        styles.card,
+        pressed && styles.cardPressed,
+        disabled && styles.cardDisabled,
+        style,
+      ]}
+      android_ripple={{color: '#00000014', borderless: false}}>
+      {isCompleted && (
+        <Image
+          source={require('../assets/challenge/challengeStamp.png')}
+          style={styles.badge}
+          resizeMode="contain"
+        />
+      )}
 
-          {isCompleted && (
-                    <Image source={require('../assets/challenge/challengeStamp.png')} style={styles.badge} resizeMode="contain" />
-          )}
+      <View style={styles.imageWrap}>
+        <Image
+          source={image}
+          resizeMode="contain"
+          style={[styles.image, disabled && styles.disabledItem]}
+        />
+      </View>
 
-            <View style={styles.imageWrap}>
-                <Image
-                    source={image}
-                    resizeMode="contain"
-                    style={[styles.image, disabled && styles.disabledItem]}
-                />
-            </View>
-
-            <Text numberOfLines={1} style={[styles.title, disabled && styles.disabledText]}>{title}</Text>
-            <Text style={[styles.countText, disabled && styles.disabledText]}>{safeDone} / {safeTotal}</Text>
-            <View style={styles.progressTrack}>
-                <View style={[
-                    styles.progressFill,
-                    {width: `${ratio * 100}%`, backgroundColor: isCompleted ? colors.primary : colors.blue,}
-                ]}
-                />
-            </View>
-
-        </Pressable>
-    );
+      <Text
+        numberOfLines={1}
+        style={[styles.title, disabled && styles.disabledText]}>
+        {title}
+      </Text>
+      <Text style={[styles.countText, disabled && styles.disabledText]}>
+        {safeDone} / {safeTotal}
+      </Text>
+      <View style={styles.progressTrack}>
+        <View
+          style={[
+            styles.progressFill,
+            {
+              width: `${ratio * 100}%`,
+              backgroundColor: isCompleted ? colors.primary : colors.blue,
+            },
+          ]}
+        />
+      </View>
+    </Pressable>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -68,7 +83,7 @@ const styles = StyleSheet.create({
   },
   cardPressed: {
     elevation: 1,
-    transform: [{ scale: 0.99 }],
+    transform: [{scale: 0.99}],
   },
   imageWrap: {
     height: 78,
@@ -115,10 +130,10 @@ const styles = StyleSheet.create({
   cardDisabled: {
     backgroundColor: colors.gray100,
   },
-  disabledText:{
+  disabledText: {
     color: colors.gray300,
   },
-  disabledItem:{
+  disabledItem: {
     opacity: 0.4,
   },
 });

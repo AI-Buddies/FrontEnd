@@ -31,6 +31,7 @@ export const DiaryLoadingScreen = props => (
           style={{
             alignSelf: 'flex-start',
             fontFamily: 'MangoDdobak-B',
+            color: colors.redBrown,
             fontSize: 25,
             marginTop: 0,
           }}>
@@ -42,6 +43,7 @@ export const DiaryLoadingScreen = props => (
           alignSelf: 'flex-start',
           fontSize: 20,
           fontFamily: 'MangoDdobak-R',
+          color: colors.redBrown,
           lineHeight: 29,
           marginTop: 20,
         }}>
