@@ -142,10 +142,12 @@ export default function DiaryArtRedrawScreen({route}) {
             그림을 선택해주세요.
           </Text>
           <DiaryRedrawArtDisplay
+            image_url={useDiaryRedrawImageFetch.data.data.data.prevImageUrl}
             text={'이전 그림'}
             onPress={() => confirmOldArt()}
           />
           <DiaryRedrawArtDisplay
+            image_url={useDiaryRedrawImageFetch.data.data.data.imageUrl}
             text={'새로 그린 그림'}
             onPress={() => confirmNewArt()}
           />
@@ -182,7 +184,7 @@ const DiaryRedrawArtDisplay = props => (
         {props.text}
       </Text>
       <Pressable onPress={props.onPress}>
-        <Image source={require('../../../assets/soccer_diary2.png')} />
+        <Image source={{uri: props.image_url}} />
       </Pressable>
     </View>
   </View>
