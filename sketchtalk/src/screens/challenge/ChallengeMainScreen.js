@@ -1,76 +1,56 @@
-import React from 'react';
-import {View, Text, Image, ImageBackground, Dimensions, StyleSheet, FlatList, Pressable, Platform, StatusBar} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  Dimensions,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import colors from '../../constants/colors';
 import ChallengeTask from '../../components/challengeTask';
+import {useQuery} from '@tanstack/react-query';
+import {getAchievementList} from '../../api/challenge';
+import {getCategoryImage} from '../../constants/challengeIcon';
 
-const { width, height } = Dimensions.get('window');
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+const {width, height} = Dimensions.get('window');
+//const TOP = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+const TOP = 0;
 const GAP = 20;
 const CARD_W = (width - GAP * 3) / 2;
 
-const DATA = [
-  {
-    id: 'family',
-    title: '가족',
-    image: require('../../assets/challenge/family.png'),
-    done: 6,
-    total: 6,
-  },
-  {
-    id: 'playground',
-    title: '놀이터',
-    image: require('../../assets/challenge/playground.png'),
-    done: 1,
-    total: 20,
-  },
-  {
-    id: 'exercise',
-    title: '운동',
-    image: require('../../assets/challenge/ball.png'),
-    done: 2,
-    total: 6,
-  },
-  {
-    id: 'kindergarten',
-    title: '유치원',
-    image: require('../../assets/challenge/kindergarten.png'),
-    done: 8,
-    total: 20,
-  },
-  {
-    id: 'leisure',
-    title: '여가생활',
-    image: require('../../assets/challenge/leisure.png'),
-    done: 10,
-    total: 20,
-  },
-  {
-    id: 'holiday',
-    title: '명절',
-    image: require('../../assets/challenge/holiday.png'),
-    done: 19,
-    total: 20,
-  },
-  {
-    id: 'etc',
-    title: '기타',
-    image: require('../../assets/challenge/etc.png'),
-    done: 0,
-    total: 0,
-  },
-];
-
 export default function ChallengeMainScreen({navigation}) {
+  const [filter, setFilter] = useState('all');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const {
+    data: achievements,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['achievementList', filter],
+    queryFn: () => getAchievementList(filter),
+  });
+
   const renderItem = ({item}) => (
     <ChallengeTask
-      title={item.title}
-      image={item.image}
-      done={item.done}
+      title={item.categoryName}
+      image={getCategoryImage(item.categoryName || detail?.item.categoryName)}
+      done={item.completed}
       total={item.total}
-      completed={item.completed}
-      style={{ width: CARD_W, marginTop: GAP }}
-      onPress={()=>navigation.navigate('ChallengeInfo')}
+      completed={item.isCompleted}
+      style={{width: CARD_W, marginTop: GAP}}
+      onPress={() =>
+        navigation.navigate('ChallengeInfo', {
+          categoryId: item.categoryId,
+          categoryName: item.categoryName,
+        })
+      }
     />
   );
 
@@ -78,27 +58,90 @@ export default function ChallengeMainScreen({navigation}) {
     <ImageBackground
       source={require('../../assets/background/green_bg.png')}
       resizeMode="cover"
-      style={styles.background}
-    >
-      <Image source={require('../../assets/logo.png')} style={styles.logo}/>
-      
+      style={styles.background}>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>도전과제</Text>
 
-        <Pressable style={styles.headerRight} hitSlop={8} onPress={() => {}}>
-          <Entypo name="menu" size={30} color={colors.redBrown}/>
+        <Pressable
+          style={styles.headerRight}
+          hitSlop={8}
+          onPress={() => setMenuOpen(prev => !prev)}>
+          <Entypo name="menu" size={30} color={colors.redBrown} />
         </Pressable>
+        {menuOpen && (
+          <View style={styles.filterMenu}>
+            <Pressable
+              style={styles.filterOption}
+              onPress={() => {
+                setFilter('all');
+                setMenuOpen(false);
+              }}>
+              <Text
+                style={[
+                  styles.filterOptionText,
+                  filter === 'all' && styles.filterOptionTextSelected,
+                ]}>
+                전체
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.filterOption}
+              onPress={() => {
+                setFilter('incomplete');
+                setMenuOpen(false);
+              }}>
+              <Text
+                style={[
+                  styles.filterOptionText,
+                  filter === 'incomplete' && styles.filterOptionTextSelected,
+                ]}>
+                미달성
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.filterOption}
+              onPress={() => {
+                setFilter('completed');
+                setMenuOpen(false);
+              }}>
+              <Text
+                style={[
+                  styles.filterOptionText,
+                  filter === 'completed' && styles.filterOptionTextSelected,
+                ]}>
+                달성
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
 
-      <FlatList
-        data={DATA}
-        keyExtractor={(it) => it.id}
-        numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.column}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={true}
-      />
+      {isLoading && (
+        <View>
+          <Text>도전과제를 불러오는 중이에요...</Text>
+        </View>
+      )}
+      {isError && !isLoading && (
+        <View>
+          <Text>도전과제를 불러오지 못했어요. 다시 시도해 주세요.</Text>
+        </View>
+      )}
+
+      {!isLoading && !isError && (
+        <FlatList
+          data={achievements || []}
+          keyExtractor={item => String(item.categoryId)}
+          numColumns={2}
+          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.column}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={true}
+        />
+      )}
     </ImageBackground>
   );
 }
@@ -111,10 +154,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: TOP + 8,
-    left: 20,
-    width:100,
-    height: 100,
+    top: 10,
+    left: 10,
+    width: 80,
+    height: 80,
   },
   header: {
     marginTop: TOP + 35,
@@ -128,8 +171,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     textAlign: 'center',
     fontSize: 24,
-    fontWeight: '700',
     color: colors.redBrown,
+    fontFamily: 'MangoDdobak-B',
   },
   headerRight: {
     position: 'absolute',
@@ -145,5 +188,33 @@ const styles = StyleSheet.create({
   },
   column: {
     columnGap: GAP,
+  },
+  filterMenu: {
+    position: 'absolute',
+    right: 16,
+    top: 0,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    zIndex: 10,
+  },
+  filterOption: {
+    paddingVertical: 6,
+  },
+  filterOptionText: {
+    fontSize: 20,
+    color: colors.redBrown,
+    fontFamily: 'MangoDdobak-R',
+  },
+  filterOptionTextSelected: {
+    fontFamily: 'MangoDdobak-B',
+    color: colors.redBrown,
+    fontSize: 22,
   },
 });

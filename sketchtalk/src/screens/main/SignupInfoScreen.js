@@ -1,33 +1,70 @@
-import React, {useState} from 'react';
+import React, { useRef, useState } from 'react';
 import {SafeAreaView, View, Dimensions, Text, Image, ImageBackground, StyleSheet, Platform} from 'react-native';
 import InputField from '../../components/inputfield'
 import colors from '../../constants/colors';
 import ConfirmButton from '../../components/confirmbutton';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import FormScrollContainer from '../../components/layout/formScrollContainer'; 
+import { registerUser } from '../../api/auth';
+import Popup from '../../components/popup';
 
 const { width, height } = Dimensions.get('window');
 
-export default function SignupInfoScreen({ navigation }){
-    const [name, setName] = useState('');
-    const [bd, setBd] = useState('');
-    const [pickerDate, setPickerDate] = useState(new Date(2000,1,1));
-    const [showPicker, setShowPicker] = useState(false);
+function formatBirth(dateObj){
+  const yyyy = dateObj.getFullYear();
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const dd = String(dateObj.getDate()).padStart(2, '0');
+  return { view: `${yyyy}년 ${mm}월 ${dd}일`, api: `${yyyy}-${mm}-${dd}` };
+}
 
-    const openPicker = () => setShowPicker(true);
-    const onChangeDate = (event, selectedDate) => {
-      if (!selectedDate) {
-        if (Platform.OS === 'android') setShowPicker(false);
-        return;
-      } setPickerDate(selectedDate);
+export default function SignupInfoScreen({ navigation, route }){
+  const { userId, password } = route?.params ?? {}; 
+  
+  const [name, setName] = useState('');
+  const [bd, setBd] = useState('');
+  const [pickerDate, setPickerDate] = useState(new Date(2000,1,1));
+  const [showPicker, setShowPicker] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-      const yyyy = selectedDate.getFullYear();
-      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const dd = String(selectedDate.getDate()).padStart(2, '0');
-      setBd(`${yyyy}년 ${mm}월 ${dd}일`);
-
-      if (Platform.OS === 'android') setShowPicker(false);
+  const openPicker = () => setShowPicker(true);
+  const onChangeDate = (event, selectedDate) => {
+    if (!selectedDate) {
+      setShowPicker(false);
+      return;
     }
+    setPickerDate(selectedDate);
+    const f = formatBirth(selectedDate);
+    setBd(f.view);
+    setShowPicker(false);
+  }
+
+  const flatRef = useRef(null);
+  const focusScrollTo = (index) => {
+    flatRef.current?.scrollToIndex?.({index, animated: true});
+  };
+
+  const canSubmit = !!userId && !!password && name.trim().length >= 1 && !!bd;
+  const onSubmit = async () => {
+    if (!canSubmit) {
+      setPopupOpen(true);
+      return;
+    }
+    try {
+      setLoading(true);
+      const birth = formatBirth(pickerDate).api;
+      const payload = { userId, password, name, birth };
+
+      const data = await registerUser(payload);
+
+      if(canSubmit) navigation.navigate('Main')
+    } catch (e){
+      setPopupOpen(true);
+      console.log('register error:', e);
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
 
     return(
         <SafeAreaView style={{flex: 1}}>
@@ -35,8 +72,6 @@ export default function SignupInfoScreen({ navigation }){
             style={{ width, height, flex: 1 }}
             resizeMode="cover">
 
-          <FormScrollContainer contentStyle={{ alignItems: 'center' }}>
-            {({scrollToEnd}) => (
             <View style={styles.container}>
               <Image
                 source={require('../../assets/main_logo.png')}
@@ -52,7 +87,7 @@ export default function SignupInfoScreen({ navigation }){
                 value={name}
                 onChangeText={setName}
                 keyboardType = "default"
-                onFocus={scrollToEnd} 
+                onFocus={() => focusScrollTo(0)} 
               />
 
               <InputField
@@ -74,17 +109,26 @@ export default function SignupInfoScreen({ navigation }){
               )}
                 </View>
               </View>
-          )}</FormScrollContainer>
             
             <View style={styles.button}>
             <ConfirmButton
-            text = "회원가입"
+            text = {loading ? '가입 중' : '회원가입'}
             color = {colors.primary}
-            width = {width}
+            width = {width * 0.8}
             marginBottom = {10}
-            onPress={() => navigation.navigate('Main')}
+            onPress={loading ? undefined : onSubmit}
       />
             </View>
+            <Popup
+              visible={popupOpen}
+              message="회원가입 중 오류가 발생했습니다. 다시 시도하여주세요."
+              onClose={() => setPopupOpen(false)}
+              primary={{
+                text: '확인',
+                variant: 'primary',
+                onPress: () => setPopupOpen(false),
+              }}
+            />
           </ImageBackground>
         </SafeAreaView>
     )
@@ -118,7 +162,7 @@ const styles = StyleSheet.create({
   },
   title: {
   fontSize: 30,
-  fontWeight: 'bold',
+  fontFamily: 'MangoDdobak-B',
   textAlign: 'center',
   marginBottom: 30,
   color: colors.redBrown,

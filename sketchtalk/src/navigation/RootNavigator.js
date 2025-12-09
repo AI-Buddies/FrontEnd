@@ -7,13 +7,15 @@ import MypageStackNavigator from './MypageStackNavigator.js';
 import DiaryStackNavigator from './DiaryStackNavigator.js';
 import DiaryResultStackNavigator from './DiaryResultStackNavigator.js';
 import ChallengeStackNavigator from './ChallengeStackNavigator.js';
+import AuthStackNavigator from './AuthStackNavigator.js';
 
 const Nav = createNativeStackNavigator();
 
 const RootNavigator = () => (
   <Nav.Navigator
-    initialRouteName="TabNavigator"
+    initialRouteName="AuthStackNavigator"
     screenOptions={{headerShown: false}}>
+    <Nav.Screen name="AuthStackNavigator" component={AuthStackNavigator} />
     <Nav.Screen name="TabNavigator" component={TabNavigator} />
     <Nav.Screen
       name="CalendarStackNavigator"

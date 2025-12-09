@@ -1,0 +1,122 @@
+export const CHALLENGE_ICONS = {
+    // 도전과제
+    가족: require('../assets/challenge/family.png'),
+    놀이터: require('../assets/challenge/playground.png'),
+    운동: require('../assets/challenge/ball.png'),
+    유치원: require('../assets/challenge/kindergarten.png'),
+    여가생활: require('../assets/challenge/leisure.png'),
+    명절: require('../assets/challenge/holiday.png'),
+    봄: require('../assets/challenge/spring.png'),
+    여름: require('../assets/challenge/summer.png'),
+    가을: require('../assets/challenge/fall.png'),
+    겨울: require('../assets/challenge/winter.png'),
+    악기: require('../assets/challenge/piano.png'),
+    동물: require('../assets/challenge/cat.png'),
+    음식: require('../assets/challenge/food.png'),
+    전자제품: require('../assets/challenge/computer.png'),
+    이동수단: require('../assets/challenge/airplane.png'),
+    //도전과제 세부
+    엄마: require('../assets/challenge/mother.png'),
+    형제자매: require('../assets/challenge/sibiling.png'),
+    아빠: require('../assets/challenge/father.png'),
+    할머니: require('../assets/challenge/grandmother.png'),
+    할아버지: require('../assets/challenge/grandfather.png'),
+
+    미끄럼틀: require('../assets/challenge/slide.png'),
+    시소: require('../assets/challenge/seesaw.png'),
+    모래성: require('../assets/challenge/sandcastle.png'),
+    그네: require('../assets/challenge/swing.png'),
+    두꺼비집: require('../assets/challenge/sandplay.png'),
+    
+    축구: require('../assets/challenge/ball.png'),
+    야구: require('../assets/challenge/baseball.png'),
+    수영: require('../assets/challenge/swimming.png'),
+    농구: require('../assets/challenge/basketball.png'),
+    배드민턴: require('../assets/challenge/badminton.png'),
+    자전거: require('../assets/challenge/bicycle.png'),
+    달리기: require('../assets/challenge/running.png'),
+    앞구르기: require('../assets/challenge/rolling.png'),
+    //발차기: require('../assets/challenge/.png'),
+    줄넘기: require('../assets/challenge/jumprope.png'),
+    
+    선생님: require('../assets/challenge/teacher.png'),
+    친구: require('../assets/challenge/friend.png'),
+    버스: require('../assets/challenge/bus.png'),
+    소풍: require('../assets/challenge/picnic.png'),
+    공부: require('../assets/challenge/studying.png'),
+    
+    영화: require('../assets/challenge/movie.png'),
+    책읽기: require('../assets/challenge/reading.png'),
+    산책: require('../assets/challenge/walk.png'),
+    강아지: require('../assets/challenge/dog.png'),
+    
+    윷놀이: require('../assets/challenge/yutnori.png'),
+    세배: require('../assets/challenge/bow.png'),
+    송편: require('../assets/challenge/ricecake.png'),
+    제사: require('../assets/challenge/ritual.png'),
+    명절음식: require('../assets/challenge/ricecakesoup.png'),
+    
+    새학기: require('../assets/challenge/kindergarten.png'),
+    //나들이(소풍): require('../assets/challenge/picnic.png'),
+    미세먼지: require('../assets/challenge/dust.png'),
+    벚꽃: require('../assets/challenge/cherryblossom.png'),
+    개나리: require('../assets/challenge/forsythia.png'),
+    
+    물놀이: require('../assets/challenge/watergun.png'),
+    바다: require('../assets/challenge/sea.png'),
+    튜브: require('../assets/challenge/tube.png'),
+    물총: require('../assets/challenge/watergun.png'),
+    
+    단풍: require('../assets/challenge/mapleleave.png'),
+    낙엽: require('../assets/challenge/fallenleave.png'),
+    독서: require('../assets/challenge/reading.png'),
+    코스모스: require('../assets/challenge/cosmos.png'),
+    감성: require('../assets/challenge/music.png'),
+    
+    눈사람: require('../assets/challenge/winter.png'),
+    썰매: require('../assets/challenge/sled.png'),
+    목도리: require('../assets/challenge/scarf.png'),
+    크리스마스: require('../assets/challenge/christmas.png'),
+    눈싸움: require('../assets/challenge/snowball.png'),
+    
+    기타: require('../assets/challenge/guitar.png'),
+    피아노: require('../assets/challenge/piano.png'),
+    노래: require('../assets/challenge/music.png'),
+    드럼: require('../assets/challenge/drum.png'),
+    바이올린: require('../assets/challenge/violin.png'),
+    북: require('../assets/challenge/traditionaldrum.png'),
+    리코더: require('../assets/challenge/recorder.png'),
+    탬버린: require('../assets/challenge/tambourine.png'),
+    
+    고양이: require('../assets/challenge/cat.png'),
+    닭: require('../assets/challenge/chicken.png'),
+    앵무새: require('../assets/challenge/parrot.png'),
+    물고기: require('../assets/challenge/fish.png'),
+    병아리: require('../assets/challenge/chick.png'),
+    토끼: require('../assets/challenge/rabbit.png'),
+    
+    과자: require('../assets/challenge/snack.png'),
+    라면: require('../assets/challenge/ramen.png'),
+    김밥: require('../assets/challenge/gimbap.png'),
+    아이스크림: require('../assets/challenge/icecream.png'),
+    떡볶이: require('../assets/challenge/tteokbokki.png'),
+    고기: require('../assets/challenge/meat.png'),
+    김치: require('../assets/challenge/kimchi.png'),
+    
+    에어컨: require('../assets/challenge/aircon.png'),
+    공기청정기: require('../assets/challenge/airpurifier.png'),
+    전기장판: require('../assets/challenge/electricheatingpad.png'),
+    청소기: require('../assets/challenge/vacuumcleaner.png'),
+    세탁기: require('../assets/challenge/washingmachine.png'),
+    
+    자동차: require('../assets/challenge/car.png'),
+    기차: require('../assets/challenge/train.png'),
+    비행기: require('../assets/challenge/airplane.png'),
+    배: require('../assets/challenge/boat.png'),
+    
+    default: require('../assets/challenge/etc.png'),
+}
+
+export function getCategoryImage(categoryName) {
+    return CHALLENGE_ICONS[categoryName] || CHALLENGE_ICONS.default;
+}

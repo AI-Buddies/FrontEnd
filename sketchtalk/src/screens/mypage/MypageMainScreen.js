@@ -1,29 +1,66 @@
-import React, { useState } from 'react';
-import {View, Text, Image, ImageBackground, Dimensions, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import colors from '../../constants/colors';
 import MypageField from '../../components/mypagefield';
+import Popup from '../../components/popup';
+import {useQuery} from '@tanstack/react-query';
+import {logoutUser, deleteUser} from '../../api/auth';
+import {getUserInfo} from '../../api/setting';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-export default function MypageMainScreen({ navigation }) {
-  const [alarmOn, setAlarmOn] = useState(true);
+export default function MypageMainScreen({navigation}) {
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawDoneOpen, setWithdrawDoneOpen] = useState(false);
+
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['setting'],
+    queryFn: getUserInfo,
+  });
+
+  if (isLoading) {
+    return (
+      <View>
+        <Text>로딩 중...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View>
+        <Text>오류가 발생했습니다</Text>
+      </View>
+    );
+  }
+
+  const {nickname, birthdate, canAlarm} = data || {};
+  const formattedBirth = birthdate
+    ? birthdate
+        .replace(/-/g, '.')
+        .replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
+    : '';
 
   return (
     <ImageBackground
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover"
-      style={styles.background}
-    >
-      <Image
-        source={require('../../assets/logo.png')}
-        style={styles.logo}
-      />
+      style={styles.background}>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
 
       <View style={styles.card}>
         {/* 상단 이름/생일 */}
         <View style={styles.headerRow}>
-          <Text style={styles.headerName}>김이름</Text>
-          <Text style={styles.headerBirth}>2000년 00월 00일</Text>
+          <Text style={styles.headerName}>{nickname}</Text>
+          <Text style={styles.headerBirth}>{formattedBirth}</Text>
         </View>
 
         <View style={styles.headerDivider} />
@@ -34,10 +71,9 @@ export default function MypageMainScreen({ navigation }) {
           onPress={() => navigation.navigate('ProfileEdit')}
         />
         <MypageField
-          text="알림 설정"
-          rightType="switch"
-          switchValue={alarmOn}
-          onPress={() => setAlarmOn(v => !v)}
+          text="알람 세부 설정"
+          rightType="right"
+          onPress={() => navigation.navigate('AlarmSetting')}
         />
         <MypageField
           text="자주 묻는 질문"
@@ -51,15 +87,75 @@ export default function MypageMainScreen({ navigation }) {
           divider="thick"
         />
 
-        <MypageField
-          text="로그아웃"
-          onPress={() => navigation.replace('AuthStackNavigator')}
-        />
-        <MypageField
-          text="회원 탈퇴"
-          onPress={() => navigation.replace('AuthStackNavigator')}
-        />
+        <MypageField text="로그아웃" onPress={() => setLogoutOpen(true)} />
+        <MypageField text="회원 탈퇴" onPress={() => setWithdrawOpen(true)} />
       </View>
+
+      <Popup
+        visible={logoutOpen}
+        message="로그아웃 하시겠어요?"
+        onClose={() => setLogoutOpen(false)}
+        secondary={{
+          text: '취소',
+          variant: 'gray',
+          onPress: () => setLogoutOpen(false),
+        }}
+        primary={{
+          text: '확인',
+          variant: 'primary',
+          onPress: async () => {
+            try {
+              setLogoutOpen(false);
+
+              // 임시 deviceIdentifier (나중에 실제 unique ID 연결 가능)
+              const deviceIdentifier = 'dummy-device-identifier';
+              await logoutUser(deviceIdentifier);
+              navigation.replace('AuthStackNavigator');
+            } catch (e) {
+              console.log('Logout error:', e);
+            }
+          },
+        }}
+      />
+      <Popup
+        visible={withdrawOpen}
+        message="정말 탈퇴하시겠어요? 모든 데이터가 삭제되어 복구가 어려워요."
+        onClose={() => setWithdrawOpen(false)}
+        secondary={{
+          text: '취소',
+          variant: 'gray',
+          onPress: () => setWithdrawOpen(false),
+        }}
+        primary={{
+          text: '확인',
+          variant: 'primary',
+          onPress: async () => {
+            try {
+              setWithdrawOpen(false);
+              await deleteUser();
+              setWithdrawDoneOpen(true);
+            } catch (e) {
+              console.log('Withdraw error:', e);
+            }
+          },
+        }}
+      />
+      <Popup
+        visible={withdrawDoneOpen}
+        message="회원탈퇴가 완료되었습니다."
+        onClose={() => {
+          setWithdrawDoneOpen(false);
+          navigation.replace('AuthStackNavigator');
+        }}
+        primary={{
+          text: '확인',
+          variant: 'primary',
+          onPress: () => {
+            setWithdrawDoneOpen(false);
+            navigation.replace('AuthStackNavigator');
+          },
+        }}
+      />
     </ImageBackground>
   );
 }
@@ -74,10 +170,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    width:100,
-    height: 100,
+    top: 10,
+    left: 10,
+    width: 80,
+    height: 80,
   },
   card: {
     position: 'absolute',
@@ -102,12 +198,13 @@ const styles = StyleSheet.create({
   },
   headerName: {
     fontSize: 30,
-    fontWeight: '800',
+    fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
     letterSpacing: 0.5,
   },
   headerBirth: {
     fontSize: 16,
+    fontFamily: 'MangoDdobak-R',
     color: colors.redBrown,
     marginTop: 4,
   },

@@ -35,7 +35,7 @@ const ConfirmText = props => (
           lineHeight: 25,
           paddingHorizontal: 10,
           marginBottom: 2,
-          color: colors.black,
+          color: colors.redBrown,
         }}>
         {props.text}
       </Text>
