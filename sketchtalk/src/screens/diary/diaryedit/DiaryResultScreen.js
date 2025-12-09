@@ -30,37 +30,37 @@ import axios from 'axios';
 const {width, height} = Dimensions.get('window');
 
 function getEmoticon(emotion) {
-  if (emotion.localeCompare('happy')) {
+  if (emotion === 'HAPPY') {
     return require('../../../assets/emotions/emotion_happy.png');
   }
-  if (emotion.localeCompare('amazed')) {
+  if (emotion === 'AMAZED') {
     return require('../../../assets/emotions/emotion_amazed.png');
   }
-  if (emotion.localeCompare('sad')) {
+  if (emotion === 'SAD') {
     return require('../../../assets/emotions/emotion_sad.png');
   }
-  if (emotion.localeCompare('angry')) {
+  if (emotion === 'ANGRY') {
     return require('../../../assets/emotions/emotion_angry.png');
   }
-  if (emotion.localeCompare('anxiety')) {
+  if (emotion === 'ANXIETY') {
     return require('../../../assets/emotions/emotion_anxiety.png');
   }
 }
 
 function getEmotionDownloadBackground(emotion) {
-  if (emotion.localeCompare('happy')) {
+  if (emotion === 'HAPPY') {
     return require('../../../assets/background/diary_bg_happy.png');
   }
-  if (emotion.localeCompare('amazed')) {
+  if (emotion === 'AMAZED') {
     return require('../../../assets/background/diary_bg_amazed.png');
   }
-  if (emotion.localeCompare('sad')) {
+  if (emotion === 'SAD') {
     return require('../../../assets/background/diary_bg_sad.png');
   }
-  if (emotion.localeCompare('angry')) {
+  if (emotion === 'ANGRY') {
     return require('../../../assets/background/diary_bg_angry.png');
   }
-  if (emotion.localeCompare('anxiety')) {
+  if (emotion === 'ANXIETY') {
     return require('../../../assets/background/diary_bg_anxiety.png');
   }
 }

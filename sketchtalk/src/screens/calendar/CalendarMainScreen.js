@@ -215,6 +215,7 @@ export default function CalenderMainScreen({route}) {
       source={require('../../assets/background/blue_bg.png')}
       resizeMode="cover">
       {isDiaryLoading && <LoadDiaryModal isVisible={isDiaryLoading} />}
+      <AppLogo />
       <Text
         style={{
           fontSize: 25,
@@ -895,3 +896,16 @@ const Background = styled(ImageBackground)`
   justify-content: center;
   align-items: center;
 `;
+
+const AppLogo = () => (
+  <Image
+    source={require('../../assets/logo.png')}
+    style={{
+      position: 'absolute',
+      top: 10,
+      left: 10,
+      width: 80,
+      height: 80,
+    }}
+  />
+);

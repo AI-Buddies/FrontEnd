@@ -170,10 +170,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 100,
-    height: 100,
+    top: 10,
+    left: 10,
+    width: 80,
+    height: 80,
   },
   card: {
     position: 'absolute',
