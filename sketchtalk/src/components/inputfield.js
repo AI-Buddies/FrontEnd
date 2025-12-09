@@ -1,17 +1,34 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import colors from '../constants/colors';
 
-function InputField({ 
-  label, style, inputStyle, keyboardType, onChangeText,
-  rightButtonText, onRightPress,  // 우측 버튼
-  helperText, helperVisible, helperStatus,  // 중복확인 멘트
-  ...props }) {
-
+function InputField({
+  label,
+  style,
+  inputStyle,
+  keyboardType,
+  onChangeText,
+  rightButtonText,
+  onRightPress, // 우측 버튼
+  helperText,
+  helperVisible,
+  helperStatus, // 중복확인 멘트
+  ...props
+}) {
   // 키보드 제한
-  const handleChangeText = (text) => {
+  const handleChangeText = text => {
     let filtered = text;
-    if (keyboardType === 'numeric' || keyboardType === 'number-pad' || keyboardType === 'phone-pad') {
+    if (
+      keyboardType === 'numeric' ||
+      keyboardType === 'number-pad' ||
+      keyboardType === 'phone-pad'
+    ) {
       // 숫자
       filtered = text.replace(/[^0-9]/g, '');
     } else if (keyboardType === 'ascii-capable') {
@@ -27,33 +44,40 @@ function InputField({
     error: colors.gray400,
     success: colors.primary,
   }[helperStatus];
-  
+
   return (
     <View style={style}>
-
-      {(label || (helperVisible && helperText)) ? (
+      {label || (helperVisible && helperText) ? (
         <View style={styles.labelRow}>
           {label ? <Text style={styles.label}>{label}</Text> : <View />}
           {helperVisible && helperText ? (
-            <Text style={[styles.helper, { color: helperColor }]}>{helperText}</Text>
-          ): null}
+            <Text style={[styles.helper, {color: helperColor}]}>
+              {helperText}
+            </Text>
+          ) : null}
         </View>
-      ): null}
+      ) : null}
 
       <View style={styles.container}>
         <TextInput
-          style={[styles.input, hasRightButton && {paddingRight: 110}, inputStyle]}
-          placeholderTextColor= {colors.gray400}
-
+          style={[
+            styles.input,
+            hasRightButton && {paddingRight: 110},
+            inputStyle,
+          ]}
+          placeholderTextColor={colors.gray400}
           keyboardType={keyboardType || 'ascii-capable'}
           onChangeText={handleChangeText}
           autoCapitalize="none" // 대문자 방지
           autoCorrect={false} // 자동교정 해지
           {...props}
         />
-        
+
         {hasRightButton && (
-          <TouchableOpacity style={styles.rightBtn} onPress={onRightPress} activeOpacity={0.8}> 
+          <TouchableOpacity
+            style={styles.rightBtn}
+            onPress={onRightPress}
+            activeOpacity={0.8}>
             <Text style={styles.rightBtnText}>{rightButtonText}</Text>
           </TouchableOpacity>
         )}
@@ -61,7 +85,6 @@ function InputField({
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -84,6 +107,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 16,
     fontFamily: 'MangoDdobak-R',
+    color: colors.redBrown,
     padding: 0,
   },
   // btn

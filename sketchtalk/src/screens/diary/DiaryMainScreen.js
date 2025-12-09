@@ -324,7 +324,7 @@ function MessageItem({item}) {
               textAlign: 'left',
               paddingHorizontal: 10,
               marginBottom: 2,
-              color: colors.black,
+              color: colors.redBrown,
             }}>
             {item.text}
           </Text>

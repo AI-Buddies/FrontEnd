@@ -2,11 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ACCESS_KEY = '@sketchtalk/accessToken';
 const REFRESH_KEY = '@sketchtalk/refreshToken';
+const ls = require('local-storage');
 
 // 토큰 저장
-export async function saveTokens({ accessToken, refreshToken }) {
+export async function saveTokens({accessToken, refreshToken}) {
   try {
     if (accessToken) {
+      ls('token', accessToken);
       await AsyncStorage.setItem(ACCESS_KEY, accessToken);
     }
     if (refreshToken) {
@@ -43,7 +45,7 @@ export async function loadTokens() {
     getAccessToken(),
     getRefreshToken(),
   ]);
-  return { accessToken, refreshToken };
+  return {accessToken, refreshToken};
 }
 
 // 로그아웃용 – 토큰 삭제

@@ -1,55 +1,60 @@
-import React, { useState } from 'react';
-import {View, Text, Image, ImageBackground, Dimensions, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import colors from '../../constants/colors';
 import MypageField from '../../components/mypagefield';
 import Popup from '../../components/popup';
-import { useQuery } from '@tanstack/react-query';
-import { logoutUser, deleteUser } from '../../api/auth';
-import { getUserInfo } from '../../api/setting';
+import {useQuery} from '@tanstack/react-query';
+import {logoutUser, deleteUser} from '../../api/auth';
+import {getUserInfo} from '../../api/setting';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
-export default function MypageMainScreen({ navigation }) {
+export default function MypageMainScreen({navigation}) {
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawDoneOpen, setWithdrawDoneOpen] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
+  const {data, isLoading, error} = useQuery({
     queryKey: ['setting'],
     queryFn: getUserInfo,
   });
 
   if (isLoading) {
-  return (
-    <View>
-      <Text>로딩 중...</Text>
-    </View>
-  );
-}
+    return (
+      <View>
+        <Text>로딩 중...</Text>
+      </View>
+    );
+  }
 
-if (error) {
-  return (
-    <View>
-      <Text>오류가 발생했습니다</Text>
-    </View>
-  );
-}
+  if (error) {
+    return (
+      <View>
+        <Text>오류가 발생했습니다</Text>
+      </View>
+    );
+  }
 
-const { nickname, birthdate, canAlarm } = data || {};
-const formattedBirth = birthdate
-  ? birthdate.replace(/-/g, '.').replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
-  : '';
+  const {nickname, birthdate, canAlarm} = data || {};
+  const formattedBirth = birthdate
+    ? birthdate
+        .replace(/-/g, '.')
+        .replace(/(\d{4})\.(\d{2})\.(\d{2})/, '$1년 $2월 $3일')
+    : '';
 
   return (
     <ImageBackground
       source={require('../../assets/background/yellow_bg.png')}
       resizeMode="cover"
-      style={styles.background}
-    >
-      <Image
-        source={require('../../assets/logo.png')}
-        style={styles.logo}
-      />
+      style={styles.background}>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
 
       <View style={styles.card}>
         {/* 상단 이름/생일 */}
@@ -82,14 +87,8 @@ const formattedBirth = birthdate
           divider="thick"
         />
 
-        <MypageField
-          text="로그아웃"
-          onPress={() => setLogoutOpen(true)}
-        />
-        <MypageField
-          text="회원 탈퇴"
-          onPress={() => setWithdrawOpen(true)}
-        />
+        <MypageField text="로그아웃" onPress={() => setLogoutOpen(true)} />
+        <MypageField text="회원 탈퇴" onPress={() => setWithdrawOpen(true)} />
       </View>
 
       <Popup
@@ -97,12 +96,12 @@ const formattedBirth = birthdate
         message="로그아웃 하시겠어요?"
         onClose={() => setLogoutOpen(false)}
         secondary={{
-          text:'취소',
+          text: '취소',
           variant: 'gray',
           onPress: () => setLogoutOpen(false),
         }}
         primary={{
-          text:'확인',
+          text: '확인',
           variant: 'primary',
           onPress: async () => {
             try {
@@ -112,11 +111,10 @@ const formattedBirth = birthdate
               const deviceIdentifier = 'dummy-device-identifier';
               await logoutUser(deviceIdentifier);
               navigation.replace('AuthStackNavigator');
-            } catch (e){
+            } catch (e) {
               console.log('Logout error:', e);
-
             }
-          }
+          },
         }}
       />
       <Popup
@@ -124,22 +122,22 @@ const formattedBirth = birthdate
         message="정말 탈퇴하시겠어요? 모든 데이터가 삭제되어 복구가 어려워요."
         onClose={() => setWithdrawOpen(false)}
         secondary={{
-          text:'취소',
+          text: '취소',
           variant: 'gray',
           onPress: () => setWithdrawOpen(false),
         }}
         primary={{
-          text:'확인',
+          text: '확인',
           variant: 'primary',
           onPress: async () => {
             try {
               setWithdrawOpen(false);
               await deleteUser();
               setWithdrawDoneOpen(true);
-            } catch (e){
+            } catch (e) {
               console.log('Withdraw error:', e);
             }
-          }
+          },
         }}
       />
       <Popup
@@ -155,7 +153,7 @@ const formattedBirth = birthdate
           onPress: () => {
             setWithdrawDoneOpen(false);
             navigation.replace('AuthStackNavigator');
-          }
+          },
         }}
       />
     </ImageBackground>
@@ -172,10 +170,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    width:100,
-    height: 100,
+    top: 10,
+    left: 10,
+    width: 80,
+    height: 80,
   },
   card: {
     position: 'absolute',

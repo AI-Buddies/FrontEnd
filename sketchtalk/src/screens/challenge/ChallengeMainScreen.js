@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
-import {View, Text, Image, ImageBackground, Dimensions, StyleSheet, FlatList, Pressable, Platform, StatusBar} from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  Dimensions,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import colors from '../../constants/colors';
 import ChallengeTask from '../../components/challengeTask';
-import { useQuery } from '@tanstack/react-query';
-import { getAchievementList } from '../../api/challenge';
-import { getCategoryImage } from '../../constants/challengeIcon';
+import {useQuery} from '@tanstack/react-query';
+import {getAchievementList} from '../../api/challenge';
+import {getCategoryImage} from '../../constants/challengeIcon';
 
-const { width, height } = Dimensions.get('window');
-const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
+const {width, height} = Dimensions.get('window');
+//const TOP = Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0;
+const TOP = 0;
 const GAP = 20;
 const CARD_W = (width - GAP * 3) / 2;
 
@@ -32,7 +44,7 @@ export default function ChallengeMainScreen({navigation}) {
       done={item.completed}
       total={item.total}
       completed={item.isCompleted}
-      style={{ width: CARD_W, marginTop: GAP }}
+      style={{width: CARD_W, marginTop: GAP}}
       onPress={() =>
         navigation.navigate('ChallengeInfo', {
           categoryId: item.categoryId,
@@ -46,15 +58,17 @@ export default function ChallengeMainScreen({navigation}) {
     <ImageBackground
       source={require('../../assets/background/green_bg.png')}
       resizeMode="cover"
-      style={styles.background}
-    >
-      <Image source={require('../../assets/logo.png')} style={styles.logo}/>
-      
+      style={styles.background}>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>도전과제</Text>
 
-        <Pressable style={styles.headerRight} hitSlop={8} onPress={() => setMenuOpen(prev => !prev)}>
-          <Entypo name="menu" size={30} color={colors.redBrown}/>
+        <Pressable
+          style={styles.headerRight}
+          hitSlop={8}
+          onPress={() => setMenuOpen(prev => !prev)}>
+          <Entypo name="menu" size={30} color={colors.redBrown} />
         </Pressable>
         {menuOpen && (
           <View style={styles.filterMenu}>
@@ -68,7 +82,9 @@ export default function ChallengeMainScreen({navigation}) {
                 style={[
                   styles.filterOptionText,
                   filter === 'all' && styles.filterOptionTextSelected,
-                ]}>전체</Text>
+                ]}>
+                전체
+              </Text>
             </Pressable>
 
             <Pressable
@@ -81,7 +97,9 @@ export default function ChallengeMainScreen({navigation}) {
                 style={[
                   styles.filterOptionText,
                   filter === 'incomplete' && styles.filterOptionTextSelected,
-                ]}>미달성</Text>
+                ]}>
+                미달성
+              </Text>
             </Pressable>
 
             <Pressable
@@ -94,7 +112,9 @@ export default function ChallengeMainScreen({navigation}) {
                 style={[
                   styles.filterOptionText,
                   filter === 'completed' && styles.filterOptionTextSelected,
-                ]}>달성</Text>
+                ]}>
+                달성
+              </Text>
             </Pressable>
           </View>
         )}
@@ -114,7 +134,7 @@ export default function ChallengeMainScreen({navigation}) {
       {!isLoading && !isError && (
         <FlatList
           data={achievements || []}
-          keyExtractor={(item) => String(item.categoryId)}
+          keyExtractor={item => String(item.categoryId)}
           numColumns={2}
           contentContainerStyle={styles.listContent}
           columnWrapperStyle={styles.column}
@@ -122,7 +142,6 @@ export default function ChallengeMainScreen({navigation}) {
           showsVerticalScrollIndicator={true}
         />
       )}
-
     </ImageBackground>
   );
 }
@@ -135,10 +154,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: 'absolute',
-    top: TOP + 8,
-    left: 20,
-    width:100,
-    height: 100,
+    top: 10,
+    left: 10,
+    width: 80,
+    height: 80,
   },
   header: {
     marginTop: TOP + 35,
@@ -180,7 +199,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     zIndex: 10,
@@ -191,7 +210,7 @@ const styles = StyleSheet.create({
   filterOptionText: {
     fontSize: 20,
     color: colors.redBrown,
-    fontFamily: 'MangoDdobak-R',    
+    fontFamily: 'MangoDdobak-R',
   },
   filterOptionTextSelected: {
     fontFamily: 'MangoDdobak-B',
