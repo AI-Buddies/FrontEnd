@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {View, Text, Image, ImageBackground, Dimensions, StyleSheet, FlatList, Pressable, Platform, StatusBar} from 'react-native';
+import {View, Text, ImageBackground, Dimensions, StyleSheet, FlatList, Pressable, Platform, StatusBar} from 'react-native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ChallengeList from '../../components/challengelist';
@@ -100,13 +100,13 @@ export default function ChallengeInfo({navigation, route}) {
 
         {isLoading && (
             <View>
-                <Text>도전과제를 불러오는 중이에요</Text>
+
             </View>
         )}
 
         {isError && !isLoading && (
             <View>
-                <Text>도전과제를 불러오지 못했어요.</Text>
+                <Text style={styles.infoText}>도전과제를 불러오지 못했어요.</Text>
             </View>
         )}
 
@@ -187,5 +187,10 @@ filterOptionTextSelected: {
     fontFamily: 'MangoDdobak-B',
     color: colors.redBrown,
     fontSize: 22,
+},
+infoText:{
+    fontSize: 20,
+    fontFamily: 'MangoDdobak-R',
+    color: colors.redBrown,
 },
 });
