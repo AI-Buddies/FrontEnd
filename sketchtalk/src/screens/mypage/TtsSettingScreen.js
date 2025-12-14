@@ -21,17 +21,17 @@ const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0;
 const GAP = 15;
 
 const VOICE_OPTIONS = [
-  { id: 'ko-KR-SeoHyeonNeural', label: '서현' },
-  { id: 'ko-KR-GookMinNeural',  label: '국민' },
-  { id: 'ko-KR-SunHiNeural',    label: '선히' },
+  { id: "ko-KR-SeoHyeonNeural", label: '서현' },
+  { id: "ko-KR-GookMinNeural",  label: '민우' },
+  { id: "ko-KR-SunHiNeural",    label: '선하' },
 ];
 
 export default function TtsSettingScreen({ navigation }) {
   const queryClient = useQueryClient();
 
-  const [voiceType, setVoiceType] = useState('ko-KR-SeoHyeonNeural');
+  const [voiceType, setVoiceType] = useState("ko-KR-SeoHyeonNeural");
   const [voiceSpeed, setVoiceSpeed] = useState(1.0);
-  const [bgm, setBgm] = useState('CALM'); 
+  const [bgm, setBgm] = useState("CALM"); 
 
   const { data } = useQuery({
     queryKey: ['ttsSetting'],
@@ -39,41 +39,65 @@ export default function TtsSettingScreen({ navigation }) {
     refetchOnWindowFocus: false,
   });
 
+  const SERVER_TO_UI_VOICE = {
+    KO_KR_SEOHYEON_NEURAL: 'ko-KR-SeoHyeonNeural',
+    KO_KR_GOOKMIN_NEURAL: 'ko-KR-GookMinNeural',
+    KO_KR_SUNHI_NEURAL: 'ko-KR-SunHiNeural',
+  }
+
   useEffect(() => {
-    if (data) {
-      if (data.voiceType) setVoiceType(data.voiceType);
+  if (!data) return;
 
-      if (data.voiceSpeed != null){
-        const parsed = 
-            typeof data.voiceSpeed === 'number'
-            ?data.voiceSpeed
-            : Number(data.voiceSpeed);
-        if (!Number.isNaN(parsed)) setVoiceSpeed(parsed);
-      }
+  const uiVoice = SERVER_TO_UI_VOICE[data.voiceType] || 'ko-KR-SeoHyeonNeural';
+  setVoiceType(uiVoice);
 
-      if (data.bgm) setBgm(data.bgm);
+  if (data.voiceSpeed != null) {
+    const parsed = 
+      typeof data.voiceSpeed === 'number'
+      ? data.voiceSpeed
+      : Number(data.voiceSpeed);
+
+    if (!Number.isNaN(parsed)){
+      setVoiceSpeed(Math.min(2.0, Math.max(0.1, parsed)));
+    } else {
+      setVoiceSpeed(1.0);
+    }
+    } else {
+      setVoiceSpeed(1.0);
+    }
+
+    if (data.bgm) {
+      setBgm(data.bgm);
+    } else {
+      setBgm("CALM");
     }
   }, [data]);
 
   const mutation = useMutation({
-    mutationFn: updateTtsSetting,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ttsSetting'] });
-      navigation.goBack();
-    },
-    onError: (error) => {
-      console.log('TTS 설정 변경 실패:', error?.response?.data || error.message || error);
-    },
-  });
+  mutationFn: updateTtsSetting,
+
+  onSuccess: (resData) => {
+    queryClient.invalidateQueries({ queryKey: ['ttsSetting'] });
+    navigation.goBack();
+  },
+
+  onError: (error) => {
+    console.log('TTS 설정 변경 실패');
+  },
+});
 
   const handleSave = () => {
+    const safeSpeed = Math.round(Number(voiceSpeed) * 10) / 10;
+
+    const payload = {
+      voiceType,
+      voiceSpeed: safeSpeed,
+      bgm: "CALM",
+    }
+
     if (mutation.isPending) return;
 
-    mutation.mutate({
-      voiceType,
-      voiceSpeed,
-      bgm,
-    });
+    mutation.mutate(payload);
   };
 
   return (
@@ -97,7 +121,6 @@ export default function TtsSettingScreen({ navigation }) {
         <View style={{ height: GAP }} />
 
         <View style={styles.contentWrap}>
-          {/* 목소리 선택 */}
           <View style={[styles.section, styles.voiceSection]}>
             <Text style={styles.sectionTitle}>목소리 선택</Text>
 
@@ -132,26 +155,28 @@ export default function TtsSettingScreen({ navigation }) {
             <Text style={styles.sectionTitle}>읽어주는 속도</Text>
 
             <View style={styles.sliderRow}>
-              <Text style={styles.speedLabel}>0.2배속</Text>
+              <Text style={styles.speedLabel}>0.1배속</Text>
               <Text style={styles.currentSpeedText}>
                 {voiceSpeed.toFixed(1)}배속
               </Text>
-              <Text style={styles.speedLabel}>3.0배속</Text>
+              <Text style={styles.speedLabel}>2.0배속</Text>
             </View>
 
             <Slider
               style={styles.slider}
-              minimumValue={0.2}
-              maximumValue={3.0}
+              minimumValue={0.1}
+              maximumValue={2.0}
               step={0.1}
               value={Number(voiceSpeed)}
               onValueChange={(val) => {
-                if (typeof val === 'number' && !Number.isNaN(val)) setVoiceSpeed(val);
+                const fixed = Math.round(val * 10) / 10;
+                setVoiceSpeed(val);
               }}
+              tapToSeek
               minimumTrackTintColor={colors.primary}
               maximumTrackTintColor={colors.gray300}
               thumbTintColor={colors.primary}
-            />
+            />  
           </View>
         </View>
 
@@ -217,6 +242,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 10,
+    paddingBottom: 80,
   },
   section: {
     marginBottom: 32,
@@ -276,12 +302,15 @@ const styles = StyleSheet.create({
   },
   slider: {
     width: '100%',
-    height: 40,
+    height: 50,
   },
   saveBtnWrap: {
+    paddingTop: 8,
+    marginBottom: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 24,
-    marginBottom: 16,
+    backgroundColor: colors.white,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.gray200,
   },
 });
