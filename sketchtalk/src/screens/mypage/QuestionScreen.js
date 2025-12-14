@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ImageBackground, Dimensions, StyleSheet, View, Text, Pressable, StatusBar, Platform, FlatList } from 'react-native';
 import colors from '../../constants/colors';
 import Entypo from 'react-native-vector-icons/Entypo';
 import InputField from '../../components/inputfield';
 import ConfirmButton from '../../components/confirmbutton';
 import Popup from '../../components/popup';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { postInquiry } from '../../api/setting';
 
 const { width, height } = Dimensions.get('window');
@@ -91,7 +91,6 @@ export default function QuestionScreen({ navigation }) {
 
         return null;
     };
-
 
     return (
         <ImageBackground

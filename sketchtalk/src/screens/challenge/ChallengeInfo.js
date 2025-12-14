@@ -100,7 +100,7 @@ export default function ChallengeInfo({navigation, route}) {
 
         {isLoading && (
             <View>
-
+              
             </View>
         )}
 
@@ -115,7 +115,7 @@ export default function ChallengeInfo({navigation, route}) {
                 data={subCategories}
                 keyExtractor={(it) => String(it.subId)}
                 renderItem={renderItem}
-                contentContainerStyle={{paddingBottom : 24}}
+                contentContainerStyle={{paddingBottom : 24, paddingTop : 25}}
                 showsVerticalScrollIndicator = {false}
             />
         )}
@@ -124,11 +124,11 @@ export default function ChallengeInfo({navigation, route}) {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: width,
-    height: height,
-  },
+background: {
+  flex: 1,
+  width: width,
+  height: height,
+},
 header: {
     marginTop: TOP + 35,
     height: 44,

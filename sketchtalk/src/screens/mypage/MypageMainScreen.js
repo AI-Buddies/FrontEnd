@@ -29,7 +29,7 @@ export default function MypageMainScreen({navigation}) {
   if (isLoading) {
     return (
       <View>
-        <Text style={styles.infoText}>로딩 중...</Text>
+        <Text style={styles.infoText}>로딩 중</Text>
       </View>
     );
   }

@@ -147,7 +147,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 16,
     marginTop: 16,
-    // 카드 그림자
     shadowColor: colors.black,
     shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.12,

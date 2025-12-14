@@ -82,7 +82,7 @@ export default function ProfileEditScreen({ navigation }) {
             setConfirmOpen(true);
         },
         onError: (err) => {
-            console.log('🔴 회원정보 수정 실패 onError:', err?.response?.data || err.message || err);
+            console.log('회원정보 수정 실패 onError:', err?.response?.data || err.message || err);
             setErrorOpen(true);
         },
     });
@@ -113,7 +113,7 @@ export default function ProfileEditScreen({ navigation }) {
     if (isLoading) {
       return (
         <View>
-          <Text style={styles.infoText}>로딩 중...</Text>
+          <Text style={styles.infoText}>로딩 중</Text>
         </View>
       );
     }
