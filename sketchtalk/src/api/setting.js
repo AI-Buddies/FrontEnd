@@ -110,3 +110,14 @@ export async function updateTtsSetting(body) {
 
   return data;
 }
+
+export async function postInquiry({ title, content }) {
+  const res = await client.post('/setting/inquiry', { title, content });
+  const { data, isSuccess, message } = res.data;
+
+  if (!isSuccess) {
+    throw new Error(message || '문의 전송에 실패했습니다.');
+  }
+  
+  return data;
+}

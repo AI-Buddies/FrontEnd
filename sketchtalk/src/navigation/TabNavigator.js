@@ -75,7 +75,7 @@ const TabNavigator = () => (
       component={MypageStackNavigator}
       options={({route}) => {
         const rn = getFocusedRouteNameFromRoute(route) ?? 'MypageMainScreen';
-        const hideOn = ['FAQ', 'AppInfo', 'ProfileEdit', 'AlarmSetting', 'TtsSetting'];
+        const hideOn = ['FAQ', 'AppInfo', 'ProfileEdit', 'AlarmSetting', 'TtsSetting', 'Question'];
         const hide = hideOn.includes(rn);
         return {
           tabBarStyle: hide ? {display: 'none'} : {height: 69},
